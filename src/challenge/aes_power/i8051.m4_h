@@ -1,0 +1,74 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#ifndef __I8051_H
+#define __I8051_H
+
+#include <target/util.h>
+#include <target/conv.h>
+
+#include "i8051_alu.h"
+#include "i8051_bus.h"
+#include "i8051_mem.h"
+
+#define I8051_TRACE_SIZE_MIN ( 0       )
+#define I8051_TRACE_SIZE_INC ( 1 << 20 )
+
+typedef struct __i8051_t {
+  uint8_t  pram[ I8051_MEM_PRAM_SIZE ]; // PRAM memory
+  uint8_t  iram[ I8051_MEM_IRAM_SIZE ]; // IRAM memory
+  uint8_t  xram[ I8051_MEM_XRAM_SIZE ]; // XRAM memory
+
+  uint8_t  ir[ 3 ];                     // instruction register
+
+  uint16_t pc;                          // program    counter
+  uint32_t tsc;                         // time stamp counter
+
+  uint8_t  alu_x;                       // ALU bus  : 1-st operand
+  uint8_t  alu_y;                       // ALU bus  : 2-nd operand
+  uint8_t  alu_r_lo;                    // ALU bus  : result LSBs
+  uint8_t  alu_r_hi;                    // ALU bus  : result MSBs
+  uint8_t  alu_f_ov;                    // ALU flag : overflow
+  uint8_t  alu_f_ac;                    // ALU flag : auxiliary carry
+  uint8_t  alu_f_cy;                    // ALU flag :           carry
+
+  uint16_t mem_addr;                    // memory bus : address
+  uint8_t  mem_data;                    // memory bus : data 
+}
+i8051_t;
+
+extern int         hw( uint16_t x );
+extern int         hd( uint16_t x, 
+                       uint16_t y );
+
+extern uint8_t     lo( uint16_t x );
+extern uint8_t     hi( uint16_t x );
+
+extern uint16_t   cat( uint8_t  x, 
+                       uint8_t  y );
+extern uint16_t   ext( uint8_t  x );
+
+extern int      noise( int      x );
+
+extern i8051_t* i8051_core;
+
+extern int      i8051_trace_used;
+extern int      i8051_trace_size;
+
+extern int*     i8051_trace;
+
+extern void     i8051_init();
+extern void     i8051_fini();
+
+extern void     i8051_emit( int n, ... );
+
+extern void     i8051_rst();
+
+extern void     i8051_core_whole();
+extern bool     i8051_core_cycle();
+
+#endif

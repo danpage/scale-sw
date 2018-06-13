@@ -1,0 +1,263 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#include "i8051_mem.h"
+
+uint8_t I8051_IMAGE_IRAM_DATA[ I8051_MEM_IRAM_SIZE ] = { 
+  //         0x00  0x01  0x02  0x03  0x04  0x05  0x06  0x07
+  /* 0x00 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // R0   R1   R2   R3   R4   R5   R6   R7   -> register contexts
+  /* 0x08 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // R0   R1   R2   R3   R4   R5   R6   R7   -> register contexts
+  /* 0x10 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // R0   R1   R2   R3   R4   R5   R6   R7   -> register contexts
+  /* 0x18 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // R0   R1   R2   R3   R4   R5   R6   R7   -> register contexts
+  /* 0x20 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... -> bit-addressable IRAM
+  /* 0x28 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x30 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... -> general-purpose IRAM
+  /* 0x38 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x40 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x48 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x50 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x58 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x60 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x68 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x70 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0x78 /* 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 0080 */ 0xFF, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // P0   SP   DPL  DPH  .... .... .... PCON -> SFRs
+  /* 0088 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // TCON TMOD TL0  TL1  TH0  TH1  .... .... |
+  /* 0090 */ 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // P1   .... .... .... .... .... .... .... |
+  /* 0098 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // SCON SBUF .... .... .... .... .... .... |
+  /* 00A0 */ 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // P2   .... .... .... .... .... .... .... |
+  /* 00A8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // IE   .... .... .... .... .... .... .... |
+  /* 00B0 */ 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // P3   .... .... .... .... .... .... .... |
+  /* 00B8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // IP   .... .... .... .... .... .... .... |
+  /* 00C0 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 00C8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 00D0 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // PSW  .... .... .... .... .... .... .... |
+  /* 00D8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 00E0 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // ACC  .... .... .... .... .... .... .... |
+  /* 00E8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // .... .... .... .... .... .... .... .... |
+  /* 00F0 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // B    .... .... .... .... .... .... .... |
+  /* 00F8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  // .... .... .... .... .... .... .... .... |
+};  
+
+uint8_t I8051_IMAGE_PRAM_DATA[ I8051_MEM_PRAM_SIZE ] = { 
+  #include "aes.bin"
+};
+
+void i8051_mem_emit( int op ) {
+  switch( op ) {
+    case I8051_MEM_PRAM : i8051_emit( 1, prng() %  64 ); break;
+    case I8051_MEM_IRAM : i8051_emit( 1, prng() %  64 ); break;
+    case I8051_MEM_XRAM : i8051_emit( 1, prng() % 128 ); break;
+  }
+}
+
+void i8051_mem_iram_ld_bit() {
+  uint8_t t0;
+
+  if( i8051_core->mem_addr & 0x80 ) { // bit is in SFR  region
+    t0 = I8051_MEM_IRAM_SFR_LO + ( ( i8051_core->mem_addr & 0x7F ) >> 0 );
+  }
+  else {                              // bit is in IRAM region
+    t0 = I8051_MEM_IRAM_BIT_LO + ( ( i8051_core->mem_addr & 0x7F ) >> 3 );
+  }
+
+  i8051_core->mem_data = ( i8051_core->iram[ t0 ] >> ( i8051_core->mem_addr & 0x07 ) ) & 1;
+
+  i8051_bus_emit( I8051_BUS_IRAM, 1, t0                           );
+  i8051_mem_emit( I8051_MEM_IRAM                                  );
+  i8051_bus_emit( I8051_BUS_IRAM, 1,     i8051_core->mem_data & 1 );
+}
+
+void i8051_mem_iram_st_bit() {
+  uint8_t t0;
+
+  if( i8051_core->mem_addr & 0x80 ) { // bit is in SFR  region
+    t0 = I8051_MEM_IRAM_SFR_LO + ( ( i8051_core->mem_addr & 0x7F ) >> 0 );
+  }
+  else {                              // bit is in IRAM region
+    t0 = I8051_MEM_IRAM_BIT_LO + ( ( i8051_core->mem_addr & 0x7F ) >> 3 );
+  }
+
+  if( i8051_core->mem_data & 1 ) {
+    i8051_core->iram[ t0 ] |=  ( ( uint8_t )( 1 ) << ( i8051_core->mem_addr & 0x07 ) );
+  }
+  else {
+    i8051_core->iram[ t0 ] &= ~( ( uint8_t )( 1 ) << ( i8051_core->mem_addr & 0x07 ) );
+  }
+
+  i8051_bus_emit( I8051_BUS_IRAM, 2, t0, i8051_core->mem_data & 1 );
+  i8051_mem_emit( I8051_MEM_IRAM                                  );
+}
+
+void i8051_mem_iram_ld_sfr() {
+  uint8_t t0 = I8051_MEM_IRAM_SFR_LO + i8051_core->mem_addr;
+
+  i8051_core->mem_data = i8051_core->iram[ t0 ];
+
+  i8051_bus_emit( I8051_BUS_IRAM, 1, t0                           );
+  i8051_mem_emit( I8051_MEM_IRAM                                  );
+  i8051_bus_emit( I8051_BUS_IRAM, 1,     i8051_core->mem_data     );
+}
+
+void i8051_mem_iram_st_sfr() {
+  uint8_t t0 = I8051_MEM_IRAM_SFR_LO + i8051_core->mem_addr;
+
+  i8051_core->iram[ t0 ] = i8051_core->mem_data;
+
+  i8051_bus_emit( I8051_BUS_IRAM, 2, t0, i8051_core->mem_data     );
+  i8051_mem_emit( I8051_MEM_IRAM                                  );
+}
+
+void i8051_mem_iram_ld_ctx() {
+  uint8_t  t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+  uint8_t  t2 = LD( iram, sfr, I8051_MEM_SFR_PSW );
+  uint8_t  t3 = I8051_MEM_IRAM_CTX_LO + ( t0 | ( t2 & 0x18 ) );
+
+  i8051_core->mem_data = i8051_core->iram[ t3 ];
+
+  i8051_bus_emit( I8051_BUS_IRAM, 1, t3                           );
+  i8051_mem_emit( I8051_MEM_IRAM                                  );
+  i8051_bus_emit( I8051_BUS_IRAM, 1,     i8051_core->mem_data     );
+}
+
+void i8051_mem_iram_st_ctx() {
+  uint8_t  t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+  uint8_t  t2 = LD( iram, sfr, I8051_MEM_SFR_PSW );
+  uint8_t  t3 = I8051_MEM_IRAM_CTX_LO + ( t0 | ( t2 & 0x18 ) );
+
+  i8051_core->iram[ t3 ] = t1;
+
+  i8051_bus_emit( I8051_BUS_IRAM, 2, t3, t1 );
+  i8051_mem_emit( I8051_MEM_IRAM            );
+}
+
+void i8051_mem_pram_ld_ind() {
+  uint16_t t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+           t0 = LD( iram, ctx, t0 );
+
+  i8051_core->mem_data = i8051_core->pram[ t0 ];
+
+  i8051_bus_emit( I8051_BUS_PRAM, 1, t0                           );
+  i8051_mem_emit( I8051_MEM_PRAM                                  );
+  i8051_bus_emit( I8051_BUS_PRAM, 1,     i8051_core->mem_data     );
+}
+
+void i8051_mem_iram_ld_ind() {
+  uint16_t t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+           t0 = LD( iram, ctx, t0 );
+
+  i8051_core->mem_data = i8051_core->iram[ t0 ];
+
+  i8051_bus_emit( I8051_BUS_IRAM, 1, t0                           );
+  i8051_mem_emit( I8051_MEM_IRAM                                  );
+  i8051_bus_emit( I8051_BUS_IRAM, 1,     i8051_core->mem_data     );
+}
+
+void i8051_mem_xram_ld_ind() {
+  uint16_t t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+           t0 = LD( iram, ctx, t0 );
+
+  i8051_core->mem_data = i8051_core->pram[ t0 ];
+
+  i8051_bus_emit( I8051_BUS_XRAM, 1, t0                           );
+  i8051_mem_emit( I8051_MEM_XRAM                                  );
+  i8051_bus_emit( I8051_BUS_XRAM, 1,     i8051_core->mem_data     );
+}
+
+void i8051_mem_pram_st_ind() {
+  uint16_t t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+           t0 = LD( iram, ctx, t0 );
+
+  i8051_core->pram[ t0 ] = t1;  
+
+  i8051_bus_emit( I8051_BUS_PRAM, 2, t0, t1 );
+  i8051_mem_emit( I8051_MEM_PRAM            );
+}
+
+void i8051_mem_iram_st_ind() {
+  uint16_t t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+           t0 = LD( iram, ctx, t0 );
+
+  i8051_core->iram[ t0 ] = t1;  
+
+  i8051_bus_emit( I8051_BUS_IRAM, 2, t0, t1 );
+  i8051_mem_emit( I8051_MEM_IRAM            );
+}
+
+void i8051_mem_xram_st_ind() {
+  uint16_t t0 = i8051_core->mem_addr;
+  uint8_t  t1 = i8051_core->mem_data;
+
+           t0 = LD( iram, ctx, t0 );
+
+  i8051_core->xram[ t0 ] = t1;  
+
+  i8051_bus_emit( I8051_BUS_XRAM, 2, t0, t1 );
+  i8051_mem_emit( I8051_MEM_XRAM            );
+}
+
+void i8051_mem_pram_ld_dir() {
+  i8051_core->mem_data = i8051_core->pram[ i8051_core->mem_addr ];
+
+  i8051_bus_emit( I8051_BUS_PRAM, 1, i8051_core->mem_addr );
+  i8051_mem_emit( I8051_MEM_PRAM                          );
+  i8051_bus_emit( I8051_BUS_PRAM, 1, i8051_core->mem_data );
+}
+
+void i8051_mem_iram_ld_dir() {
+  i8051_core->mem_data = i8051_core->iram[ i8051_core->mem_addr ];
+
+  i8051_bus_emit( I8051_BUS_IRAM, 1, i8051_core->mem_addr );
+  i8051_mem_emit( I8051_MEM_IRAM                          );
+  i8051_bus_emit( I8051_BUS_IRAM, 1, i8051_core->mem_data );
+}
+
+void i8051_mem_xram_ld_dir() {
+  i8051_core->mem_data = i8051_core->xram[ i8051_core->mem_addr ];
+
+  i8051_bus_emit( I8051_BUS_XRAM, 1, i8051_core->mem_addr );
+  i8051_mem_emit( I8051_MEM_XRAM                          );
+  i8051_bus_emit( I8051_BUS_XRAM, 1, i8051_core->mem_data );
+}
+
+void i8051_mem_pram_st_dir() {
+  i8051_core->pram[ i8051_core->mem_addr ] = i8051_core->mem_data;
+
+  i8051_bus_emit( I8051_BUS_PRAM, 2, i8051_core->mem_addr,
+                                     i8051_core->mem_data );
+  i8051_mem_emit( I8051_MEM_PRAM                          );
+}
+
+void i8051_mem_iram_st_dir() {
+  i8051_core->iram[ i8051_core->mem_addr ] = i8051_core->mem_data;
+
+  i8051_bus_emit( I8051_BUS_IRAM, 2, i8051_core->mem_addr,
+                                     i8051_core->mem_data );
+  i8051_mem_emit( I8051_MEM_IRAM                          );
+}
+
+void i8051_mem_xram_st_dir() {
+  i8051_core->xram[ i8051_core->mem_addr ] = i8051_core->mem_data;
+
+  i8051_bus_emit( I8051_BUS_XRAM, 2, i8051_core->mem_addr,
+                                     i8051_core->mem_data );
+  i8051_mem_emit( I8051_MEM_XRAM                          );
+}

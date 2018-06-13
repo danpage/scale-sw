@@ -1,0 +1,36 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! In common with other micro-architectural side-channel attacks, one
+    ! perspective might be that the processor vendor is to blame; another
+    ! is that whoever wrote the DES implementation is to blame.  What is 
+    ! your opinion, and why?
+2.r ! The cache geometry has significant influence on attacks like this; 
+    ! an important example is the size of cache lines.  Imagine that the
+    ! attack target is upgraded, and the new L1 cache has lines that can
+    ! hold twice as much data.  What impact would such a change have on
+    ! this attack?
+
+% -----------------------------------------------------------------------------
+
+3.o ! Numerous factors might produce noise within measurements of execution
+    ! time: based on the given attack target and context, outline at least
+    ! two examples.
+4.o ! Imagine you are asked to give some advice to a group designing a new
+    ! block cipher.  Ignoring the implementation per se, what features of
+    ! the *design* might help prevent cache-based attacks?
+5.o ! One countermeasure against (some) cache-based attacks is to avoid 
+    ! storing S-boxes as look-up tables in memory.  Focusing on AES as 
+    ! an example, explain two approaches (each at a high-level only) which 
+    ! could be used to realise such a countermeasure.
+6.o ! One countermeasure against (some) cache-based attacks is to turn off 
+    ! the cache.  Focusing on DES as an example, estimate the impact this 
+    ! countermeasure would have on performance (carefully explaining your 
+    ! reasoning).
+
+% -----------------------------------------------------------------------------

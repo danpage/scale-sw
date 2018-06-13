@@ -1,0 +1,41 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! The vendor of the attack target is concerned that news of this attack 
+    ! could scare off potential customers; they will make any alteration 
+    ! necessary (in software or hardware) to prevent the attack.  Explain 
+    ! the options they have, and which one you would recommend.
+2.r ! The vendor of the attack target is concerned that a similar attack may
+    ! also apply to their implementation of ElGamal encryption.  Explain the 
+    ! potential for such an attack, and how it differs wrt. the case of RSA.
+
+% -----------------------------------------------------------------------------
+
+3.o ! Your implementation of this attack will use some form of statistical 
+    ! test.  Explain what test you have used, how it works, and also how it 
+    ! compares with at least one alternative.
+4.o ! Numerous factors might produce noise within measurements of execution
+    ! time: based on the given attack target and context, outline at least
+    ! two examples.
+5.o ! The level of noise, n, within measurements of execution time will 
+    ! influence the number of measurements, m, required for a successful
+    ! attack.  Explain what the relationship between n and m is (i.e.,
+    ! how you expect m to grow as n grows).
+6.o ! Let n denote the number of simulated clock cycles required to execute
+    ! a Montgomery multiplication on the attack target.  Estimate the value 
+    ! of n (as accurately as you can) and explain how you did so.
+7.o ! Imagine the attack target vendor asks you to update the implementation
+    ! of binary exponentiation with a windowed alternative.  Which algorithm
+    ! would you recommend they use?  Discuss the advantages/disadvantages of
+    ! your choice in terms of latency, memory footprint, and (side-channel)
+    ! security.
+8.o ! Imagine you read a research paper that suggests a larger key (e.g., 
+    ! 2048-bit rather than 1024-bit) could help to prevent this attack.  
+    ! Explain whether and why you think this is right (or wrong).
+
+% -----------------------------------------------------------------------------

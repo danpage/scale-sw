@@ -1,0 +1,32 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! The attack target in this stage is described as being faulty, i.e.,
+    ! a bug means specific results are computed incorrectly.  Using a set
+    ! of real-world examples if possible, produce a short list of reasons
+    ! such bugs might occur in practice.
+2.r ! Carefully explain when and why a naive attack strategy could fail, 
+    ! and what you did (or would do) in your implementation to avoid this 
+    ! (e.g., to make it more robust).
+
+% -----------------------------------------------------------------------------
+
+3.o ! Imagine a research paper suggests that use of m-ary exponentiation,
+    ! for m = 2^4 = 16, can help prevent this attack.  Explain whether and
+    ! why you think this is right (or wrong).
+4.o ! Explain (at least) one countermeasure that the attack target could
+    ! employ in order to prevent this attack: detail the steps required,
+    ! *and* any overheads (or trade-offs) implied.
+5.o ! Here you attacked 1 target; imagine it took t time units to do so.
+    ! Now imagine that n such targets are manufactured, and, to save time 
+    ! during the "personalisation" process, N is kept the same across all
+    ! of them: only d and the associated e differ per target.  Explain in
+    ! detail how an attack on all n targets could take less than t * n 
+    ! time units.
+
+% -----------------------------------------------------------------------------

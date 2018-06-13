@@ -1,0 +1,34 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#ifndef __I8051_ALU_H
+#define __I8051_ALU_H
+
+#define I8051_ALU_ADD  ( 0x00 )
+#define I8051_ALU_ADDC ( 0x01 )
+#define I8051_ALU_SUBB ( 0x02 )
+#define I8051_ALU_MUL  ( 0x03 )
+#define I8051_ALU_DIV  ( 0x04 )
+#define I8051_ALU_CPL  ( 0x05 )
+#define I8051_ALU_ANL  ( 0x06 )
+#define I8051_ALU_ORL  ( 0x07 )
+#define I8051_ALU_XRL  ( 0x08 )
+#define I8051_ALU_RL   ( 0x09 )
+#define I8051_ALU_RLC  ( 0x0A )
+#define I8051_ALU_RR   ( 0x0B )
+#define I8051_ALU_RRC  ( 0x0C )
+#define I8051_ALU_EQU  ( 0x0D )
+#define I8051_ALU_NEQ  ( 0x0E )
+#define I8051_ALU_LTH  ( 0x0F )
+
+#include "i8051.h"
+
+extern void i8051_alu_emit( int op, int l, ... );
+
+extern void i8051_alu( int op );
+
+#endif

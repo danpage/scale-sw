@@ -1,0 +1,183 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Background}
+
+Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
+which houses a ``cloned'' $64$-bit MIPS64 processor: the low cost (versus a 
+legitimate alternative) made it an attractive option for the owner, who was
+forced to economise when upgrading an old data center.
+$\PARTY{D}$ is used by several front-line e-commerce servers, which offload
+computation relating to the TLS handshake.  More specifically, $\PARTY{D}$ 
+is used to compute an RSA decryption (in software, of the pre-master secret)
+whenever RSA-based key exchange is required.
+By leveraging access to the network, 
+an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen RSA ciphertext
+to $\PARTY{D}$; the device will
+decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
+and produce 
+the corresponding  plaintext.
+Unfortunately, however, the processor used by $\PARTY{D}$ has an important
+defect: the $( 64 \times 64 )$-bit integer multiplier implementation has a
+(deterministic) bug, meaning the output is incorrect for specific inputs.
+
+\subsection{Materials}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\PUB{c}$,
+      an RSA ciphertext
+      (represented as a  hexadecimal integer string)
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\PUB{m}$,
+      an RSA plaintext
+      (represented as a  hexadecimal integer string)
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item $\PARTY{D}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
+      representation of multi-precision integers throughout.  Put another 
+      way, since $w = 64$, it selects $b = 2^{w} = 2^{64}$.
+\item Rather than a CRT-based approach, $\PARTY{D}$ uses a left-to-right 
+      binary exponentiation~\cite[Section 2.1]{SCALE:Gordon:85} algorithm
+      to compute 
+      $
+      \PUB{m} = \PUB{c}^{\PRI{\CHAL{d}}} \pmod{\PUB{\CHAL{N}}} .
+      $
+      Montgomery multiplication~\cite{SCALE:Montgomery:85} is harnessed to
+      improve efficiency; following notation in~\cite{SCALE:KocAcaKal:96}, 
+      a CIOS-based~\cite[Section 5]{SCALE:KocAcaKal:96} approach is used
+      to integrate\footnote{%
+      \ALG{MonPro}~\cite[Section 2]{SCALE:KocAcaKal:96} perhaps offers a 
+      more direct way to explain this: steps $1$ and $2$ are the integer 
+      multiplication and Montgomery reduction written both separately and 
+      abstractly, whereas $\PARTY{D}$ realises them concretely using the 
+      integrated CIOS algorithm.
+      } an integer multiplication with a subsequent Montgomery reduction.
+\item Following the notation in~\cite{SCALE:Gordon:85}, $\PRI{\CHAL{d}}$
+      is assumed to have $l+1$ bits st. $\PRI{\CHAL{d}_l} = 1$.  However, 
+      it has been (artificially) selected st. 
+      $
+      0 \leq \PRI{\CHAL{d}} < 2^{CONF(LOG_D_MAX,CID)}
+      $
+      to limit the mount of time an attack requires: you should not rely 
+      on this fact, implying your attack should succeed for {\em any}
+      $\PRI{\CHAL{d}}$ given enough time.
+\item Consider the base-$2^{CONF(POISONED_N,CID)}$ expansion of an integer 
+      $t$, i.e.,
+      \[
+      t = \RADIX{\LIST{ t_0, t_1, \ldots, t_{n-1} }}{2^{CONF(POISONED_N,CID)}} .
+      \]
+      We say that $t$ is $\gamma$-poisoned iff. there exists an $i$ st.
+      $0 \leq i < n$ and $t_i = \gamma$, i.e., at least one of the limbs 
+      is equal to $\gamma$.  Recall that the integer multiplier used by
+      $\PARTY{D}$ is defective: for
+      \[
+      \begin{array}{lcl}
+      \alpha &=& \RADIX{CONF(POISONED_X,CID)}{CONF(POISONED_N,CID)} \\
+      \beta  &=& \RADIX{CONF(POISONED_Y,CID)}{CONF(POISONED_N,CID)} \\
+      \end{array}
+      \]
+      it will incorrectly compute the product $x \cdot y$ iff. $x$ is 
+      $\alpha$-poisoned and $y$ is $\beta$-poisoned.
+\end{itemize}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+
+This file represents a set of attack parameters, with everything (e.g.,
+all public values) $\PARTY{E}$ has access to by default.  It contains 
+
+\begin{itemize}
+\item $\PUB{\CHAL{N}}$,
+      an RSA modulus
+      (represented as a  hexadecimal integer string),      
+      and
+\item $\PUB{\CHAL{e}}$,
+      an RSA public exponent
+      (represented as a  hexadecimal integer string)
+      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi(\CHAL{N})}}$
+\end{itemize}
+
+\noindent
+with one field per-line.
+More specifically, this represents the RSA public key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
+$
+associated with the unknown RSA private key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }
+$
+embedded in $\PARTY{D}$.
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{d}}$.  
+      When executed using a command of the form
+
+      \begin{lstlisting}[language={bash},gobble={6}]
+      bash$ ./attack ${USER}.D ${USER}.conf
+      \end{lstlisting}
+
+      \noindent
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with attack target.
+\item Answer the exam-style questions in  
+      \lstinline[language={bash}]|${ARCHIVE}/${USER}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\printbibliography
+\fi
+
+\end{document}

@@ -1,0 +1,233 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#include "i8051_alu.h"
+
+void i8051_alu_emit( int op, int n, ... ) {
+  va_list args; va_start( args, n );
+
+  switch( op ) {
+    case I8051_ALU_ADD  : i8051_emit( 1,  8 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_ADDC : i8051_emit( 1,  8 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_SUBB : i8051_emit( 1,  8 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_MUL  : i8051_emit( 1, 16 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_DIV  : i8051_emit( 1, 16 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_CPL  : i8051_emit( 1,  4 * ( hd( ~va_arg( args, int ),        va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_ANL  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )   &     va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_ORL  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )   |     va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_XRL  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )   ^     va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_RL   : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )                             ) ) ); break;
+    case I8051_ALU_RR   : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )                             ) ) ); break;
+    case I8051_ALU_RLC  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_RRC  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int ) ) + hw( va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_EQU  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )   ^     va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_NEQ  : i8051_emit( 1,  4 * ( hw(  va_arg( args, int )   ^     va_arg( args, int ) ) ) ); break;
+    case I8051_ALU_LTH  : i8051_emit( 1,  8 * ( hw(  va_arg( args, int )   ^     va_arg( args, int ) ) ) ); break;
+}
+
+  va_end( args );
+}
+
+void i8051_alu( int op ) {
+  switch( op ) {
+    case I8051_ALU_ADD  : {
+      uint16_t t = ( uint16_t )( i8051_core->alu_x    ) + 
+                   ( uint16_t )( i8051_core->alu_y    ) ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_ADD,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_core->alu_r_lo =  lo( t );
+
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+    case I8051_ALU_ADDC : {
+      uint16_t t = ( uint16_t )( i8051_core->alu_x    ) + 
+                   ( uint16_t )( i8051_core->alu_y    ) +
+                   ( uint16_t )( i8051_core->alu_f_cy ) ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  3, i8051_core->alu_x,
+                                         i8051_core->alu_y,
+                                         i8051_core->alu_f_cy );
+      i8051_alu_emit( I8051_ALU_ADDC, 3, i8051_core->alu_x,
+                                         i8051_core->alu_y,
+                                         i8051_core->alu_f_cy );
+      i8051_core->alu_r_lo =  lo( t );
+      i8051_core->alu_f_cy =  hi( t ) & 1;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_r_lo,
+                                         i8051_core->alu_f_cy );
+      break;
+    }
+    case I8051_ALU_SUBB : {
+      uint16_t t = ( uint16_t )( i8051_core->alu_x    ) - 
+                   ( uint16_t )( i8051_core->alu_y    ) -
+                   ( uint16_t )( i8051_core->alu_f_cy ) ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  3, i8051_core->alu_x,
+                                         i8051_core->alu_y,
+                                         i8051_core->alu_f_cy );
+      i8051_alu_emit( I8051_ALU_SUBB, 3, i8051_core->alu_x,
+                                         i8051_core->alu_y,
+                                         i8051_core->alu_f_cy );
+      i8051_core->alu_r_lo =  lo( t );
+      i8051_core->alu_f_cy =  hi( t ) & 1;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_r_lo,
+                                         i8051_core->alu_f_cy );
+      break;
+    }
+    case I8051_ALU_MUL  : {
+      uint16_t t = ( uint16_t )( i8051_core->alu_x  ) * 
+                   ( uint16_t )( i8051_core->alu_y  ) ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_MUL,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_core->alu_r_lo =  lo( t );
+      i8051_core->alu_r_hi =  hi( t );
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_r_lo,
+                                         i8051_core->alu_r_hi );
+      break;
+    }
+    case I8051_ALU_DIV  : {
+      i8051_core->alu_r_lo  =  i8051_core->alu_x / i8051_core->alu_y;
+      i8051_core->alu_r_hi  =  i8051_core->alu_x % i8051_core->alu_y;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_DIV,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_r_lo,
+                                         i8051_core->alu_r_hi );
+      break;
+    }
+
+    case I8051_ALU_CPL  : {
+      i8051_core->alu_r_lo = ~i8051_core->alu_x ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_x    );
+      i8051_alu_emit( I8051_ALU_CPL,  1, i8051_core->alu_x    );
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+    case I8051_ALU_ANL  : {
+      i8051_core->alu_r_lo =  i8051_core->alu_x & i8051_core->alu_y ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_ANL,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+    case I8051_ALU_ORL  : {
+      i8051_core->alu_r_lo =  i8051_core->alu_x | i8051_core->alu_y ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_ORL,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+    case I8051_ALU_XRL  : {
+      i8051_core->alu_r_lo =  i8051_core->alu_x ^ i8051_core->alu_y ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_XRL,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+
+    case I8051_ALU_RL   : {
+      i8051_core->alu_r_lo = ( i8051_core->alu_x    << (                     1 ) )     |
+                             ( i8051_core->alu_x    >> ( BITSOF( uint8_t ) - 1 ) )     ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_x    );
+      i8051_alu_emit( I8051_ALU_RL,   1, i8051_core->alu_x    );
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+    case I8051_ALU_RR   : {
+      i8051_core->alu_r_lo = ( i8051_core->alu_x    >> (                     1 ) )     |
+                             ( i8051_core->alu_x    << ( BITSOF( uint8_t ) - 1 ) )     ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_x    );
+      i8051_alu_emit( I8051_ALU_RL,   1, i8051_core->alu_x    );
+      i8051_bus_emit( I8051_BUS_ALU,  1, i8051_core->alu_r_lo );
+
+      break;
+    }
+    case I8051_ALU_RLC  : {
+      i8051_core->alu_r_lo = ( i8051_core->alu_x    << (                     1 ) )     |
+                             ( i8051_core->alu_f_cy >> (                     0 ) )     ;
+      i8051_core->alu_f_cy = ( i8051_core->alu_x    >> ( BITSOF( uint8_t ) - 1 ) ) & 1 ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_f_cy );
+      i8051_alu_emit( I8051_ALU_RLC,  2, i8051_core->alu_x,
+                                         i8051_core->alu_f_cy );
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_r_lo,
+                                         i8051_core->alu_f_cy );
+      break;
+    }
+    case I8051_ALU_RRC  : {
+      i8051_core->alu_r_lo = ( i8051_core->alu_x    >> (                     1 ) )     |
+                             ( i8051_core->alu_f_cy << ( BITSOF( uint8_t ) - 1 ) )     ;
+      i8051_core->alu_f_cy = ( i8051_core->alu_x    >> (                     0 ) ) & 1 ;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_f_cy );
+      i8051_alu_emit( I8051_ALU_RLC,  2, i8051_core->alu_x,
+                                         i8051_core->alu_f_cy );
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_r_lo,
+                                         i8051_core->alu_f_cy );
+      break;
+    }
+
+    case I8051_ALU_EQU  : {
+      i8051_core->alu_r_lo =  i8051_core->alu_x == i8051_core->alu_y;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_EQU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      break;
+    }
+    case I8051_ALU_NEQ  : {
+      i8051_core->alu_r_lo =  i8051_core->alu_x != i8051_core->alu_y;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_NEQ,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      break;
+    }
+    case I8051_ALU_LTH  : {
+      i8051_core->alu_r_lo =  i8051_core->alu_x <  i8051_core->alu_y;
+
+      i8051_bus_emit( I8051_BUS_ALU,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      i8051_alu_emit( I8051_ALU_LTH,  2, i8051_core->alu_x,
+                                         i8051_core->alu_y    );
+      break;
+    }
+  }
+}

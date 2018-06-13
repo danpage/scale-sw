@@ -1,0 +1,245 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Background}
+
+As part of a penetration testing team, imagine you are asked to assess a 
+specific e-commerce server, denoted $\PARTY{D}$, which houses a $64$-bit
+Intel Core2 processor.  
+In reality, the server is a HSM-like device representing the back-office 
+infrastructure that supports various secure web-sites: the server offers
+secure key generation and storage, plus off-load for some cryptographic 
+operations.  In particular, it is able to compute RSAES-OAEP decryptions, 
+as standardised by PKCS\#1 v2.1~\cite{SCALE:RFC:3447}, by using an 
+embedded RSA private key.
+By leveraging access to the network, 
+an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen RSAES-OAEP label and ciphertext
+to $\PARTY{D}$; the device will
+decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
+and produce 
+a result code based on validity of the underlying  plaintext.
+Note that the associated  plaintext is {\em not} produced explicitly as
+output.
+
+RSAES-OAEP decryption makes use of Optimal Asymmetric Encryption Padding 
+(OAEP)~\cite{SCALE:BelRog:94}, per~\cite[Section 7.1]{SCALE:RFC:3447}.  
+Crucially, the decryption process can encounter various error conditions:
+
+\begin{description}
+\item[Error \NUM{1}:]
+     A decryption error occurs in Step $3.g$ of \ALG{RSAES-OAEP-Decrypt} 
+     if the octet string passed to the decoding phase
+     does {\em not} have a most-significant $\RADIX{00}{16}$ octet.
+     Put another way, the error occurs because 
+     the output produced by RSA decryption is too large to fit into one 
+     fewer octets than the modulus.
+
+\item[Error \NUM{2}:]
+     A decryption error occurs in Step $3.g$ of \ALG{RSAES-OAEP-Decrypt} 
+     if the octet string passed into the decoding phase 
+     does {\em not} a) produce a hashed label that matches, or b) use a
+     $\RADIX{01}{16}$ octet between any padding and the message.
+     Put another way, the error occurs because 
+     the plaintext validity checking mechanism fails.
+\end{description}
+
+\noindent
+A footnote~\cite[Section 7.1.2]{SCALE:RFC:3447} explains why all errors, 
+these two in particular, should be indistinguishable from each other (that
+is, a given application should not reveal {\em which} error occurred, only 
+that {\em some} error occurred).  The implementation used by $\PARTY{D}$ 
+does {\em not} adhere to this advice, meaning the error is exposed via 
+the result code produced.
+
+\subsection{Materials}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\PUB{l}$,
+      an RSAES-OAEP label
+      (represented as an               octet string, which may be empty: a blank line represents a $0$-octet string),
+      and
+\item $\PUB{c}$,
+      an RSAES-OAEP ciphertext
+      (represented as an               octet string)
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\LEAK$,
+      a  result code
+      (represented as a      decimal integer string)
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+The result code should be interpreted as follows:
+
+\begin{itemize}
+\item If the decryption was a success                   
+      then the result code is $0$.
+\item If error \NUM{1} occurred during decryption 
+      then the result code is $1$.
+\item If error \NUM{2} occurred during decryption 
+      then the result code is $2$.
+\item If there was some other internal error (e.g., due to malformed input)
+      then the result code {\em attempts} to tell you why: 
+
+      \begin{itemize}
+      \item If the result code is $3$ then \ALG{RSAEP}              
+            failed because the operand was out of range 
+            (section $5.1.1$, step $1$, page $11$), 
+            i.e., the  plaintext is not between $0$ and $\PUB{\CHAL{N}}-1$.
+      \item If the result code is $4$ then \ALG{RSADP}              
+            failed because the operand was out of range 
+            (section $5.1.2$, step $1$, page $11$), 
+            i.e., the ciphertext is not between $0$ and $\PUB{\CHAL{N}}-1$.
+      \item If the result code is $5$ then \ALG{RSAES-OAEP-Encrypt} 
+            failed because a length check failed        
+            (section $7.1.1$, step $1.b$, page $18$), 
+            i.e., the message is too long.
+      \item If the result code is $6$ then \ALG{RSAES-OAEP-Decrypt} 
+            failed because a length check failed        
+            (section $7.1.2$, step $1.b$, page $20$), 
+            i.e., the ciphertext does not match the length of $\PUB{\CHAL{N}}$.
+      \item If the result code is $7$ then \ALG{RSAES-OAEP-Decrypt} 
+            failed because a length check failed        
+            (section $7.1.2$, step $1.c$, page $20$), 
+            i.e., the ciphertext does not match the length of the hash function output.
+      \end{itemize}
+
+      \noindent
+      Any other result code (of $8$ upward) implies an abnormal error whose
+      cause cannot be directly associated with any of the above.
+\end{itemize}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+
+This file represents a set of attack parameters, with everything (e.g.,
+all public values) $\PARTY{E}$ has access to by default.  It contains 
+
+\begin{itemize}
+\item $\PUB{\CHAL{N}}$,     
+      an RSA        modulus
+      (represented as a  hexadecimal integer string),      
+\item $\PUB{\CHAL{e}}$,
+      an RSA        public exponent,
+      (represented as a  hexadecimal integer string)
+      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
+\item $\PUB{\CHAL{l}}$,
+      an RSAES-OAEP label
+      (represented as an               octet string, which may be empty, i.e., a blank link meaning a $0$-octet string),
+      and
+\item $\PUB{\CHAL{c}}$,
+      an RSAES-OAEP ciphertext 
+      (represented as an               octet string)
+      corresponding to an encryption of some unknown plaintext 
+      $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{l}}$)
+\end{itemize}
+
+\noindent
+with one field per-line.
+More specifically, this represents the RSA public key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
+$
+associated with the unknown RSA private key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
+$
+embedded in $\PARTY{D}$, 
+plus a ciphertext $\PUB{\CHAL{c}}$ whose decryption, i.e., the recovery 
+of $\PRI{\CHAL{m}}$, is the task at hand.  You can assume the RSAES-OAEP 
+encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
+\ALG{MGF1} mask generation function with 
+\IfStrEqCase{CONF(HASH,CID)}{%
+  {0}  {SHA-1 }% SHA-1
+  {1}{SHA-256 }% SHA-256
+  {2}{SHA-384 }% SHA-384
+  {3}{SHA-512 }% SHA-512
+} as the underlying hash function.
+\IfStrEqCase{CONF(CHALLENGE,CID)}{%
+  {0}{Additionally, 
+      $\PRI{\CHAL{m}}$ will 
+      include the SHA-1 hash          of \lstinline[language={bash}]{$\{USER\}}
+      as the least-significant octets: 
+      this allows candidate decryptions to be checked for validity.
+  }%
+  {1}{Additionally, 
+      $\PRI{\CHAL{m}}$ will 
+      include an ASCII representation of \lstinline[language={bash}]{$\{USER\}} 
+      as the least-significant octets: 
+      this allows candidate decryptions to be checked for validity.
+  }%
+  {2}{Additionally, 
+      $\PRI{\CHAL{m}}$ will have been
+      be generated entirely at random:
+      this means checking validity of candidate decryptions is more 
+      difficult than it would be otherwise.
+  }%
+}%
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{m}}$.  
+      When executed using a command of the form
+
+      \begin{lstlisting}[language={bash},gobble={6}]
+      bash$ ./attack ${USER}.D ${USER}.conf
+      \end{lstlisting}
+
+      \noindent
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with attack target.
+\item Answer the exam-style questions in 
+      \lstinline[language={bash}]|${ARCHIVE}/${USER}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\printbibliography
+\fi
+
+\end{document}

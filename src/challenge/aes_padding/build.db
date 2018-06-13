@@ -1,0 +1,34 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! In the scenario presented, the attack target leaks information via
+    ! poor control over the error messages produced.  Imagine that it is
+    ! upgraded so a single type of error is produced: either there is an
+    ! error, or no error.  Explain whether or not, and how, you think 
+    ! the attack might still be viable.
+2.r ! The attack target uses a padding scheme whereby n+1 octets with the 
+    ! value n are appended to the message st. the overall length is then
+    ! a multiple of the block size.  Identify one alternative scheme, and
+    ! explain how the attack might change as a result of using it.
+
+% -----------------------------------------------------------------------------
+
+3.o ! The maintainers of the server are keen to deploy a countermeasure
+    ! against the attack.  Assuming they are willing to change any aspect
+    ! of the software executed on the server, outline your advice to them
+    ! by detailing one robust countermeasure.
+4.o ! The maintainers of the server are considering a switch to TLS as a
+    ! replacement for the similar, but proprietary, protocol used at the
+    ! moment.  Do you think this could and/or would prevent the attack?
+    ! Explain why, and any assumptions you make to form this conclusion.
+5.o ! During a conversation about the attack, a colleague suggests to you
+    ! that using a stream cipher (rather than the block cipher) could act 
+    ! as a countermeasure.  Explain why they might think this, and identify
+    ! a suitable stream cipher to use in this context.
+
+% -----------------------------------------------------------------------------

@@ -1,0 +1,160 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Background}
+
+A given device, denoted $\PARTY{D}$, 
+implements a basic access control mechanism: in order to access the device
+(e.g., log into it), a user must first provide the correct password (i.e., 
+a guess matching the actual password embedded in $\PARTY{D}$).  
+Once in posession of the device, any such user, e.g., 
+an attacker $\PARTY{E}$, can interact with it as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen password guess
+to $\PARTY{D}$; the device will
+perform a comparison with the fixed, unknown password $\PRI{\CHAL{P}}$ 
+and produce 
+a result code detailing whether or not the two match.
+In addition, $\PARTY{E}$ can measure the time $\PARTY{D}$ takes to execute 
+each operation: it does so
+by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{r}$ once
+provided with $\PUB{G}$.
+
+\subsection{Materials}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\PUB{G}$,
+      a  password guess
+      \IfStrEqCase{CONF(ALPHABET,CID)}{%
+        {0}{(represented as an octet string) }%
+        {1}{(represented as an ASCII string) }%
+      }%
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\LEAK$,
+      an execution time measured in clock cycles
+      (represented as a decimal integer string),
+      and
+\item $\PUB{r}$,
+      a  result code
+      (represented as a decimal integer string)
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item Given the scenario, notice that even if $\PUB{r}$ were not produced 
+      as output, $\PARTY{E}$ could still learn whether or not their guess 
+      was correct: if the guess is incorrect then access to $\PARTY{D}$ 
+      will denied, whereas if the guess is correct then access is granted.
+\item The comparison between $\PRI{\CHAL{P}}$ and $\PUB{G}$ is implemented 
+      by $\PARTY{D}$ as follows:
+
+      \begin{algorithm}[H]
+      \If{$|\PRI{\CHAL{P}}| \neq |\PUB{G}|$} {
+        \KwRet{$0$}\;
+      }
+      \For{$i$ {\bf from} $0$ {\bf upto} $|\PRI{\CHAL{P}}|$} {
+        \If{$\PRI{\CHAL{P}_i} \neq \PUB{G_i}$} {
+          \KwRet{$0$}\; 
+        }
+      }
+      \KwRet{$1$}\; 
+      \end{algorithm}
+\end{itemize}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+
+In many side-channel and fault attacks, the attacker is able to perform an 
+initial profiling or calibration phase: a common rationale for doing so is 
+to support selection or fine-tuning of parameters for a subsequent attack.  
+With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
+also provided.
+$\PARTY{R}$ is identical to $\PARTY{D}$ bar accepting input of the form
+
+\begin{itemize}
+\item $\PUB{\REPL{G}}$,
+      a  password guess
+      \IfStrEqCase{CONF(ALPHABET,CID)}{%
+        {0}{(represented as an octet string),}%
+        {1}{(represented as an ASCII string),}%
+      }%
+      and
+\item $\PUB{\REPL{P}}$,
+      a  password
+      \IfStrEqCase{CONF(ALPHABET,CID)}{%
+        {0}{(represented as an octet string) }%
+        {1}{(represented as an ASCII string) }%
+      }%
+\end{itemize}
+
+\noindent
+on \lstinline[language={bash}]{stdin} (again with one field per line):
+in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+{\em chosen} password $\PUB{\REPL{P}}$
+for comparison with the
+     chosen  guess    $\PUB{\REPL{G}}$.
+
+\subsection{Tasks}
+
+      Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{P}}$.  
+      When executed using a command of the form
+
+      \begin{lstlisting}[language={bash},gobble={6}]
+      bash$ ./attack ${USER}.D
+      \end{lstlisting}
+
+      \noindent
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with attack target.
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\printbibliography
+\fi
+
+\end{document}

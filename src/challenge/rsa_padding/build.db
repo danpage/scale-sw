@@ -1,0 +1,40 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! Consider the parameters
+    ! N = 3551,
+    ! e = 5,
+    ! d = 1373,
+    ! and
+    ! c = 888,
+    ! all represented in decimal.  Use them to explain, in your own words, 
+    ! the principle of this attack (e.g., how and why it works).
+2.r ! To prevent the attack, the vendor suggests altering the software: the
+    ! idea is that no matter what error occurs, the same error code will be
+    ! produced.  Explain whether (and why, or why not) this change alone is
+    ! sufficient.
+
+% -----------------------------------------------------------------------------
+
+3.o ! Ignoring the use of countermeasures, carefully detail any situations 
+    ! where your implementation of this attack could fail; given more time,
+    ! what could you do to resolve this?
+4.o ! This attack is based on the fact that decrypting a ciphertext of the
+    ! form c = (f^e)*c' mod N produces a plaintext of the form f*m' mod N. 
+    ! Show why this fact is true. 
+5.o ! Explain how the concept of plaintext awareness relates to this attack.
+6.o ! RSA has a homomorphic property: explain what this means, and how it
+    ! relates to this attack.
+7.o ! Side-channel attacks are often categorised as being either simple or
+    ! differential: how would categorise this attack, and why?
+8.o ! Imagine you are a security consultant, employed by the device vendor.
+    ! The vendor has heard that exponent and message blinding can be used
+    ! to prevent some side-channel attacks on RSA.  Explain whether these
+    ! techniques would prevent this attack, and why.
+
+% -----------------------------------------------------------------------------

@@ -1,0 +1,48 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\providecommandx{\C}[1]{\ensuremath{\mathcal #1}}
+\providecommandx{\B}[1]{\ensuremath{\mathbb  #1}}
+
+\providecommandx{\NOT}{\ensuremath{\neg}}
+\providecommandx{\AND}{\ensuremath{\wedge}}
+\providecommandx{\IOR}{\ensuremath{\vee}}
+\providecommandx{\XOR}{\ensuremath{\oplus}}
+
+\providecommandx{\HW}{\ensuremath{\mathcal H}}
+\providecommandx{\HD}{\ensuremath{\mathcal D}}
+
+\providecommandx{\TRUE}{\mbox{\rm\bf true}}
+\providecommandx{\FALSE}{\mbox{\rm\bf false}}
+
+\providecommandx{\TUPLE}[1]{\ensuremath{({#1})}}
+\providecommandx{\TABLE}[1]{\ensuremath{[{#1}]}}
+\providecommandx{\LIST}[1]{\ensuremath{\langle{#1}\rangle}}
+\providecommandx{\SET}[1]{\ensuremath{\{{#1}\}}}
+
+\providecommandx{\LSB}[2][1={1}]{\ensuremath\textsc{LSB}_{\IfEq{#1}{1}{}{#1}}( #2 )}
+\providecommandx{\MSB}[2][1={1}]{\ensuremath\textsc{MSB}_{\IfEq{#1}{1}{}{#1}}( #2 )}
+
+\providecommandx{\CONS}{\ensuremath{\;\parallel\;}}
+\providecommandx{\RADIX}[2]{\ensuremath{#1_{(#2)}}}
+\providecommandx{\NUM}[1]{\ensuremath{\##1}}
+\providecommandx{\PMUL}[2]{\ensuremath{\left[ #1 \right] #2}}
+
+\providecommandx{\PARTY}[1]{\ensuremath{\cal #1}}
+\providecommandx{\ID}[1]{\mbox{\sf #1}}
+\providecommandx{\ALG}[1]{\mbox{\sc #1}}
+\providecommandx{\SCOPE}[2]{\ensuremath{{#1}.{#2}}}
+\providecommandx{\FIELD}[2]{\ensuremath{{#1}_{#2}}}
+
+\providecommandx{\PUB}[1]{\textcolor{blue}{#1}}          % a public    value
+\providecommandx{\PRI}[1]{\textcolor{red}{#1}}           % a private   value
+\providecommandx{\DOM}[1]{\textcolor{magenta}{#1}}       % a domain    value or parameter
+\providecommandx{\CHAL}[1]{\hat{#1}}                     % a challenge value, e.g., one embedded in the target  device
+\providecommandx{\REPL}[1]{\bar{#1}}                     % a replica   value, i.e., one supplied to the replica device
+
+\providecommandx{\PAD}{\ensuremath{\rho}}                % the padding value
+\providecommandx{\TAG}{\ensuremath{\tau}}                % the tag     value
+\providecommandx{\LEAK}{\ensuremath{\lambda}}            % the leakage value

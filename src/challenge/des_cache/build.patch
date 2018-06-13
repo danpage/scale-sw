@@ -1,0 +1,128 @@
+diff -uNr DES-OUTE/D3DES.C DES-OUTE.patch/D3DES.C
+--- DES-OUTE/D3DES.C	1992-10-09 21:43:54.000000000 +0100
++++ DES-OUTE.patch/D3DES.C	2015-11-23 08:26:54.146285684 +0000
+@@ -12,7 +12,7 @@
+  * (GEnie : OUTER; CIS : [71755,204]) Graven Imagery, 1992.
+  */
+ 
+-#include "d3des.h"
++//#include "d3des.h"
+ 
+ static void scrunch(unsigned char *, unsigned long *);
+ static void unscrun(unsigned long *, unsigned char *);
+@@ -176,7 +176,7 @@
+ 	return;
+ 	}
+ 
+-static unsigned long SP1[64] = {
++static unsigned int SP1[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x01010400L, 0x00000000L, 0x00010000L, 0x01010404L,
+ 	0x01010004L, 0x00010404L, 0x00000004L, 0x00010000L,
+ 	0x00000400L, 0x01010400L, 0x01010404L, 0x00000400L,
+@@ -194,7 +194,7 @@
+ 	0x00000404L, 0x01000400L, 0x01000400L, 0x00000000L,
+ 	0x00010004L, 0x00010400L, 0x00000000L, 0x01010004L };
+ 
+-static unsigned long SP2[64] = {
++static unsigned int SP2[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x80108020L, 0x80008000L, 0x00008000L, 0x00108020L,
+ 	0x00100000L, 0x00000020L, 0x80100020L, 0x80008020L,
+ 	0x80000020L, 0x80108020L, 0x80108000L, 0x80000000L,
+@@ -212,7 +212,7 @@
+ 	0x00108000L, 0x00000000L, 0x80008000L, 0x00008020L,
+ 	0x80000000L, 0x80100020L, 0x80108020L, 0x00108000L };
+ 
+-static unsigned long SP3[64] = {
++static unsigned int SP3[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x00000208L, 0x08020200L, 0x00000000L, 0x08020008L,
+ 	0x08000200L, 0x00000000L, 0x00020208L, 0x08000200L,
+ 	0x00020008L, 0x08000008L, 0x08000008L, 0x00020000L,
+@@ -230,7 +230,7 @@
+ 	0x08020000L, 0x08000208L, 0x00000208L, 0x08020000L,
+ 	0x00020208L, 0x00000008L, 0x08020008L, 0x00020200L };
+ 
+-static unsigned long SP4[64] = {
++static unsigned int SP4[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x00802001L, 0x00002081L, 0x00002081L, 0x00000080L,
+ 	0x00802080L, 0x00800081L, 0x00800001L, 0x00002001L,
+ 	0x00000000L, 0x00802000L, 0x00802000L, 0x00802081L,
+@@ -248,7 +248,7 @@
+ 	0x00002001L, 0x00002080L, 0x00800000L, 0x00802001L,
+ 	0x00000080L, 0x00800000L, 0x00002000L, 0x00802080L };
+ 
+-static unsigned long SP5[64] = {
++static unsigned int SP5[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x00000100L, 0x02080100L, 0x02080000L, 0x42000100L,
+ 	0x00080000L, 0x00000100L, 0x40000000L, 0x02080000L,
+ 	0x40080100L, 0x00080000L, 0x02000100L, 0x40080100L,
+@@ -266,7 +266,7 @@
+ 	0x00080100L, 0x02000100L, 0x40000100L, 0x00080000L,
+ 	0x00000000L, 0x40080000L, 0x02080100L, 0x40000100L };
+ 
+-static unsigned long SP6[64] = {
++static unsigned int SP6[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x20000010L, 0x20400000L, 0x00004000L, 0x20404010L,
+ 	0x20400000L, 0x00000010L, 0x20404010L, 0x00400000L,
+ 	0x20004000L, 0x00404010L, 0x00400000L, 0x20000010L,
+@@ -284,7 +284,7 @@
+ 	0x00004000L, 0x00400010L, 0x20004010L, 0x00000000L,
+ 	0x20404000L, 0x20000000L, 0x00400010L, 0x20004010L };
+ 
+-static unsigned long SP7[64] = {
++static unsigned int SP7[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x00200000L, 0x04200002L, 0x04000802L, 0x00000000L,
+ 	0x00000800L, 0x04000802L, 0x00200802L, 0x04200800L,
+ 	0x04200802L, 0x00200000L, 0x00000000L, 0x04000002L,
+@@ -302,7 +302,7 @@
+ 	0x00000000L, 0x00200802L, 0x04200000L, 0x00000800L,
+ 	0x04000002L, 0x04000800L, 0x00000800L, 0x00200002L };
+ 
+-static unsigned long SP8[64] = {
++static unsigned int SP8[ 64 ] __attribute__ ((aligned (32))) = {
+ 	0x10001040L, 0x00001000L, 0x00040000L, 0x10041040L,
+ 	0x10000000L, 0x10001040L, 0x00000040L, 0x10000000L,
+ 	0x00040040L, 0x10040000L, 0x10041040L, 0x00041000L,
+@@ -349,27 +349,27 @@
+ 	for( round = 0; round < 8; round++ ) {
+ 		work  = (right << 28) | (right >> 4);
+ 		work ^= *keys++;
+-		fval  = SP7[ work		 & 0x3fL];
+-		fval |= SP5[(work >>  8) & 0x3fL];
+-		fval |= SP3[(work >> 16) & 0x3fL];
+-		fval |= SP1[(work >> 24) & 0x3fL];
++		fval  = ( unsigned long )( cache_ld( SP7, ( work	& 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP5, ((work >>  8) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP3, ((work >> 16) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP1, ((work >> 24) & 0x3fL) ) );
+ 		work  = right ^ *keys++;
+-		fval |= SP8[ work		 & 0x3fL];
+-		fval |= SP6[(work >>  8) & 0x3fL];
+-		fval |= SP4[(work >> 16) & 0x3fL];
+-		fval |= SP2[(work >> 24) & 0x3fL];
++		fval |= ( unsigned long )( cache_ld( SP8, ( work	& 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP6, ((work >>  8) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP4, ((work >> 16) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP2, ((work >> 24) & 0x3fL) ) );
+ 		leftt ^= fval;
+ 		work  = (leftt << 28) | (leftt >> 4);
+ 		work ^= *keys++;
+-		fval  = SP7[ work		 & 0x3fL];
+-		fval |= SP5[(work >>  8) & 0x3fL];
+-		fval |= SP3[(work >> 16) & 0x3fL];
+-		fval |= SP1[(work >> 24) & 0x3fL];
++		fval  = ( unsigned long )( cache_ld( SP7, ( work	& 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP5, ((work >>  8) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP3, ((work >> 16) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP1, ((work >> 24) & 0x3fL) ) );
+ 		work  = leftt ^ *keys++;
+-		fval |= SP8[ work		 & 0x3fL];
+-		fval |= SP6[(work >>  8) & 0x3fL];
+-		fval |= SP4[(work >> 16) & 0x3fL];
+-		fval |= SP2[(work >> 24) & 0x3fL];
++		fval |= ( unsigned long )( cache_ld( SP8, ( work	& 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP6, ((work >>  8) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP4, ((work >> 16) & 0x3fL) ) );
++		fval |= ( unsigned long )( cache_ld( SP2, ((work >> 24) & 0x3fL) ) );
+ 		right ^= fval;
+ 		}
+ 		

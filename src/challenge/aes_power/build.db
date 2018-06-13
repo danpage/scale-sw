@@ -1,0 +1,50 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! As a security consultant, you have been working on a prototype of the
+    ! attack target; before the product is deployed, the vendor is willing 
+    ! to make any alteration necessary (in software or hardware) to prevent 
+    ! the attack.  Explain the options available, and which one you would 
+    ! recommend.
+2.r ! The vendor of the attack target opts to replace the 8-bit Intel 8051 
+    ! micro-processor with a modern, 32-bit ARM Cortex-M0; they supplement 
+    ! it with hardware support for that allows single-cycle operations on 
+    ! 32 bits of the AES state.  Doing so will naturally reduce the latency
+    ! of encryption or decryption, but they *also* want to know if it might
+    ! make the device more secure wrt. DPA attacks: what is your assessment, 
+    ! and why ?
+
+% -----------------------------------------------------------------------------
+
+3.o ! DPA attacks work because statistics can (to some degree) remove the
+    ! noise within power consumption traces.  Explain the concepts of 
+    ! signal, noise and signal-to-noise ratio, and the role each has in a
+    ! DPA attack of this type.
+4.o ! DPA attacks include a statistical analysis step, for which one option
+    ! is use of the t-test.  Explain what the difference between a standard 
+    ! t-test and Kocher's method is.  Given that in a DPA attack one might 
+    ! have unequal sets of measurements associated with 0 and 1, is a
+    ! standard t-test actually an appropriate choice? 
+5.o ! DPA attacks rely on a leakage model; for an Intel 8051, one might
+    ! consider Hamming weight or Hamming distance models for example.
+    ! Explain and justify the choice of model you used (e.g., explain
+    ! why/how the attack target might leak information in this way).
+6.o ! Your implementation of this attack will target some operation during
+    ! execution of AES.  Identify which operation you target, and explain 
+    ! why.  Outline other operation(s) you could have targeted, and why 
+    ! they might be a better or worse choice.
+7.o ! The power consumption traces you used in this attack are perfectly 
+    ! aligned.  What does "alignment" mean in this context, and how could
+    ! misalignment occur in practice?  How could you alter your attack 
+    ! strategy to compensate for misalignment?
+8.o ! The vendor of the attack target decides to use AES-192 rather than 
+    ! AES-128; their argument is that longer keys will naturally improve 
+    ! security in general *and* vs. DPA attacks.  Explain if and why you 
+    ! agree or disagree with this argument.
+
+% -----------------------------------------------------------------------------

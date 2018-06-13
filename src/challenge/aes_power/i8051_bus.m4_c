@@ -1,0 +1,28 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#include "i8051_bus.h"
+
+void i8051_bus_emit( int op, int n, ... ) {
+  va_list args; va_start( args, n );
+
+  int x = 0;
+
+  for( int i = 0; i < n; i++ ) {
+    x += hw( va_arg( args, int ) );
+  }
+
+  switch( op ) {
+    case I8051_BUS_PRAM : i8051_emit( 1,  8 * x ); break;
+    case I8051_BUS_IRAM : i8051_emit( 1,  8 * x ); break;
+    case I8051_BUS_XRAM : i8051_emit( 1, 16 * x ); break;
+    case I8051_BUS_ALU  : i8051_emit( 1,  1 * x ); break;
+  }  
+
+  va_end( args );
+}
+

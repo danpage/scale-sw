@@ -1,0 +1,201 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Background}
+
+Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
+which houses a $64$-bit Intel Core2 processor.  
+$\PARTY{D}$ is used by several front-line e-commerce servers, which offload
+computation relating to TLS handshakes.  More specifically, $\PARTY{D}$ is 
+used to compute an RSA decryption (in software, of the pre-master secret)
+whenever RSA-based key exchange is required.
+By leveraging access to the network, 
+an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen RSA ciphertext
+to $\PARTY{D}$; the device will
+decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
+and produce 
+the corresponding plaintext.
+In addition, $\PARTY{E}$ can measure the time $\PARTY{D}$ takes to execute 
+each operation: it approximates this 
+(keeping in mind there may be some experimental noise) 
+by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{m}$ once
+provided with $\PUB{c}$.
+
+\subsection{Materials}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\PUB{c}$,
+      an RSA ciphertext
+      (represented as a  hexadecimal integer string)
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\LEAK$,
+      an execution time measured in clock cycles
+      (represented as a  decimal     integer string),
+      and
+\item $\PUB{m}$,
+      an RSA plaintext
+      (represented as a  hexadecimal integer string)
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item $\PARTY{D}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
+      representation of multi-precision integers throughout.  Put another 
+      way, since $w = 64$, it selects $b = 2^{w} = 2^{64}$.
+\item Rather than a CRT-based approach, $\PARTY{D}$ uses a left-to-right 
+      binary exponentiation~\cite[Section 2.1]{SCALE:Gordon:85} algorithm
+      to compute 
+      $
+      \PUB{m} = \PUB{c}^{\PRI{\CHAL{d}}} \pmod{\PUB{\CHAL{N}}} .
+      $
+      Montgomery multiplication~\cite{SCALE:Montgomery:85} is harnessed to
+      improve efficiency; following notation in~\cite{SCALE:KocAcaKal:96}, 
+      a CIOS-based~\cite[Section 5]{SCALE:KocAcaKal:96} approach is used
+      to integrate\footnote{%
+      \ALG{MonPro}~\cite[Section 2]{SCALE:KocAcaKal:96} perhaps offers a 
+      more direct way to explain this: steps $1$ and $2$ are the integer 
+      multiplication and Montgomery reduction written both separately and 
+      abstractly, whereas $\PARTY{D}$ realises them concretely using the 
+      integrated CIOS algorithm.
+      } an integer multiplication with a subsequent Montgomery reduction.
+\item Following the notation in~\cite{SCALE:Gordon:85}, $\PRI{\CHAL{d}}$
+      is assumed to have $l+1$ bits st. $\PRI{\CHAL{d}_l} = 1$.  However, 
+      it has been (artificially) selected st. 
+      $
+      0 \leq \PRI{\CHAL{d}} < 2^{CONF(LOG_D_MAX,CID)}
+      $
+      to limit the mount of time an attack requires: you should not rely 
+      on this fact, implying your attack should succeed for {\em any}
+      $\PRI{\CHAL{d}}$ given enough time.
+\end{itemize}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+
+This file represents a set of attack parameters, with everything (e.g.,
+all public values) $\PARTY{E}$ has access to by default.  It contains 
+
+\begin{itemize}
+\item $\PUB{\CHAL{N}}$,
+      an RSA modulus
+      (represented as a  hexadecimal integer string),      
+      and
+\item $\PUB{\CHAL{e}}$,
+      an RSA public exponent
+      (represented as a  hexadecimal integer string)
+      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi(\CHAL{N})}}$
+\end{itemize}
+
+\noindent
+with one field per-line.
+More specifically, this represents the RSA public key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
+$
+associated with the unknown RSA private key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
+$
+embedded in $\PARTY{D}$.
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+
+In many side-channel and fault attacks, the attacker is able to perform an 
+initial profiling or calibration phase: a common rationale for doing so is 
+to support selection or fine-tuning of parameters for a subsequent attack.  
+With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
+also provided.
+$\PARTY{R}$ is identical to $\PARTY{D}$, bar accepting input of the form
+
+\begin{itemize}
+\item $\PUB{\REPL{c}}$,
+      an RSA ciphertext
+      (represented as a  hexadecimal integer string),
+\item $\PUB{\REPL{N}}$,
+      an RSA modulus
+      (represented as a  hexadecimal integer string),      
+      and
+\item $\PUB{\REPL{d}}$,
+      an RSA private exponent
+      (represented as a  hexadecimal integer string)
+\end{itemize}
+
+\noindent
+on \lstinline[language={bash}]{stdin} (again with one field per line):
+in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+{\em chosen} RSA private key $\TUPLE{ \PUB{\REPL{N}}, \PUB{\REPL{d}} }$ 
+to decrypt the
+     chosen  RSA  ciphertext $\PUB{\REPL{c}}$.
+Keep in mind that $\PARTY{R}$ uses Montgomery multiplication, so functions
+correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{d}}$.  
+      When executed using a command of the form
+
+      \begin{lstlisting}[language={bash},gobble={6}]
+      bash$ ./attack ${USER}.D ${USER}.conf
+      \end{lstlisting}
+
+      \noindent
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with attack target.
+\item Answer the exam-style questions in 
+      \lstinline[language={bash}]|${ARCHIVE}/${USER}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\printbibliography
+\fi
+
+\end{document}

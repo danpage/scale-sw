@@ -1,0 +1,20 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#ifndef __I8051_BUS_H
+#define __I8051_BUS_H
+
+#define I8051_BUS_PRAM ( 0 )
+#define I8051_BUS_IRAM ( 1 )
+#define I8051_BUS_XRAM ( 2 )
+#define I8051_BUS_ALU  ( 3 )
+
+#include "i8051.h"
+
+void i8051_bus_emit( int op, int l, ... );
+
+#endif

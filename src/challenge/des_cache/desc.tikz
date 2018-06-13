@@ -1,0 +1,39 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\begin{tikzpicture}
+
+% configure
+ \tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
+
+% adversary and target device
+ \node [                party] (E) {$\PARTY{E}$} ;
+ \node [right of=E,draw,party] (D) {$\PARTY{D}$} ;
+
+% embedded material
+ \node at (D.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}}$} ;
+
+%   direct input and output
+ \draw [       >=stealth,->] (E.30)    to              
+                             node [above]             {$\PUB{m}$} 
+                             (E.30    -| D.west)  ;
+ \draw [       >=stealth,<-] (E.330)   to              
+                             node [below]             {$\PUB{c}$} 
+                             (E.330   -| D.west)  ;
+% indirect input and output
+%\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
+%                            node [above]             {} 
+%                            (D.north -| E.north) ;
+ \draw [dashed,>=stealth,->] (D.south) to [bend left]  
+                             node [below]             {execution time} 
+                             (D.south -| E.south) ;
+
+% computation
+ \draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
+                             node [right,anchor=west] {$\PUB{c} = \SCOPE{\ID{DES}}{\ALG{Enc}}( \PRI{\CHAL{k}}, \PUB{m} )$}
+                             (D.330) ;
+
+\end{tikzpicture}

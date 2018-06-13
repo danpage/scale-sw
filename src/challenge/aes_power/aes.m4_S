@@ -1,0 +1,496 @@
+; Copyright (C) 2017 Daniel Page <dan@phoo.org>
+;
+; Use of this source code is restricted per the CC BY-SA license, a copy of
+; which can be found via http://creativecommons.org (and should be included 
+; as LICENSE.txt within the associated archive or repository).
+
+                     .equ AES_MODE_ENC, 0x00
+                     .equ AES_MODE_DEC, 0x01    
+
+                     .equ ARG_MODE, 0x30 + 0x00 ;  mode
+                     .equ ARG_S,    0x30 + 0x01 ; state
+                     .equ ARG_K,    0x30 + 0x11 ;   key
+
+; -----------------------------------------------------------------------------
+
+                     .org       0x00 ; entry = 0x00
+                     mov   sp, #0x20 ; ToS   = 0x20
+
+                     mov   a, (ARG_MODE)
+                     cjne  a, #AES_MODE_ENC, do_dec
+
+do_enc:              lcall aes_enc   ; S = AES-128.Enc( K, S )
+                     .byte 0xA5      ; halt
+do_dec:              nop
+                     lcall aes_dec   ; S = AES-128.Dec( K, S ), including key roll-forward
+                     .byte 0xA5      ; halt
+
+; -----------------------------------------------------------------------------
+
+AES_ENC_SBOX:        .byte 0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5
+                     .byte 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76
+                     .byte 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0
+                     .byte 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0
+                     .byte 0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC
+                     .byte 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15
+                     .byte 0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A
+                     .byte 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75
+                     .byte 0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0
+                     .byte 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84
+                     .byte 0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B
+                     .byte 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF
+                     .byte 0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85
+                     .byte 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8
+                     .byte 0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5
+                     .byte 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2
+                     .byte 0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17
+                     .byte 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73
+                     .byte 0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88
+                     .byte 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB
+                     .byte 0xE0, 0x32, 0x3A, 0x0A, 0x49, 0x06, 0x24, 0x5C
+                     .byte 0xC2, 0xD3, 0xAC, 0x62, 0x91, 0x95, 0xE4, 0x79
+                     .byte 0xE7, 0xC8, 0x37, 0x6D, 0x8D, 0xD5, 0x4E, 0xA9
+                     .byte 0x6C, 0x56, 0xF4, 0xEA, 0x65, 0x7A, 0xAE, 0x08
+                     .byte 0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xA6, 0xB4, 0xC6
+                     .byte 0xE8, 0xDD, 0x74, 0x1F, 0x4B, 0xBD, 0x8B, 0x8A
+                     .byte 0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E
+                     .byte 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E
+                     .byte 0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94
+                     .byte 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF
+                     .byte 0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68
+                     .byte 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
+
+AES_DEC_SBOX:        .byte 0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38
+                     .byte 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB
+                     .byte 0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87
+                     .byte 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB
+                     .byte 0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D
+                     .byte 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E
+                     .byte 0x08, 0x2E, 0xA1, 0x66, 0x28, 0xD9, 0x24, 0xB2
+                     .byte 0x76, 0x5B, 0xA2, 0x49, 0x6D, 0x8B, 0xD1, 0x25
+                     .byte 0x72, 0xF8, 0xF6, 0x64, 0x86, 0x68, 0x98, 0x16
+                     .byte 0xD4, 0xA4, 0x5C, 0xCC, 0x5D, 0x65, 0xB6, 0x92
+                     .byte 0x6C, 0x70, 0x48, 0x50, 0xFD, 0xED, 0xB9, 0xDA
+                     .byte 0x5E, 0x15, 0x46, 0x57, 0xA7, 0x8D, 0x9D, 0x84
+                     .byte 0x90, 0xD8, 0xAB, 0x00, 0x8C, 0xBC, 0xD3, 0x0A
+                     .byte 0xF7, 0xE4, 0x58, 0x05, 0xB8, 0xB3, 0x45, 0x06
+                     .byte 0xD0, 0x2C, 0x1E, 0x8F, 0xCA, 0x3F, 0x0F, 0x02
+                     .byte 0xC1, 0xAF, 0xBD, 0x03, 0x01, 0x13, 0x8A, 0x6B
+                     .byte 0x3A, 0x91, 0x11, 0x41, 0x4F, 0x67, 0xDC, 0xEA
+                     .byte 0x97, 0xF2, 0xCF, 0xCE, 0xF0, 0xB4, 0xE6, 0x73
+                     .byte 0x96, 0xAC, 0x74, 0x22, 0xE7, 0xAD, 0x35, 0x85
+                     .byte 0xE2, 0xF9, 0x37, 0xE8, 0x1C, 0x75, 0xDF, 0x6E
+                     .byte 0x47, 0xF1, 0x1A, 0x71, 0x1D, 0x29, 0xC5, 0x89
+                     .byte 0x6F, 0xB7, 0x62, 0x0E, 0xAA, 0x18, 0xBE, 0x1B
+                     .byte 0xFC, 0x56, 0x3E, 0x4B, 0xC6, 0xD2, 0x79, 0x20
+                     .byte 0x9A, 0xDB, 0xC0, 0xFE, 0x78, 0xCD, 0x5A, 0xF4
+                     .byte 0x1F, 0xDD, 0xA8, 0x33, 0x88, 0x07, 0xC7, 0x31
+                     .byte 0xB1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xEC, 0x5F
+                     .byte 0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D
+                     .byte 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF
+                     .byte 0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0
+                     .byte 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61
+                     .byte 0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26
+                     .byte 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
+
+aes_fmulx:           rl    a
+                     jbc   acc.0, aes_fmulx_f
+aes_fmulx_t:         xrl   a, #0x00
+                     ret
+aes_fmulx_f:         xrl   a, #0x1B
+                     ret
+
+aes_fdivx:           mov  r7,  a
+                     anl   a, #0x1B               ;       x & 0x1B
+                     cjne  a, #0x1B, aes_fdivx_f  ; if( ( x & 0x1B ) != 0x1B ) goto aes_fdivx_f
+aes_fdivx_t:         mov   a, r7
+                     xrl   a, #0x1B               ; x ^ 0x1B
+                     setb  psw.7                  ; cf = 1
+                     rrc   a                      ; 0x80 | ( ( x ^ 0x1B ) >> 1 )
+                     ret
+aes_fdivx_f:         mov   a, r7
+                     xrl   a, #0x00               ; x ^ 0x00
+                     clr   psw.7                  ; cf = 0
+                     rrc   a                      ; 0x00 | ( ( x        ) >> 1 )
+                     ret
+
+; -----------------------------------------------------------------------------
+
+define(`AES_ENC_KEY_STEP',`
+                     mov   a, (ARG_S+$1)
+                     xrl   a, (ARG_K+$1)
+                     mov   (ARG_S+$1), a
+                     mov   a, (ARG_S+$2)
+                     xrl   a, (ARG_K+$2)
+                     mov   (ARG_S+$2), a
+                     mov   a, (ARG_S+$3)
+                     xrl   a, (ARG_K+$3)
+                     mov   (ARG_S+$3), a
+                     mov   a, (ARG_S+$4)
+                     xrl   a, (ARG_K+$4)
+                     mov   (ARG_S+$4), a
+')
+define(`AES_ENC_SUB_STEP',`
+                     mov   a, (ARG_S+$1)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$1), a
+                     mov   a, (ARG_S+$2)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$2), a
+                     mov   a, (ARG_S+$3)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$3), a
+                     mov   a, (ARG_S+$4)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$4), a
+')
+define(`AES_ENC_MIX_STEP',`
+                     mov   a, (ARG_S+$1) ; a  =   w
+                     mov   r7, a         ; r7 =   w
+                     xrl   a, (ARG_S+$2) ; a  =   w ^   x
+                     mov   r6, a         ; r6 =   w ^   x
+                     xrl   a, (ARG_S+$3) ; a  =   w ^   x ^   y
+                     xrl   a, (ARG_S+$4) ; a  =   w ^   x ^   y  ^  z
+                     mov   r5, a         ; r5 =   w ^   x ^   y  ^  z
+                     mov   a, r6         ; a  =   w ^   x
+                     lcall aes_fmulx     ; a  =  2w ^  2x 
+                     xrl   a, r5         ; a  =  3w ^  3x ^   y  ^  z
+                     xrl   (ARG_S+$1), a ; w  =  2w ^  3x ^   y  ^  z
+                     mov   a, (ARG_S+$2) ; a  =         x 
+                     xrl   a, (ARG_S+$3) ; a  =         x ^   y
+                     lcall aes_fmulx     ; a  =        2x ^  2y
+                     xrl   a, r5         ; a  =   w ^  3x ^  3y ^   z
+                     xrl   (ARG_S+$2), a ; x  =   w ^  2x ^  3y ^   z
+                     mov   a, (ARG_S+$3) ; a  =               y
+                     xrl   a, (ARG_S+$4) ; a  =               y ^   z
+                     lcall aes_fmulx     ; a  =              2y ^  2z
+                     xrl   a, r5         ; a  =   w ^   x ^  3y ^  3z
+                     xrl   (ARG_S+$3), a ; y  =   w ^   x ^  2y ^  3z
+                     mov   a, (ARG_S+$4) ; a  =                     z
+                     xrl   a, r7         ; a  =   w             ^   z
+                     lcall aes_fmulx     ; a  =  2w             ^  2z
+                     xrl   a, r5         ; a  =  3w ^   x ^   y ^  3z
+                     xrl   (ARG_S+$4), a ; z  =  3w ^   x ^   y ^  2z
+')
+
+aes_enc_key:         AES_ENC_KEY_STEP(0x00,0x01,0x02,0x03)
+                     AES_ENC_KEY_STEP(0x04,0x05,0x06,0x07)
+                     AES_ENC_KEY_STEP(0x08,0x09,0x0A,0x0B)
+                     AES_ENC_KEY_STEP(0x0C,0x0D,0x0E,0x0F)
+         
+                     ret
+
+aes_enc_sub:         mov   dptr, #AES_ENC_SBOX
+
+                     AES_ENC_SUB_STEP(0x00,0x01,0x02,0x03)
+                     AES_ENC_SUB_STEP(0x04,0x05,0x06,0x07)
+                     AES_ENC_SUB_STEP(0x08,0x09,0x0A,0x0B)
+                     AES_ENC_SUB_STEP(0x0C,0x0D,0x0E,0x0F)
+         
+                     ret
+  
+aes_enc_row:         mov   a, (ARG_S+0x01)
+                     xch   a, (ARG_S+0x0D)
+                     xch   a, (ARG_S+0x09)
+                     xch   a, (ARG_S+0x05)
+                     xch   a, (ARG_S+0x01)
+       
+                     mov   a, (ARG_S+0x02)
+                     xch   a, (ARG_S+0x0A)
+                     xch   a, (ARG_S+0x02)
+                     mov   a, (ARG_S+0x06)
+                     xch   a, (ARG_S+0x0E)
+                     xch   a, (ARG_S+0x06)
+       
+                     mov   a, (ARG_S+0x0F)
+                     xch   a, (ARG_S+0x03)
+                     xch   a, (ARG_S+0x07)
+                     xch   a, (ARG_S+0x0B)
+                     xch   a, (ARG_S+0x0F)
+       
+                     ret
+
+aes_enc_mix:         AES_ENC_MIX_STEP(0x00,0x01,0x02,0x03)
+                     AES_ENC_MIX_STEP(0x05,0x06,0x07,0x04)
+                     AES_ENC_MIX_STEP(0x0A,0x0B,0x08,0x09)
+                     AES_ENC_MIX_STEP(0x0F,0x0C,0x0D,0x0E)
+         
+                     ret
+
+aes_enc_keyexp_step: mov   dptr, #AES_ENC_SBOX
+
+                     mov   a, (ARG_K+0x0C)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x03), a
+                     mov   a, (ARG_K+0x0D)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x00), a
+                     mov   a, (ARG_K+0x0E)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x01), a
+                     mov   a, (ARG_K+0x0F)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x02), a
+     
+                     mov   a, r1
+                     xrl   (ARG_K+0), a
+                     lcall aes_fmulx
+                     mov   r1, a
+     
+                     mov   a, (ARG_K+0x00)
+                     xrl   (ARG_K+0x04), a     
+                     mov   a, (ARG_K+0x01)
+                     xrl   (ARG_K+0x05), a     
+                     mov   a, (ARG_K+0x02)
+                     xrl   (ARG_K+0x06), a     
+                     mov   a, (ARG_K+0x03)
+                     xrl   (ARG_K+0x07), a     
+                     mov   a, (ARG_K+0x04)
+                     xrl   (ARG_K+0x08), a     
+                     mov   a, (ARG_K+0x05)
+                     xrl   (ARG_K+0x09), a     
+                     mov   a, (ARG_K+0x06)
+                     xrl   (ARG_K+0x0A), a     
+                     mov   a, (ARG_K+0x07)
+                     xrl   (ARG_K+0x0B), a     
+                     mov   a, (ARG_K+0x08)
+                     xrl   (ARG_K+0x0C), a     
+                     mov   a, (ARG_K+0x09)
+                     xrl   (ARG_K+0x0D), a    
+                     mov   a, (ARG_K+0x0A)
+                     xrl   (ARG_K+0x0E), a     
+                     mov   a, (ARG_K+0x0B)
+                     xrl   (ARG_K+0x0F), a
+          
+                     ret
+
+aes_enc:             mov   r0, #0x01 ; i
+                     mov   r1, #0x01 ; rc
+
+                     lcall aes_enc_key
+                     lcall aes_enc_keyexp_step
+ 
+aes_enc_loop:        lcall aes_enc_sub
+                     lcall aes_enc_row
+                     lcall aes_enc_mix
+                     lcall aes_enc_key
+                     lcall aes_enc_keyexp_step
+
+                     mov   a, r0
+                     add   a, #0x01
+                     mov   r0, a
+                     cjne  a, #0x0A, aes_enc_loop
+
+                     lcall aes_enc_sub
+                     lcall aes_enc_row
+                     lcall aes_enc_key       
+
+                     ret
+
+; -----------------------------------------------------------------------------
+
+define(`AES_DEC_KEY_STEP',`
+                     mov   a, (ARG_S+$1)
+                     xrl   a, (ARG_K+$1)
+                     mov   (ARG_S+$1), a
+                     mov   a, (ARG_S+$2)
+                     xrl   a, (ARG_K+$2)
+                     mov   (ARG_S+$2), a
+                     mov   a, (ARG_S+$3)
+                     xrl   a, (ARG_K+$3)
+                     mov   (ARG_S+$3), a
+                     mov   a, (ARG_S+$4)
+                     xrl   a, (ARG_K+$4)
+                     mov   (ARG_S+$4), a
+')
+define(`AES_DEC_SUB_STEP',`
+                     mov   a, (ARG_S+$1)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$1), a
+                     mov   a, (ARG_S+$2)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$2), a
+                     mov   a, (ARG_S+$3)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$3), a
+                     mov   a, (ARG_S+$4)
+                     movc  a, @a + dptr
+                     mov   (ARG_S+$4), a
+')
+define(`AES_DEC_MIX_STEP',`
+                     mov   a, (ARG_S+$1) ; a  =   w 
+                     xrl   a, (ARG_S+$3) ; a  =   w       ^   y
+                     mov   r7, a         ; r7 =   w       ^   y
+                     mov   a, (ARG_S+$4) ; a  =                     z
+                     xrl   a, (ARG_S+$2) ; a  =         x       ^   z
+                     mov   r6, a         ; r6 =         x       ^   z
+                     mov   a, (ARG_S+$1) ; a  =   w 
+                     xrl   a, (ARG_S+$2) ; a  =   w ^   x
+                     mov   r5, a         ; r5 =   w ^   x
+                     mov   a, (ARG_S+$3) ; a  =               y
+                     xrl   a, (ARG_S+$2) ; a  =         x ^   y
+                     mov   r4, a         ; r4 =         x ^   y
+                     lcall aes_fmulx     ; a  =        2x ^  2y
+                     xrl   (ARG_S+$2), a ; x  =        3x ^  2y
+                     mov   a, (ARG_S+$4) ; a  =                     z
+                     xrl   a, (ARG_S+$3) ; a  =               y ^   z
+                     lcall aes_fmulx     ; a  =              2y ^  2z
+                     xrl   (ARG_S+$3), a ; y  =              3y ^  2z
+                     mov   a, (ARG_S+$4) ; a  =                     z
+                     xrl   a, (ARG_S+$1) ; a  =   w             ^   z
+                     mov   r4, a         ; r4 =   w             ^   z
+                     mov   a, r5         ; a  =   w ^   x
+                     lcall aes_fmulx     ; a  =  2w ^  2x
+                     xrl   (ARG_S+$1), a ; w  =  3w ^  2x 
+                     mov   a, r4         ; a  =   w             ^   z
+                     lcall aes_fmulx     ; a  =  2w             ^  2z
+                     xrl   (ARG_S+$4), a ; z  =  2w             ^  3z
+                     mov   a, r7         ; a  =   w       ^   y
+                     lcall aes_fmulx     ; a  =  2w       ^  2y
+                     lcall aes_fmulx     ; a  =  4w       ^  4y
+                     xrl   (ARG_S+$1), a ; w  =  7w ^  2x ^  4y
+                     xrl   (ARG_S+$3), a ; y  =  4w          7y ^  2z
+                     lcall aes_fmulx     ; a  =  8w       ^  8y
+                     mov   r5, a         ; r5 =  8w       ^  8y
+                     mov   a, r6         ; a  =         x       ^   z
+                     lcall aes_fmulx     ; a  =        2x       ^  2z
+                     lcall aes_fmulx     ; a  =        4x       ^  4z
+                     xrl   (ARG_S+$2), a ; x  =        7x ^  2y ^  4z
+                     xrl   (ARG_S+$4), a ; z  =  2w ^  4x       ^  7z
+                     lcall aes_fmulx     ; a  =        8x       ^  8z
+                     xrl   a, r5         ; a  =  8w ^  8x ^  8y ^  8z
+                     xrl   a, r6         ; a  =  8w ^  9x ^  8y ^  9z
+                     xrl   a, r7         ; a  =  9w ^  9x ^  9y ^  9z
+                     xrl   (ARG_S+$1), a ; w  = 14w ^ 11x ^ 13y ^  9z
+                     xrl   (ARG_S+$2), a ; x  =  9w ^ 14x ^ 11y ^ 13z
+                     xrl   (ARG_S+$3), a ; y  = 13w ^  9x ^ 14y ^ 11z
+                     xrl   (ARG_S+$4), a ; z  = 11w ^ 13x    9y ^ 14z
+')
+
+aes_dec_key:         AES_DEC_KEY_STEP(0x00,0x01,0x02,0x03)
+                     AES_DEC_KEY_STEP(0x04,0x05,0x06,0x07)
+                     AES_DEC_KEY_STEP(0x08,0x09,0x0A,0x0B)
+                     AES_DEC_KEY_STEP(0x0C,0x0D,0x0E,0x0F)
+         
+                     ret
+
+aes_dec_sub:         mov   dptr, #AES_DEC_SBOX
+
+                     AES_DEC_SUB_STEP(0x00,0x01,0x02,0x03)
+                     AES_DEC_SUB_STEP(0x04,0x05,0x06,0x07)
+                     AES_DEC_SUB_STEP(0x08,0x09,0x0A,0x0B)
+                     AES_DEC_SUB_STEP(0x0C,0x0D,0x0E,0x0F)
+         
+                     ret
+
+aes_dec_row:         mov   a, (ARG_S+0x01)
+                     xch   a, (ARG_S+0x05)
+                     xch   a, (ARG_S+0x09)
+                     xch   a, (ARG_S+0x0D)
+                     xch   a, (ARG_S+0x01)
+       
+                     mov   a, (ARG_S+0x02)
+                     xch   a, (ARG_S+0x0A)
+                     xch   a, (ARG_S+0x02)
+                     mov   a, (ARG_S+0x06)
+                     xch   a, (ARG_S+0x0E)
+                     xch   a, (ARG_S+0x06)
+       
+                     mov   a, (ARG_S+0x0F)
+                     xch   a, (ARG_S+0x0B)
+                     xch   a, (ARG_S+0x07)
+                     xch   a, (ARG_S+0x03)
+                     xch   a, (ARG_S+0x0F)
+       
+                     ret
+
+aes_dec_mix:         AES_DEC_MIX_STEP(0x00,0x01,0x02,0x03)
+                     AES_DEC_MIX_STEP(0x05,0x06,0x07,0x04)
+                     AES_DEC_MIX_STEP(0x0A,0x0B,0x08,0x09)
+                     AES_DEC_MIX_STEP(0x0F,0x0C,0x0D,0x0E)
+         
+                     ret
+
+aes_dec_keyexp_step: mov   dptr, #AES_ENC_SBOX
+ 
+                     mov   a, (ARG_K+0x0B)
+                     xrl   (ARG_K+0x0F), a     
+                     mov   a, (ARG_K+0x0A)
+                     xrl   (ARG_K+0x0E), a     
+                     mov   a, (ARG_K+0x09)
+                     xrl   (ARG_K+0x0D), a     
+                     mov   a, (ARG_K+0x08)
+                     xrl   (ARG_K+0x0C), a     
+                     mov   a, (ARG_K+0x07)
+                     xrl   (ARG_K+0x0B), a     
+                     mov   a, (ARG_K+0x06)
+                     xrl   (ARG_K+0x0A), a     
+                     mov   a, (ARG_K+0x05)
+                     xrl   (ARG_K+0x09), a     
+                     mov   a, (ARG_K+0x04)
+                     xrl   (ARG_K+0x08), a     
+                     mov   a, (ARG_K+0x03)
+                     xrl   (ARG_K+0x07), a     
+                     mov   a, (ARG_K+0x02)
+                     xrl   (ARG_K+0x06), a     
+                     mov   a, (ARG_K+0x01)
+                     xrl   (ARG_K+0x05), a     
+                     mov   a, (ARG_K+0x00)
+                     xrl   (ARG_K+0x04), a     
+
+                     mov   a, r1
+                     lcall aes_fdivx
+                     mov   r1, a
+                     xrl   (ARG_K+0), a
+
+                     mov   a, (ARG_K+0x0C)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x03), a
+                     mov   a, (ARG_K+0x0F)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x02), a
+                     mov   a, (ARG_K+0x0E)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x01), a
+                     mov   a, (ARG_K+0x0D)
+                     movc  a, @a + dptr
+                     xrl   (ARG_K+0x00), a
+
+                     ret
+
+aes_dec:             mov   r0, #0x00 ; i
+                     mov   r1, #0x01 ; rc
+
+aes_dec_loop_1:      lcall aes_enc_keyexp_step
+
+                     mov   a, r0
+                     add   a, #0x01
+                     mov   r0, a
+                     cjne  a, #0x0A, aes_dec_loop_1
+
+                     mov   r0, #0x01 ; i
+                     mov   r1, #0x6C ; rc
+
+                     lcall aes_dec_key
+                     lcall aes_dec_row
+                     lcall aes_dec_sub
+ 
+aes_dec_loop_2:      lcall aes_dec_keyexp_step
+                     lcall aes_dec_key
+                     lcall aes_dec_mix
+                     lcall aes_dec_row
+                     lcall aes_dec_sub
+
+                     mov   a, r0
+                     add   a, #0x01
+                     mov   r0, a
+                     cjne  a, #0x0A, aes_dec_loop_2
+
+                     lcall aes_dec_keyexp_step
+                     lcall aes_dec_key
+
+                     ret
+       
+; -----------------------------------------------------------------------------
+
+

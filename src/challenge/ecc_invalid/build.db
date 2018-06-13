@@ -1,0 +1,32 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% -----------------------------------------------------------------------------
+
+1.r ! An obvious countermeasure against this attack is to validate the input
+    ! (and potentially output) point; this is in fact a *required* step in 
+    ! most standards.  Explain how this validation procedure works.
+2.r ! If the protocol for interaction had used point compression, this could
+    ! act as a countermeasure against the attack.  Explain what this concept
+    ! means, and why the claimed countermeasure could be effective.
+
+% -----------------------------------------------------------------------------
+
+3.o ! As with most side-channel attacks, fewer interactions with the target
+    ! device is preferable.  Present a formal argument (i.e., one not based
+    ! on experimental evidence alone) that explains how many interactions
+    ! you expect to make in this attack.
+4.o ! Imagine that the target device uses a key refreshing mechanism, st. k
+    ! will be different for each interaction.  Providing some experimental 
+    ! evidence where appropriate, assess the
+    !
+    ! a) theoretical (i.e., by using standard cryptanalysis, irrespective 
+    !    of the context), and 
+    ! b) effective   (i.e., as used concretely in this context) 
+    !
+    ! security levels of the EC-DLP associated with this curve.
+
+% -----------------------------------------------------------------------------

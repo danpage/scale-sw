@@ -1,0 +1,202 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Background}
+
+Imagine you are tasked with attacking a device, denoted $\PARTY{D}$, 
+which houses an $8$-bit Intel $8051$ processor.
+$\PARTY{D}$ represents an ISO/IEC 7816 compliant contact-based smart-card
+chip, used within larger devices as a co-processor module: it has support
+for secure key generation and storage, plus off-load of some cryptographic 
+operations, such as AES, via a standardised protocol (or API).
+By leveraging physical access, 
+an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen AES  plaintext
+to $\PARTY{D}$; the device will
+encrypt that  plaintext under the fixed, unknown AES cipher key $\PRI{\CHAL{k}}$,
+and produce 
+the corresponding ciphertext.
+Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{D}$.
+Using an irregular clock signal (e.g., via some form of glitch to disrupt 
+regular oscillation) causes $\PARTY{D}$ to malfunction.  One malfunction, 
+or fault, can be induced per interaction with $\PARTY{D}$: it will act to 
+randomise one element of the state matrix used by AES, at a chosen point 
+during the associated encryption operation.
+
+\subsection{Material}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\LEAK$, 
+      a  fault specification
+      (whose representation is explained below),
+      and
+\item $\PUB{m}$,
+      a  ${1}$-block AES plaintext
+      (represented as an octet string)
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\PUB{c}$,
+      a  ${1}$-block AES ciphertext
+      (represented as an octet string)
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item $\PARTY{D}$ uses an AES-128 implementation,
+      which clearly implies $128$-bit block and cipher key lengths;
+      following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
+      fact that $Nb=4$ and $Nr=10$ means a $(4 \times 4)$-element state 
+      matrix will be used in a total of $11$ rounds
+      where
+
+      \begin{itemize}
+      \item the  $0$-th           round  consists of the
+            \lstinline{AddRoundKey}
+            round function  alone,
+      \item the  $1$-st to $9$-th rounds consist  of the
+            \lstinline{SubBytes}, \lstinline{ShiftRows},  \lstinline{MixColumns} then  \lstinline{AddRoundKey}
+            round functions,
+            and
+      \item the $10$-th           round  consists of the
+            \lstinline{SubBytes}, \lstinline{ShiftRows}                          then  \lstinline{AddRoundKey}
+            round functions.
+      \end{itemize}
+
+\item More concretely, it is an $8$-bit, memory-constrained implementation
+      with the S-box held as a $\SI{256}{\byte}$ look-up table in memory. 
+      In line with the goal of minimising the memory footprint, the round
+      keys are not pre-computed: each encryption takes the cipher key and
+      evolves it forward, step-by-step, to form successive round keys for
+      use during key addition.  
+\item The fault specification is {\em either} a comma-separated line of the
+      form
+      \[
+      r, f, p, i, j
+      \]
+      where
+
+      \begin{enumerate}
+      \item $r$  
+            (represented as a decimal integer string)
+            specifies the round in which the fault occurs,
+            implying $0 \leq r < 11$,
+      \item $f$
+            (represented as a decimal integer string)
+            specifies the round function in which the fault occurs via
+            \[
+            f = \left\{\begin{array}{ll@{\;}l@{\;}l}
+                       0 & \mbox{~for a fault in the} & \mbox{\lstinline{AddRoundKey}} & \mbox{round function} \\
+                       1 & \mbox{~for a fault in the} & \mbox{\lstinline{SubBytes}   } & \mbox{round function} \\
+                       2 & \mbox{~for a fault in the} & \mbox{\lstinline{ShiftRows}  } & \mbox{round function} \\
+                       3 & \mbox{~for a fault in the} & \mbox{\lstinline{MixColumns} } & \mbox{round function}
+                       \end{array}
+                \right.
+            \]
+      \item $p$
+            (represented as a decimal integer string)
+            specifies whether the fault occurs before or after execution 
+            of the round function via
+            \[
+            p = \left\{\begin{array}{ll@{\;}l@{\;}l}
+                       0 & \mbox{~for a fault} & \mbox{before} & \mbox{the round function} \\
+                       1 & \mbox{~for a fault} & \mbox{after}  & \mbox{the round function} 
+                       \end{array}
+                \right.
+            \]
+            and
+      \item $i$ and $j$
+            (both represented as decimal integer strings),
+            specify the row and column of the state matrix which the 
+            fault occurs in,
+            implying $0 \leq i, j < 4$
+      \end{enumerate}
+
+      \noindent
+      {\em or} a blank line: in this latter case, no fault will induced 
+      (which then obviously yields the correctly encrypted ciphertext 
+      for a given plaintext).
+\item The fault randomises one element of the state matrix: this can be
+      captured by writing the resulting value as $s_{i,j} \XOR \delta$ 
+      where $\delta$ is a (random) difference introduced by the fault.
+\IfEq{CONF(ALLOW_ZERO,CID)}{1}{%
+      Keep in mind that faults st. $\delta = 0$ {\em are} possible, and
+      since
+      $
+      s_{i,j} \XOR \delta = s_{i,j} \XOR 0 = s_{i,j} ,
+      $
+      this effectively means no fault will be induced in such cases.
+}{%
+      You can assume $\delta \neq 0$, i.e., a fault will {\em always} be
+      induced {\em if} you attempt to do so.
+}%
+\end{itemize}
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{k}}$.  
+      When executed using a command of the form
+
+      \begin{lstlisting}[language={bash},gobble={6}]
+      bash$ ./attack ${USER}.D
+      \end{lstlisting}
+
+      \noindent
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with attack target.
+\item Answer the exam-style questions in 
+      \lstinline[language={bash}]|${ARCHIVE}/${USER}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\printbibliography
+\fi
+
+\end{document}

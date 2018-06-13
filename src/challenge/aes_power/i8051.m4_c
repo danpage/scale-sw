@@ -1,0 +1,1782 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#include "i8051.h"
+
+int HW[] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+             3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+             3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+             3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+             3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+             4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
+
+int hw( uint16_t x ) {
+  return HW[ ( x >> 0 ) & 0xFF ] + 
+         HW[ ( x >> 8 ) & 0xFF ] ;
+}
+
+int hd( uint16_t x, 
+        uint16_t y ) {
+  return hw( x ^ y );
+}
+
+uint8_t lo( uint16_t x ) {
+  return ( x >> 0                 ) & 0xFF;
+}
+
+uint8_t hi( uint16_t x ) {
+  return ( x >> BITSOF( uint8_t ) ) & 0xFF;
+}
+
+uint16_t cat( uint8_t x, uint8_t y ) {
+  return ( ( uint16_t )( x ) << BITSOF( uint8_t ) ) |
+         ( ( uint16_t )( y ) << 0                 ) ;
+}
+
+uint16_t ext( uint8_t x ) {
+  if( x & 0x80 ) {
+    return ( ( uint16_t )( x ) | 0xFF00 );
+  }
+  else {
+    return ( ( uint16_t )( x ) | 0x0000 );
+  }
+}
+
+int noise( int x ) {
+  return ( ( prng() & 1 ) ? +( prng() % x ) : -( prng() % x ) );
+}
+
+i8051_t* i8051_core       = NULL;
+
+int      i8051_trace_used =    0;
+int      i8051_trace_size =    0;
+
+int*     i8051_trace      = NULL;
+
+void i8051_init() {
+  if( i8051_core == NULL ) {
+    i8051_core = ( i8051_t* )( malloc( SIZEOF( i8051_t ) ) );
+  }
+
+  i8051_trace_used = 0;
+  i8051_trace_size = 0;
+}
+
+void i8051_fini() {
+
+}
+
+void i8051_emit( int n, ... ) {
+  va_list args; va_start( args, n );
+
+  for( int i = 0; i < n; i++ ) {
+    if( ( i8051_trace == NULL ) || ( i8051_trace_used == i8051_trace_size ) ) {
+      i8051_trace = ( int* )( realloc( i8051_trace, ( i8051_trace_size += I8051_TRACE_SIZE_INC ) * SIZEOF( int ) ) );
+    }
+
+    i8051_trace[ i8051_trace_used++ ] = va_arg( args, int );
+  }
+
+  va_end( args );
+}
+
+void i8051_rst() {
+  memcpy( i8051_core->pram, I8051_IMAGE_PRAM_DATA, I8051_MEM_PRAM_SIZE * SIZEOF( uint8_t ) );
+  memcpy( i8051_core->iram, I8051_IMAGE_IRAM_DATA, I8051_MEM_IRAM_SIZE * SIZEOF( uint8_t ) );
+  memset( i8051_core->xram,                     0, I8051_MEM_XRAM_SIZE * SIZEOF( uint8_t ) );
+
+  i8051_core->pc   = 0;
+  i8051_core->tsc  = 0;
+}
+
+void i8051_core_whole() {
+  bool f;
+
+  do {
+    f = i8051_core_cycle();
+  } while( f == false );
+}
+
+bool i8051_core_cycle() {
+  bool halt = false;
+
+  #if CONF( DEBUG )
+  fprintf( stderr, "fet: pc=%04X, used=%d, size=%d\n", i8051_core->pc, i8051_trace_used, i8051_trace_size );
+  #endif
+
+  i8051_core->ir[ 0 ] = LD( pram, dir, i8051_core->pc++ );
+
+  switch( i8051_core->ir[ 0 ] ) {
+    INST(0x11,2,2,{ // ACALL page0
+      // TODO      
+    })
+    INST(0x31,2,2,{ // ACALL page1
+      // TODO      
+    })
+    INST(0x51,2,2,{ // ACALL page2
+      // TODO            
+    })
+    INST(0x71,2,2,{ // ACALL page3
+      // TODO            
+    })
+    INST(0x91,2,2,{ // ACALL page4
+      // TODO            
+    })
+    INST(0xB1,2,2,{ // ACALL page5
+      // TODO            
+    })
+    INST(0xD1,2,2,{ // ACALL page6
+      // TODO            
+    })
+    INST(0xF1,2,2,{ // ACALL page7
+      // TODO            
+    })
+    INST(0x24,2,1,{ // ADD  A, #data
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ]       );       
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x25,2,1,{ // ADD  A, iram addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, dir, i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x26,1,1,{ // ADD  A, @R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ind, 0                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x27,1,1,{ // ADD  A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ind, 1                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x28,1,1,{ // ADD  A, R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 0                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x29,1,1,{ // ADD  A, R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 1                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x2A,1,1,{ // ADD  A, R( 2 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 2                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x2B,1,1,{ // ADD  A, R( 3 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 3                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x2C,1,1,{ // ADD  A, R( 4 )
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 4                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x2D,1,1,{ // ADD  A, R( 5 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 5                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x2E,1,1,{ // ADD  A, R( 6 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 6                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x2F,1,1,{ // ADD  A, R( 7 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 7                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x34,2,1,{ // ADDC A, #data  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    }) 
+    INST(0x35,2,1,{ // ADDC A, iram addr  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, dir, i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x36,1,1,{ // ADDC A, @R( 0 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ind, 0                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x37,1,1,{ // ADDC A, @R( 1 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ind, 1                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x38,1,1,{ // ADDC A, R( 0 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 0                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x39,1,1,{ // ADDC A, R( 1 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 1                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x3A,1,1,{ // ADDC A, R( 2 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 2                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x3B,1,1,{ // ADDC A, R( 3 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 3                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x3C,1,1,{ // ADDC A, R( 4 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 4                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x3D,1,1,{ // ADDC A, R( 5 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 5                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x3E,1,1,{ // ADDC A, R( 6 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 6                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x3F,1,1,{ // ADDC A, R( 7 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 7                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ADDC, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x01,2,2,{ // AJMP page0  
+      // TODO            
+    })
+    INST(0x21,2,2,{ // AJMP page1  
+      // TODO            
+    })
+    INST(0x41,2,2,{ // AJMP page2  
+      // TODO            
+    })
+    INST(0x61,2,2,{ // AJMP page3  
+      // TODO            
+    })
+    INST(0x81,2,2,{ // AJMP page4  
+      // TODO            
+    })
+    INST(0xA1,2,2,{ // AJMP page5  
+      // TODO            
+    })
+    INST(0xC1,2,2,{ // AJMP page6  
+      // TODO            
+    })
+    INST(0xE1,2,2,{ // AJMP page7  
+      // TODO            
+    })
+    INST(0x52,2,1,{ // ANL iram addr, A
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],   t2 );
+    })
+    INST(0x53,3,2,{ // ANL iram addr, #data
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]       );
+      uint8_t  t1 =    (            i8051_core->ir[ 2 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],   t2 );
+    })
+    INST(0x54,2,1,{ // ANL A, #data
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })   
+    INST(0x55,2,1,{ // ANL A, iram addr
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, dir, i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x56,1,1,{ // ANL A, @R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ind, 0                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x57,1,1,{ // ANL A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ind, 1                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x58,1,1,{ // ANL A, R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 0                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x59,1,1,{ // ANL A, R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 1                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x5A,1,1,{ // ANL A, R( 2 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 2                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })   
+    INST(0x5B,1,1,{ // ANL A, R( 3 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 3                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x5C,1,1,{ // ANL A, R( 4 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 4                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x5D,1,1,{ // ANL A, R( 5 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 5                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x5E,1,1,{ // ANL A, R( 6 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 6                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x5F,1,1,{ // ANL A, R( 7 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  LD( iram, ctx, 7                         );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x82,2,0,{ // ANL C,  bit addr  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY      );
+      uint8_t  t1 =  LD( iram, bit, i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, bit, I8051_MEM_BIT_PSW_CY,  t2 );
+    })
+    INST(0xB0,2,0,{ // ANL C, /bit addr  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY      );
+      uint8_t  t1 = ~LD( iram, bit, i8051_core->ir[ 1 ]       );
+      uint8_t  t2 =  ALU2( I8051_ALU_ANL,  t0, t1 );
+                     ST( iram, bit, I8051_MEM_BIT_PSW_CY,  t2 );
+    })
+    INST(0xB4,3,2,{ // CJNE A, #data, rel addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xB5,3,2,{ // CJNE A, iram addr, rel addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, dir, i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xB6,3,2,{ // CJNE @R( 0 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ind, 0                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xB7,3,2,{ // CJNE @R( 1 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ind, 1                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xB8,3,2,{ // CJNE R( 0 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 0                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xB9,3,2,{ // CJNE R( 1 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 1                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xBA,3,2,{ // CJNE R( 2 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 2                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xBB,3,2,{ // CJNE R( 3 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 3                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xBC,3,2,{ // CJNE R( 4 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 4                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xBD,3,2,{ // CJNE R( 5 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 5                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xBE,3,2,{ // CJNE R( 6 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 6                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xBF,3,2,{ // CJNE R( 7 ), #data, rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 7                   );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ] );
+      uint8_t  t2 =  ALU2( I8051_ALU_NEQ,  t0, t1 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_LTH,  t0, t1 );
+
+      if( t3 ) {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 1 );
+      }
+      else {
+        ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+      }
+    })
+    INST(0xC2,2,0,{ // CLR bit addr  
+      ST( iram, bit, i8051_core->ir[ 1 ],  0 );      
+    })
+    INST(0xC3,1,1,{ // CLR C  
+      ST( iram, bit, I8051_MEM_BIT_PSW_CY, 0 );
+    })
+    INST(0xE4,1,1,{ // CLR A  
+      ST( iram, sfr, I8051_MEM_SFR_A,      0 );
+    })
+    INST(0xF4,1,1,{ // CPL A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 =  ALU1( I8051_ALU_CPL,  t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t1 );
+    })
+    INST(0xB3,1,1,{ // CPL C  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY      );
+      uint8_t  t1 =  ALU1( I8051_ALU_CPL,  t0 );
+                     ST( iram, bit, I8051_MEM_BIT_PSW_CY,  t1 );
+    })
+    INST(0xB2,2,0,{ // CPL bit addr  
+      uint8_t  t0 =  LD( iram, bit, i8051_core->ir[ 1 ]       );
+      uint8_t  t1 =  ALU1( I8051_ALU_CPL,  t0 );
+                     ST( iram, bit, i8051_core->ir[ 1 ],   t1 );
+    })
+    INST(0xD4,1,1,{ // DA  
+      // TODO      
+    })
+    INST(0x14,1,1,{ // DEC A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A           );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,       t2 );
+    })
+    INST(0x15,2,1,{ // DEC iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]       );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],   t2 );
+    })
+    INST(0x16,1,1,{ // DEC @R( 0 )  
+      uint8_t  t0 =  LD( iram, ind, 0                         );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ind, 0,                     t2 );
+    })
+    INST(0x17,1,1,{ // DEC @R( 1 )  
+      uint8_t  t0 =  LD( iram, ind, 1                         );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ind, 1,                     t2 );
+    })
+    INST(0x18,1,1,{ // DEC R( 0 )  
+      uint8_t  t0 =  LD( iram, ctx, 0                         );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 0,                    t2 );
+    })
+    INST(0x19,1,1,{ // DEC R( 1 )  
+      uint8_t  t0 =  LD( iram, ctx, 1                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 1,                    t2 );
+    })
+    INST(0x1A,1,1,{ // DEC R( 2 )  
+      uint8_t  t0 =  LD( iram, ctx, 2                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 2,                    t2 );
+    })
+    INST(0x1B,1,1,{ // DEC R( 3 )  
+      uint8_t  t0 =  LD( iram, ctx, 3                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 3,                    t2 );
+    })
+    INST(0x1C,1,1,{ // DEC R( 4 )  
+      uint8_t  t0 =  LD( iram, ctx, 4                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 4,                    t2 );
+    })
+    INST(0x1D,1,1,{ // DEC R( 5 )  
+      uint8_t  t0 =  LD( iram, ctx, 5                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 5,                    t2 );
+    })
+    INST(0x1E,1,1,{ // DEC R( 6 )  
+      uint8_t  t0 =  LD( iram, ctx, 6                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 6,                    t2 );
+    })
+    INST(0x1F,1,1,{ // DEC R( 7 )  
+      uint8_t  t0 =  LD( iram, ctx, 7                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 7,                    t2 );
+    })
+    INST(0x84,1,4,{ // DIV AB  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_B                       );
+                     ALU2( I8051_ALU_DIV,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A, i8051_core->alu_r_lo );
+                     ST( iram, sfr, I8051_MEM_SFR_B, i8051_core->alu_r_hi );
+    })
+    INST(0xD5,3,2,{ // DJNZ iram addr, rel addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xD8,2,2,{ // DJNZ R( 0 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 0                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xD9,2,2,{ // DJNZ R( 1 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 1                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xDA,2,2,{ // DJNZ R( 2 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 2                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xDB,2,2,{ // DJNZ R( 3 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 3                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xDC,2,2,{ // DJNZ R( 4 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 4                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xDD,2,2,{ // DJNZ R( 5 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 5                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xDE,2,2,{ // DJNZ R( 6 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 6                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0xDF,2,2,{ // DJNZ R( 7 ), rel addr  
+      uint8_t  t0 =  LD( iram, ctx, 7                        );
+      uint8_t  t1 = -1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );                  
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+      uint8_t  t3 =  ALU2( I8051_ALU_NEQ,  t2,  0 );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t3 );
+    })
+    INST(0x04,1,1,{ // INC A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x05,2,1,{ // INC iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+    })
+    INST(0x06,1,1,{ // INC @R( 0 )  
+      uint8_t  t0 =  LD( iram, ind, 0                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ind, 0,                    t2 );
+    }) 
+    INST(0x07,1,1,{ // INC @R( 1 )  
+      uint8_t  t0 =  LD( iram, ind, 1                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ind, 1,                    t2 );
+    })
+    INST(0x08,1,1,{ // INC R( 0 )  
+      uint8_t  t0 =  LD( iram, ctx, 0                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 0,                    t2 );
+    })
+    INST(0x09,1,1,{ // INC R( 1 )  
+      uint8_t  t0 =  LD( iram, ctx, 1                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 1,                    t2 );
+    })
+    INST(0x0A,1,1,{ // INC R( 2 )  
+      uint8_t  t0 =  LD( iram, ctx, 2                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 2,                    t2 );
+    })
+    INST(0x0B,1,1,{ // INC R( 3 )  
+      uint8_t  t0 =  LD( iram, ctx, 3                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 3,                    t2 );
+    })
+    INST(0x0C,1,1,{ // INC R( 4 )  
+      uint8_t  t0 =  LD( iram, ctx, 4                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 4,                    t2 );
+    })
+    INST(0x0D,1,1,{ // INC R( 5 )  
+      uint8_t  t0 =  LD( iram, ctx, 5                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 5,                    t2 );
+    })
+    INST(0x0E,1,1,{ // INC R( 6 )  
+      uint8_t  t0 =  LD( iram, ctx, 6                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 6,                    t2 );
+    })
+    INST(0x0F,1,1,{ // INC R( 7 )  
+      uint8_t  t0 =  LD( iram, ctx, 7                        );
+      uint8_t  t1 = +1;
+      uint8_t  t2 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, ctx, 7,                    t2 );
+    })
+    INST(0xA3,1,2,{ // INC DPTR  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_DPH        );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_DPL        );
+                     INC16( t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_DPH,    t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_DPL,    t1 );
+    })
+    INST(0x10,3,0,{ // JBC bit addr, rel addr  
+      uint8_t  t0 =  LD( iram, bit, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 1  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t1 );
+
+      if( t1 ) {
+        ST( iram, bit, i8051_core->ir[ 1 ], 0 );
+      }
+      else {
+        // NOTE: the datasheet *specifically* says this isn't done,
+        //       i.e., the bit isn't cleared if already zero (which
+        //       of course makes sense); we ignore this to ensure
+        //       a constant number of cycles.
+        ST( iram, bit, i8051_core->ir[ 1 ], 0 );
+      }
+    })
+    INST(0x30,3,0,{ // JNB bit addr, rel addr  
+      uint8_t  t0 =  LD( iram, bit, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 0  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t1 );
+    })
+    INST(0x20,3,2,{ // JB  bit addr, rel addr  
+      uint8_t  t0 =  LD( iram, bit, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 1  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 2 ] ), t1 );
+    })
+    INST(0x50,2,2,{ // JNC rel addr  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY     );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 0  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 1 ] ), t1 );
+    })
+    INST(0x40,2,2,{ // JC  rel addr  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY     );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 1  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 1 ] ), t1 );
+    })
+    INST(0x60,2,2,{ // JZ  rel addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 0  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 1 ] ), t1 );
+    })
+    INST(0x70,2,2,{ // JNZ rel addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ALU2( I8051_ALU_EQU,  t0, 0  );
+
+      ADD16_COND( i8051_core->pc, ext( i8051_core->ir[ 1 ] ), t1 );
+    })
+    INST(0x80,2,2,{ // SJMP  rel addr  
+      uint8_t t2 = i8051_core->ir[ 1 ];
+
+      ADD16( i8051_core->pc, ext( t2 ) );
+    })
+    INST(0x02,3,2,{ // LJMP code addr  
+      uint8_t  t0 = i8051_core->ir[ 1 ];
+      uint8_t  t1 = i8051_core->ir[ 2 ]; 
+
+      i8051_core->pc = cat( t0, t1 );
+    })
+    INST(0x73,1,2,{ // JMP @A + DPTR  
+      uint8_t  t0 = LD( iram, sfr, I8051_MEM_SFR_DPH );
+      uint8_t  t1 = LD( iram, sfr, I8051_MEM_SFR_DPL );
+      uint8_t  t2 = LD( iram, sfr, I8051_MEM_SFR_A   );
+
+      i8051_core->pc = cat( t0, t1 );
+
+      ADD16( i8051_core->pc, ext( t2 ) );
+    })
+    INST(0x12,3,2,{ // LCALL code addr  
+      uint8_t  t0 = i8051_core->ir[ 1 ];
+      uint8_t  t1 = i8051_core->ir[ 2 ];
+
+      uint8_t  t2 =  LD( iram, sfr, I8051_MEM_SFR_SP         );
+      uint8_t  t3 = +1;
+
+               t2 =  ALU2( I8051_ALU_ADD,  t2, t3 );
+                     ST( iram, dir, t2,           lo( i8051_core->pc ) );
+               t2 =  ALU2( I8051_ALU_ADD,  t2, t3 );
+                     ST( iram, dir, t2,           hi( i8051_core->pc ) );
+
+                     ST( iram, sfr, I8051_MEM_SFR_SP,     t2 );
+
+      i8051_core->pc = cat( t0, t1 );
+    })
+    INST(0x22,1,2,{ // RET  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_SP         );
+      uint8_t  t1 = -1;
+
+      uint8_t  t2 =  LD( iram, dir, t0               );
+               t0 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+      uint8_t  t3 =  LD( iram, dir, t0               );
+               t0 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+
+                     ST( iram, sfr, I8051_MEM_SFR_SP,     t0 );
+
+      i8051_core->pc = cat( t2, t3 );
+    })
+    INST(0x32,1,2,{ // RETI  
+      // TODO      
+    })
+    INST(0xD0,2,2,{ // POP iram addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_SP         );
+      uint8_t  t1 = -1;
+
+      uint8_t  t2 =  LD( iram, dir, t0                       );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+
+               t0 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_SP,     t0 );
+    })
+    INST(0xC0,2,2,{ // PUSH iram addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_SP         );
+      uint8_t  t1 = +1;
+
+               t0 =  ALU2( I8051_ALU_ADD,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_SP,     t0 );
+
+      uint8_t  t2 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, dir, t0,                   t2 );
+    })
+    INST(0x76,2,1,{ // MOV @R( 0 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      ); 
+                     ST( iram, ind, 0,                    t0 );
+    })
+    INST(0x77,2,1,{ // MOV @R( 1 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );     
+                     ST( iram, ind, 1,                    t0 );
+    })
+    INST(0xF6,1,1,{ // MOV @R( 0 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ind, 0,                    t0 );
+    })
+    INST(0xF7,1,1,{ // MOV @R( 1 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ind, 1,                    t0 );
+    })
+    INST(0xA6,2,2,{ // MOV @R( 0 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ind, 0,                    t0 );
+    })
+    INST(0xA7,2,2,{ // MOV @R( 1 ), iram addr 
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ind, 1,                    t0 );
+    })
+    INST(0x74,2,1,{ // MOV A, #data  
+      uint8_t  t0 =  i8051_core->ir[ 1 ];      
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xE6,1,1,{ // MOV A, @R( 0 )
+      uint8_t  t0 =  LD( iram, ind, 0                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xE7,1,1,{ // MOV A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, ind, 1                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    }) 
+    INST(0xE8,1,1,{ // MOV A, R( 0 )  
+      uint8_t  t0 =  LD( iram, ctx, 0                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xE9,1,1,{ // MOV A, R( 1 )  
+      uint8_t  t0 =  LD( iram, ctx, 1                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xEA,1,1,{ // MOV A, R( 2 )  
+      uint8_t  t0 =  LD( iram, ctx, 2                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    }) 
+    INST(0xEB,1,1,{ // MOV A, R( 3 )  
+      uint8_t  t0 =  LD( iram, ctx, 3                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xEC,1,1,{ // MOV A, R( 4 )  
+      uint8_t  t0 =  LD( iram, ctx, 4                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xED,1,1,{ // MOV A, R( 5 )  
+      uint8_t  t0 =  LD( iram, ctx, 5                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xEE,1,1,{ // MOV A, R( 6 )  
+      uint8_t  t0 =  LD( iram, ctx, 6                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    }) 
+    INST(0xEF,1,1,{ // MOV A, R( 7 )  
+      uint8_t  t0 =  LD( iram, ctx, 7                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xE5,2,1,{ // MOV A, iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xA2,2,0,{ // MOV C, bit addr  
+      uint8_t  t0 =  LD( iram, bit, i8051_core->ir[ 1 ]      );
+                     ST( iram, bit, I8051_MEM_BIT_PSW_CY, t0 );
+    })
+    INST(0x92,2,0,{ // MOV bit addr, C  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY     );
+                     ST( iram, bit, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x90,3,2,{ // MOV DPTR, #data  
+      uint16_t t0 =  i8051_core->ir[ 1 ];
+      uint16_t t1 =  i8051_core->ir[ 2 ];
+                     ST( iram, sfr, I8051_MEM_SFR_DPH,    t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_DPL,    t1 );
+    })
+    INST(0x78,2,1,{ // MOV R( 0 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 0,                    t0 );
+    })
+    INST(0x79,2,1,{ // MOV R( 1 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 1,                    t0 );
+    })
+    INST(0x7A,2,1,{ // MOV R( 2 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 2,                    t0 );
+    })
+    INST(0x7B,2,1,{ // MOV R( 3 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 3,                    t0 );
+    })
+    INST(0x7C,2,1,{ // MOV R( 4 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 4,                    t0 );
+    })
+    INST(0x7D,2,1,{ // MOV R( 5 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 5,                    t0 );
+    })
+    INST(0x7E,2,1,{ // MOV R( 6 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 6,                    t0 );
+    })
+    INST(0x7F,2,1,{ // MOV R( 7 ), #data  
+      uint8_t  t0 =    (            i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 7,                    t0 );
+    })
+    INST(0xF8,1,1,{ // MOV R( 0 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 0,                    t0 );
+    })
+    INST(0xF9,1,1,{ // MOV R( 1 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 1,                    t0 );
+    })
+    INST(0xFA,1,1,{ // MOV R( 2 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 2,                    t0 );
+    })
+    INST(0xFB,1,1,{ // MOV R( 3 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 3,                    t0 );
+    })
+    INST(0xFC,1,1,{ // MOV R( 4 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 4,                    t0 );
+    })
+    INST(0xFD,1,1,{ // MOV R( 5 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 5,                    t0 );
+    })
+    INST(0xFE,1,1,{ // MOV R( 6 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 6,                    t0 );
+    })
+    INST(0xFF,1,1,{ // MOV R( 7 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, ctx, 7,                    t0 );
+    })
+    INST(0xA8,2,2,{ // MOV R( 0 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 0,                    t0 );
+    })
+    INST(0xA9,2,2,{ // MOV R( 1 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 1,                    t0 );
+    })
+    INST(0xAA,2,2,{ // MOV R( 2 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 2,                    t0 );
+    })
+    INST(0xAB,2,2,{ // MOV R( 3 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 3,                    t0 );
+    })
+    INST(0xAC,2,2,{ // MOV R( 4 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 4,                    t0 );
+    })
+    INST(0xAD,2,2,{ // MOV R( 5 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 5,                    t0 );
+    })
+    INST(0xAE,2,2,{ // MOV R( 6 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 6,                    t0 );
+    })
+    INST(0xAF,2,2,{ // MOV R( 7 ), iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+                     ST( iram, ctx, 7,                    t0 );
+    })
+    INST(0x75,3,2,{ // MOV iram addr, #data  
+      uint8_t  t0 =    ( i8051_core->ir[ 2 ]                 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x86,2,2,{ // MOV iram addr, @R( 0 )  
+      uint8_t  t0 =  LD( iram, ind, 0                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x87,2,2,{ // MOV iram addr, @R( 1 )  
+      uint8_t  t0 =  LD( iram, ind, 1                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x88,2,2,{ // MOV iram addr, R( 0 )  
+      uint8_t  t0 =  LD( iram, ctx, 0                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x89,2,2,{ // MOV iram addr, R( 1 )  
+      uint8_t  t0 =  LD( iram, ctx, 1                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x8A,2,2,{ // MOV iram addr, R( 2 )  
+      uint8_t  t0 =  LD( iram, ctx, 2                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x8B,2,2,{ // MOV iram addr, R( 3 )  
+      uint8_t  t0 =  LD( iram, ctx, 3                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x8C,2,2,{ // MOV iram addr, R( 4 )  
+      uint8_t  t0 =  LD( iram, ctx, 4                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x8D,2,2,{ // MOV iram addr, R( 5 )  
+      uint8_t  t0 =  LD( iram, ctx, 5                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x8E,2,2,{ // MOV iram addr, R( 6 )  
+      uint8_t  t0 =  LD( iram, ctx, 6                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x8F,2,2,{ // MOV iram addr, R( 7 )  
+      uint8_t  t0 =  LD( iram, ctx, 7                        );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0xF5,2,1,{ // MOV iram addr, A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x85,3,2,{ // MOV iram addr, iram addr  
+      uint8_t  t0 =  LD( iram, bit, i8051_core->ir[ 2 ]      );
+                     ST( iram, bit, i8051_core->ir[ 1 ],  t0 );
+    })
+    INST(0x93,1,2,{ // MOVC A, @A + DPTR  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_DPH        );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_DPL        );
+      uint8_t  t2 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+
+      uint16_t t3 =  cat( t0, t1 );
+                     ADD16( t3, t2 );         
+
+      uint8_t  t4 =  LD( pram, dir, t3                       );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t4 );
+    })
+    INST(0x83,1,2,{ // MOVC A, @A + PC  
+      uint8_t  t2 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+
+      uint16_t t3 =  i8051_core->pc;
+                     ADD16( t3, t2 );
+
+      uint8_t  t4 =  LD( pram, dir, t3                       );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t4 );
+    })
+    INST(0xF0,1,2,{ // MOVX @DPTR, A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_DPH        );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_DPL        );
+
+      uint16_t t3 =  cat( t0, t1 );
+
+      uint8_t  t4 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( xram, dir, t3,                   t4 );
+    }) 
+    INST(0xE0,1,2,{ // MOVX A, @DPTR  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_DPH        );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_DPL        );
+
+      uint16_t t3 =  cat( t0, t1 );
+
+      uint8_t  t4 =  LD( xram, dir, t3                       );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t4 );
+    })
+    INST(0xF2,1,2,{ // MOVX @R( 0 ), A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( xram, ind, 0,                    t0 );
+    })
+    INST(0xF3,1,2,{ // MOVX @R( 1 ), A   
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+                     ST( xram, ind, 1,                    t0 );
+    })
+    INST(0xE2,1,2,{ // MOVX A, @R( 0 )  
+      uint8_t  t0 =  LD( xram, ind, 0                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xE3,1,2,{ // MOVX A, @R( 1 )  
+      uint8_t  t0 =  LD( xram, ind, 1                        );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t0 );
+    })
+    INST(0xA4,1,4,{ // MUL AB  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_B                       );
+                     ALU2( I8051_ALU_MUL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A, i8051_core->alu_r_lo );
+                     ST( iram, sfr, I8051_MEM_SFR_B, i8051_core->alu_r_hi );
+    })
+    INST(0x00,1,1,{ // NOP  
+    
+    }) 
+    INST(0x42,2,1,{ // ORL iram addr, A  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+    })
+    INST(0x43,3,2,{ // ORL iram addr, #data  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+      uint8_t  t1 =    (            i8051_core->ir[ 2 ]      );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ],  t2 );
+    })
+    INST(0x44,2,1,{ // ORL A, #data  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ]      );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x45,2,1,{ // ORL A, iram addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, dir, i8051_core->ir[ 1 ]      );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x46,1,1,{ // ORL A, @R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ind, 0                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x47,1,1,{ // ORL A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ind, 1                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x48,1,1,{ // ORL A, R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 0                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x49,1,1,{ // ORL A, R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 1                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x4A,1,1,{ // ORL A, R( 2 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 2                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x4B,1,1,{ // ORL A, R( 3 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 3                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x4C,1,1,{ // ORL A, R( 4 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 4                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x4D,1,1,{ // ORL A, R( 5 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 5                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x4E,1,1,{ // ORL A, R( 6 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 6                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x4F,1,1,{ // ORL A, R( 7 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  LD( iram, ctx, 7                        );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t2 );
+    })
+    INST(0x72,2,0,{ // ORL C,  bit addr  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY     );
+      uint8_t  t1 =  LD( iram, bit, i8051_core->ir[ 1 ]      );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, bit, I8051_MEM_BIT_PSW_CY, t2 );
+    })
+    INST(0xA0,2,0,{ // ORL C, /bit addr  
+      uint8_t  t0 =  LD( iram, bit, I8051_MEM_BIT_PSW_CY     );
+      uint8_t  t1 = ~LD( iram, bit, i8051_core->ir[ 1 ]      );
+      uint8_t  t2 =  ALU2( I8051_ALU_ORL,  t0, t1 );
+                     ST( iram, bit, I8051_MEM_BIT_PSW_CY, t2 );
+    })
+    INST(0xC4,1,1,{ // SWAP A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ( t0 << 4 ) |
+                     ( t0 >> 4 ) ;
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t1 );
+    })
+    INST(0x23,1,1,{ // RL A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ALU1( I8051_ALU_RL,  t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t1 );
+    })
+    INST(0x03,1,1,{ // RR A  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ALU1( I8051_ALU_RR,  t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t1 );
+    })
+    INST(0x33,1,1,{ // RLC A  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ALU1( I8051_ALU_RLC,  t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t1 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x13,1,1,{ // RRC A
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A          );
+      uint8_t  t1 =  ALU1( I8051_ALU_RRC,  t0 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,      t1 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0xD3,1,1,{ // SETB C  
+      ST( iram, bit, I8051_MEM_BIT_PSW_CY,    1 );
+    })
+    INST(0xD2,2,0,{ // SETB bit addr  
+      ST( iram, bit, i8051_core->ir[ 1 ], 1 );      
+    })
+    INST(0x94,2,1,{ // SUBB A, #data  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ]     );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x95,2,1,{ // SUBB A, iram addr  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ind, i8051_core->ir[ 1 ]     );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x96,1,1,{ // SUBB A, @R( 0 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ind, 0                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x97,1,1,{ // SUBB A, @R( 1 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ind, 1                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x98,1,1,{ // SUBB A, R( 0 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 0                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x99,1,1,{ // SUBB A, R( 1 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 1                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x9A,1,1,{ // SUBB A, R( 2 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 2                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x9B,1,1,{ // SUBB A, R( 3 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 3                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x9C,1,1,{ // SUBB A, R( 4 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 4                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x9D,1,1,{ // SUBB A, R( 5 )
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 5                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );  
+    })
+    INST(0x9E,1,1,{ // SUBB A, R( 6 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 6                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0x9F,1,1,{ // SUBB A, R( 7 )  
+      i8051_core->alu_f_cy =  LD( iram, bit, I8051_MEM_BIT_PSW_CY                       );
+
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 7                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_SUBB, t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+
+                              ST( iram, bit, I8051_MEM_BIT_PSW_CY, i8051_core->alu_f_cy );
+    })
+    INST(0xA5,1,1,{ // UDEF  
+      halt = true;
+    })
+    INST(0xC5,2,1,{ // XCH A, iram addr  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]     );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, dir, i8051_core->ir[ 1 ], t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xC6,1,1,{ // XCH A, @R( 0 )  
+      uint8_t  t0 =  LD( iram, ind, 0                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ind, 0,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xC7,1,1,{ // XCH A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, ind, 1                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ind, 1,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xC8,1,1,{ // XCH A, R( 0 )  
+      uint8_t  t0 =  LD( iram, ctx, 0                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 0,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xC9,1,1,{ // XCH A, R( 1 )  
+      uint8_t  t0 =  LD( iram, ctx, 1                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 1,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xCA,1,1,{ // XCH A, R( 2 )  
+      uint8_t  t0 =  LD( iram, ctx, 2                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 2,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xCB,1,1,{ // XCH A, R( 3 )  
+      uint8_t  t0 =  LD( iram, ctx, 3                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 3,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xCC,1,1,{ // XCH A, R( 4 )  
+      uint8_t  t0 =  LD( iram, ctx, 4                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 4,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xCD,1,1,{ // XCH A, R( 5 )  
+      uint8_t  t0 =  LD( iram, ctx, 0                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 0,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xCE,1,1,{ // XCH A, R( 6 )  
+      uint8_t  t0 =  LD( iram, ctx, 6                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 6,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xCF,1,1,{ // XCH A, R( 7 )  
+      uint8_t  t0 =  LD( iram, ctx, 7                       );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+                     ST( iram, ctx, 7,                   t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t0 );
+    })
+    INST(0xD6,1,1,{ // XCHD A, @R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A     );
+      uint8_t  t1 =  LD( iram, ind, 0                   );
+
+      uint8_t  t2 =  ( t0 & 0xF0 ) | ( t1 & 0x0F );
+      uint8_t  t3 =  ( t1 & 0xF0 ) | ( t0 & 0x0F );
+
+                     ST( iram, sfr, I8051_MEM_SFR_A, t2 );
+                     ST( iram, ind, 0,               t3 );
+    })
+    INST(0xD7,1,1,{ // XCHD A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A     );
+      uint8_t  t1 =  LD( iram, ind, 1                   );
+
+      uint8_t  t2 =  ( t0 & 0xF0 ) | ( t1 & 0x0F );
+      uint8_t  t3 =  ( t1 & 0xF0 ) | ( t0 & 0x0F );
+
+                     ST( iram, sfr, I8051_MEM_SFR_A, t2 );
+                     ST( iram, ind, 1,               t3 );
+    })
+    INST(0x62,2,1,{ // XRL iram addr, A  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]     );
+      uint8_t  t1 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ], t2 );
+    })
+    INST(0x63,3,2,{ // XRL iram addr, #data  
+      uint8_t  t0 =  LD( iram, dir, i8051_core->ir[ 1 ]     );
+      uint8_t  t1 =    (            i8051_core->ir[ 2 ]     );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, dir, i8051_core->ir[ 1 ], t2 );
+    })
+    INST(0x64,2,1,{ // XRL A, #data  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =    (            i8051_core->ir[ 1 ]     );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x65,2,1,{ // XRL A, iram addr  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, dir, i8051_core->ir[ 1 ]     );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x66,1,1,{ // XRL A, @R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ind, 0                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x67,1,1,{ // XRL A, @R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ind, 1                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x68,1,1,{ // XRL A, R( 0 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 0                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x69,1,1,{ // XRL A, R( 1 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 1                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x6A,1,1,{ // XRL A, R( 2 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 2                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x6B,1,1,{ // XRL A, R( 3 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 3                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x6C,1,1,{ // XRL A, R( 4 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 4                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x6D,1,1,{ // XRL A, R( 5 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 5                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x6E,1,1,{ // XRL A, R( 6 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 6                       );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+    INST(0x6F,1,1,{ // XRL A, R( 7 )  
+      uint8_t  t0 =  LD( iram, sfr, I8051_MEM_SFR_A         );
+      uint8_t  t1 =  LD( iram, ctx, 7                   );
+      uint8_t  t2 =  ALU2( I8051_ALU_XRL,  t0, t1 );
+                     ST( iram, sfr, I8051_MEM_SFR_A,     t2 );
+    })
+  }
+
+  return halt;
+}                        

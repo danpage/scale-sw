@@ -1,0 +1,80 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% http://www.ctan.org/pkg/algorithm2e
+\usepackage[shortend,linesnumbered]{algorithm2e}
+% http://www.ctan.org/pkg/amsmath
+\usepackage{amsmath}
+\usepackage{amssymb}
+% http://www.ctan.org/pkg/biblatex
+\usepackage[backend=biber,style=numeric,hyperref=true,backref=true,defernumbers=true]{biblatex}
+% http://www.ctan.org/pkg/fancyhdr
+\usepackage{fancyhdr}
+% http://www.ctan.org/pkg/fontenc
+\usepackage[T1]{fontenc}
+% http://www.ctan.org/pkg/geometry
+\usepackage[margin=2cm]{geometry}
+% http://www.ctan.org/pkg/hyperref
+\usepackage{hyperref}
+% http://www.ctan.org/pkg/listings
+\usepackage{listings}
+% http://www.ctan.org/pkg/titlesec
+\usepackage{titlesec}
+% http://www.ctan.org/pkg/siunitx
+\usepackage[binary-units]{siunitx}
+% http://www.ctan.org/pkg/xargs
+\usepackage{xargs}
+% http://www.ctan.org/pkg/xstring
+\usepackage{xstring}
+
+% configure algorithm2e
+
+\DontPrintSemicolon
+
+% configure biblatex
+
+\DefineBibliographyStrings{english}{
+  backrefpage  = {see p.}, % single   page number
+  backrefpages = {see pp.} % multiple page numbers
+}
+
+% configure titlesec
+
+\titleformat{\subsection}{\large\bfseries}{}{0pt}{\arabic{subsection}.\quad}
+\titleformat{\subsubsection}{\bfseries}{}{0pt}{\arabic{subsection}.\arabic{subsubsection}.\quad}
+
+% configure hyperref
+
+\hypersetup{colorlinks=true,bookmarks=false,urlcolor=red}
+
+% configure listings
+
+\lstset{
+  escapechar=¬,
+  basicstyle=\ttfamily, 
+  keywordstyle=\ttfamily, 
+  breakautoindent=false,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+% configure fancyhdr
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  
+  \renewcommand{\headrulewidth}{0.5pt}
+  \renewcommand{\footrulewidth}{0.5pt}
+
+  \fancyhead[L]{}  
+  \fancyhead[C]{}
+  \fancyhead[R]{}
+  \fancyfoot[L]{\url{http://www.github.com/danpage/scale}}
+  \fancyfoot[C]{}
+  \fancyfoot[R]{\thepage}
+}
+  
+\pagestyle{plain}

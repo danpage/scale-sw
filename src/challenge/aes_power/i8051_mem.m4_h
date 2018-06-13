@@ -1,0 +1,86 @@
+/* Copyright (C) 2017 Daniel Page <dan@phoo.org>
+ *
+ * Use of this source code is restricted per the CC BY-SA license, a copy of
+ * which can be found via http://creativecommons.org (and should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
+#ifndef __I8051_MEM_H
+#define __I8051_MEM_H
+
+#define I8051_MEM_PRAM      ( 0 )
+#define I8051_MEM_IRAM      ( 1 )
+#define I8051_MEM_XRAM      ( 2 )
+
+#define I8051_MEM_PRAM_SIZE ( 1 << 16 )
+#define I8051_MEM_IRAM_SIZE ( 1 <<  8 )
+#define I8051_MEM_XRAM_SIZE ( 1 << 16 )
+
+#define I8051_MEM_IRAM_CTX_LO ( 0x00 )
+#define I8051_MEM_IRAM_CTX_HI ( 0x1F )
+#define I8051_MEM_IRAM_BIT_LO ( 0x20 )
+#define I8051_MEM_IRAM_BIT_HI ( 0x2F )
+#define I8051_MEM_IRAM_GPR_LO ( 0x30 )
+#define I8051_MEM_IRAM_GPR_HI ( 0x7F )
+#define I8051_MEM_IRAM_SFR_LO ( 0x80 )
+#define I8051_MEM_IRAM_SFR_HI ( 0xFF )
+
+#define I8051_MEM_BIT_PSW_OV  ( 0xD2 )
+#define I8051_MEM_BIT_PSW_RS0 ( 0xD3 )
+#define I8051_MEM_BIT_PSW_RS1 ( 0xD4 )
+#define I8051_MEM_BIT_PSW_AC  ( 0xD6 )
+#define I8051_MEM_BIT_PSW_CY  ( 0xD7 )
+
+#define I8051_MEM_SFR_P0      ( 0x00 )
+#define I8051_MEM_SFR_SP      ( 0x01 )
+#define I8051_MEM_SFR_DPL     ( 0x02 )
+#define I8051_MEM_SFR_DPH     ( 0x03 )
+#define I8051_MEM_SFR_PCON    ( 0x07 )
+#define I8051_MEM_SFR_TCON    ( 0x08 )
+#define I8051_MEM_SFR_TMOD    ( 0x09 )
+#define I8051_MEM_SFR_TL0     ( 0x0A )
+#define I8051_MEM_SFR_TL1     ( 0x0B )
+#define I8051_MEM_SFR_TH0     ( 0x0C )
+#define I8051_MEM_SFR_TH1     ( 0x0D )
+#define I8051_MEM_SFR_P1      ( 0x10 )
+#define I8051_MEM_SFR_SCON    ( 0x18 )
+#define I8051_MEM_SFR_SBUF    ( 0x19 )
+#define I8051_MEM_SFR_P2      ( 0x20 )
+#define I8051_MEM_SFR_IE      ( 0x28 )
+#define I8051_MEM_SFR_P3      ( 0x30 )
+#define I8051_MEM_SFR_IP      ( 0x38 )
+#define I8051_MEM_SFR_PSW     ( 0x50 )
+#define I8051_MEM_SFR_A       ( 0x60 )
+#define I8051_MEM_SFR_B       ( 0x70 )
+
+#include "i8051.h"
+
+extern uint8_t I8051_IMAGE_IRAM_DATA[];
+extern uint8_t I8051_IMAGE_PRAM_DATA[];
+
+extern void i8051_mem_emit( int op );
+
+extern void i8051_mem_iram_ld_bit();
+extern void i8051_mem_iram_st_bit();
+
+extern void i8051_mem_iram_ld_sfr();
+extern void i8051_mem_iram_st_sfr();
+
+extern void i8051_mem_iram_ld_ctx();
+extern void i8051_mem_iram_st_ctx();
+
+extern void i8051_mem_pram_ld_ind();
+extern void i8051_mem_iram_ld_ind();
+extern void i8051_mem_xram_ld_ind();
+extern void i8051_mem_pram_st_ind();
+extern void i8051_mem_iram_st_ind();
+extern void i8051_mem_xram_st_ind();
+
+extern void i8051_mem_pram_ld_dir();
+extern void i8051_mem_iram_ld_dir();
+extern void i8051_mem_xram_ld_dir();
+extern void i8051_mem_pram_st_dir();
+extern void i8051_mem_iram_st_dir();
+extern void i8051_mem_xram_st_dir();
+
+#endif

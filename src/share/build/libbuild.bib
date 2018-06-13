@@ -1,0 +1,107 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% - The format of entry keys is
+%
+%   SCALE:<author key>:<publication year>[a-z]
+%
+%   i.e., a domain separator, followed by the author key and two-digit 
+%   publication year (using XX to denote undated), optionally followed 
+%   by a character to allow resolution of conflicts (with separating 
+%   colons where appropriate),
+%
+% - The format of author keys depends on the number of authors:
+%
+%   -       1-author         =>                       full (ASCII'ised) last name, e.g., "W.M. Hu"                                                            => Hu
+%   - 2- or 3-author         => first 3 characters of each (ASCII'ised) last name, e.g., "O. Ac\i{}i\c{c}mez and \c{C}.K. Ko\c{c}"                            => AciKoc
+%   -       4-author or more => first 1 character  of each (ASCII'ised) last name, e.g., "Y. Wang and A. Ferraiuolo and D. Zhang and A.C. Myers and E.G. Suh" => WFZMS
+
+@article{SCALE:Montgomery:85,
+  author    = {P.L. Montgomery},
+  title     = {Modular multiplication without trial division},
+  journal   = {Mathematics of Computation},
+  volume    = {44},
+  number    = {170},
+  pages     = {519--521},
+  year      = {1985}
+}
+
+@article{SCALE:Gordon:85,
+  author    = {D.M. Gordon},
+  title     = {A Survey of Fast Exponentiation Methods},
+  journal   = {Journal of Algorithms},
+  volume    = {27},
+  pages     = {129--146},
+  year      = {1998}
+}
+
+@article{SCALE:KocAcaKal:96,
+  author    = {\c{C}.K. Ko\c{c} and T. Acar and B.S. Kaliski},
+  title     = {Analyzing and comparing {M}ontgomery multiplication algorithms},
+  journal   = {IEEE Micro},
+  volume    = {16},
+  number    = {3},
+  pages     = {26--33},
+  year      = {1996}
+}
+
+@inproceedings{SCALE:KasSch:09,
+  author    = {E. K\"{a}sper and P. Schwabe},
+  title     = {Faster and Timing-attack Resistant {AES-GCM}},
+  booktitle = {Cryptographic Hardware and Embedded Systems (CHES)},
+  publisher = {Springer-Verlag},
+  series    = {LNCS 5747},
+  pages     = {1--17},
+  year      = {2009}
+}
+
+@inproceedings{SCALE:BelRog:94,
+  author    = {M. Bellare and P. Rogaway},
+  title     = {Optimal asymmetric encryption},
+  booktitle = {Advances in Cryptology (EUROCRYPT)},
+  publisher = {Springer-Verlag},
+  series    = {LNCS 950},
+  pages     = {92--111},
+  year      = {1994}
+}
+
+@book{SCALE:Schneier:06,
+  author      = {B. Schneier},
+  title       = {Applied Cryptography}, 
+  edition     = {2nd},
+  publisher   = {John Wiley \& Sons}, 
+  year        = {2006},
+  url         = {http://www.schneier.com/book-applied.html}
+}
+
+@misc{SCALE:IEEE:1619:07,
+  title        = {Cryptographic Protection of Data on Block-Oriented Storage Devices},
+  howpublished = {Institute of Electrical and Electronics Engineers (IEEE) Standard 1619-2007},
+  year         = {2007},
+  url          = {http://standards.ieee.org}
+}
+
+@misc{SCALE:FIPS:186:00,
+  title        = {{D}igital {S}ignature {S}tandard ({DSS})},
+  howpublished = {National Institute of Standards and Technology (NIST) Federal Information Processing Standard (FIPS) 186-2},
+  year         = {2000},
+  url          = {http://csrc.nist.gov}
+}
+
+@misc{SCALE:FIPS:197:01,
+  title        = {{A}dvanced {E}ncryption {S}tandard ({AES})},
+  howpublished = {National Institute of Standards and Technology (NIST) Federal Information Processing Standard (FIPS) 197  },
+  year         = {2001},
+  url          = {http://csrc.nist.gov}
+}
+
+@misc{SCALE:RFC:3447,
+  author       = {J. Jonsson and B. Kaliski},
+  title        = {{P}ublic-{K}ey {C}ryptography {S}tandards ({PKCS}) $\#1$: {RSA} Cryptography Specification, Version $2.1$},
+  howpublished = {Internet Engineering Task Force (IETF) Request for Comments (RFC) 3447},
+  year         = {2003},
+  url          = {http://tools.ietf.org/html/rfc3447}
+}

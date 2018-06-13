@@ -1,0 +1,185 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Background}
+
+Imagine you encounter a server, denoted $\PARTY{D}$, 
+which acts as a storage repository for sensor data.  An installation of $50$ 
+or so IoT-class sensor nodes regularly transmit encrypted packets of data to
+$\PARTY{D}$, which stores them for later analysis (iff. they are deemed to be
+valid).  Having already captured some encrypted network traffic transmitted 
+from a particular sensor node to the server, you tasked with recovering the 
+underlying data.
+By leveraging access to the network, 
+an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen AES ciphertext
+to $\PARTY{D}$; the device
+
+\begin{enumerate}
+\item decrypts $\PUB{c}$, i.e., computes
+      \[
+      \PRI{m} \CONS \PRI{\TAG} \CONS \PRI{\PAD} = \SCOPE{\ID{AES-CBC}}{\ALG{Dec}}( \PRI{\CHAL{k}_1}, \PUB{iv}, \PUB{c} )
+      \]
+      then
+\item checks whether $\PRI{\PAD}$ is valid, 
+      aborting immediately  and producing result code $1$ if not,
+      then
+\item checks whether $\PRI{\TAG}$ is valid, i.e., whether 
+      \[
+      \SCOPE{\ID{HMAC-SHA-1}}{\ALG{Ver}}( \PRI{\CHAL{k}_2}, \PRI{m}, \PRI{\TAG} ) = \TRUE ,
+      \]
+      aborting immediately  and producing result code $2$ if not,
+      then
+\item processes $\PRI{m}$
+                            and produces  result code $0$.
+\end{enumerate}
+
+\noindent
+Note that the associated  plaintext is {\em not} produced explicitly as
+output.
+
+\subsection{Materials}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\PUB{l}$,
+      a  length
+      (represented as a  decimal integer string),
+\item $\PUB{iv}$,
+      a      ${1}$-block AES-CBC initialisation vector
+      (represented as an octet string),
+      and
+\item $\PUB{c}$,
+      an $\PUB{l}$-block AES-CBC ciphertext
+      (represented as an           octet string)
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\LEAK$,
+      a  result code
+      (represented as a  decimal integer string)
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item To avoid timing attacks, $\PARTY{D}$ makes use of a high-performance
+      yet constant-time AES-128 implementation (operated in CBC mode) that
+      is derived from techniques in~\cite{SCALE:KasSch:09};
+      this clearly implies $128$-bit block and cipher key lengths.  
+\item Keep in mind some limits, namely $0 \leq \PUB{l} < 256$, on maximum
+      plaintext and/or ciphertext length.
+\item The padding scheme used matches that of TLS.  This means
+      \[
+      \PRI{\PAD} = \LIST{ \underbrace{ \alpha, \alpha, \ldots, \alpha }_{\mbox{$\alpha$ + 1 octets}} }
+      \]
+      is a sequence of $\alpha + 1$ octets, each of whose value is $\alpha$
+      and where $0 \leq \alpha < 256$, constructed st. the AES-CBC input is
+      always a multiple of the block size.
+\end{itemize}
+
+\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/\$\{USER\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+
+This file represents a set of attack parameters, with everything (e.g.,
+all public values) $\PARTY{E}$ has access to by default.  It contains 
+
+\begin{itemize}
+\item $\PUB{\CHAL{iv}}$,
+      a  ${1}$-block AES-CBC initialisation vector
+      (represented as an           octet string),
+      and
+\item $\PUB{\CHAL{c}}$,
+      a  ${1}$-block AES-CBC ciphertext 
+      (represented as an           octet string),
+      corresponding to an encryption of some unknown plaintext 
+      $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{iv}}$)
+\end{itemize}
+
+\noindent
+with one field per-line.
+More specifically, this represents the previously captured network traffic
+whose decryption, i.e., recovery of $\PRI{\CHAL{m}}$, is the task at hand.
+\IfStrEqCase{CONF(CHALLENGE,CID)}{%
+  {0}{Keep in mind that $\PRI{\CHAL{m}}$ will 
+      include the SHA-1 hash          of \lstinline[language={bash}]{$\{USER\}}
+      as the least-significant octets: 
+      this allows candidate decryptions to be checked for validity.
+  }%
+  {1}{Keep in mind that $\PRI{\CHAL{m}}$ will 
+      include an ASCII representation of \lstinline[language={bash}]{$\{USER\}} 
+      as the least-significant octets: 
+      this allows candidate decryptions to be checked for validity.
+  }%
+  {2}{Keep in mind that $\PRI{\CHAL{m}}$ will have been
+      be generated entirely at random:
+      this means checking validity of candidate decryptions is more 
+      difficult than it would be otherwise.
+  }%
+}%
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{m}}$.  
+      When executed using a command of the form
+
+      \begin{lstlisting}[language={bash},gobble={6}]
+      bash$ ./attack ${USER}.D ${USER}.conf
+      \end{lstlisting}
+
+      \noindent
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with attack target.
+\item Answer the exam-style questions in 
+      \lstinline[language={bash}]|${ARCHIVE}/${USER}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\printbibliography
+\fi
+
+\end{document}
