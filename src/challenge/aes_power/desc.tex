@@ -319,12 +319,9 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
       the simulated target, or, more specifically, that recovers the target 
       material $\PRI{\CHAL{k}}$.  
       When executed using a command of the form
-
-      \begin{lstlisting}[language={bash},gobble={6}]
-      bash$ ./attack ${USER}.D
-      \end{lstlisting}
-
-      \noindent
+      \[
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D|}
+      \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
       print 
@@ -332,7 +329,7 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
       b) two lines which clearly detail the target material recovered plus
          the total number of interactions with attack target.
 \item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/${USER}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}
 
 % -----------------------------------------------------------------------------
