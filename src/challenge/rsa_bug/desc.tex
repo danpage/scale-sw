@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
 which houses a ``cloned'' $64$-bit MIPS64 processor: the low cost (versus a 
@@ -47,9 +47,9 @@ Unfortunately, however, the processor used by $\PARTY{D}$ has an important
 defect: the $( 64 \times 64 )$-bit integer multiplier implementation has a
 (deterministic) bug, meaning the output is incorrect for specific inputs.
 
-\subsection{Materials}
+\levelstay{Materials}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -123,7 +123,7 @@ Note that:
       $\alpha$-poisoned and $y$ is $\beta$-poisoned.
 \end{itemize}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
 This file represents a set of attack parameters, with everything (e.g.,
 all public values) $\PARTY{E}$ has access to by default.  It contains 
@@ -151,7 +151,7 @@ $
 $
 embedded in $\PARTY{D}$.
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking

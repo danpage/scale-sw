@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
 which houses a $64$-bit Intel Core2 processor.  
@@ -47,9 +47,9 @@ each operation: it approximates this
 by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{m}$ once
 provided with $\PUB{c}$.
 
-\subsection{Materials}
+\levelstay{Materials}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -110,7 +110,7 @@ Note that:
       $\PRI{\CHAL{d}}$ given enough time.
 \end{itemize}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
 This file represents a set of attack parameters, with everything (e.g.,
 all public values) $\PARTY{E}$ has access to by default.  It contains 
@@ -138,7 +138,7 @@ $
 $
 embedded in $\PARTY{D}$.
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
 In many side-channel and fault attacks, the attacker is able to perform an 
 initial profiling or calibration phase: a common rationale for doing so is 
@@ -169,7 +169,7 @@ to decrypt the
 Keep in mind that $\PARTY{R}$ uses Montgomery multiplication, so functions
 correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking

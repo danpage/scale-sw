@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 A given device, denoted $\PARTY{D}$, 
 implements a basic access control mechanism: in order to access the device
@@ -44,9 +44,9 @@ each operation: it does so
 by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{r}$ once
 provided with $\PUB{G}$.
 
-\subsection{Materials}
+\levelstay{Materials}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -100,7 +100,7 @@ Note that:
       \end{algorithm}
 \end{itemize}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
 In many side-channel and fault attacks, the attacker is able to perform an 
 initial profiling or calibration phase: a common rationale for doing so is 
@@ -132,7 +132,7 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 for comparison with the
      chosen  guess    $\PUB{\REPL{G}}$.
 
-\subsection{Tasks}
+\levelup{Tasks}
 
       Write a program that simulates the adversary $\PARTY{E}$ by attacking
       the simulated target, or, more specifically, that recovers the target 

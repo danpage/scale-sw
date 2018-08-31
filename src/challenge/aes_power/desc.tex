@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{Imagine you are tasked with attacking a device, denoted $\PARTY{D}$.
@@ -98,9 +98,9 @@ yields at least one sample per instruction executed due to the high sample
 rate of the oscilloscope used (relative to the clock frequency demanded by 
 and supplied to $\PARTY{D}$).
 
-\subsection{Materials}
+\levelstay{Materials}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -238,7 +238,7 @@ Note that:
       \end{itemize}
 \end{itemize}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
 In many side-channel and fault attacks, the attacker is able to perform an 
 initial profiling or calibration phase: a common rationale for doing so is 
@@ -312,7 +312,7 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
   }%  
 }%
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking

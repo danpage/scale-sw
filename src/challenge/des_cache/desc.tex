@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 Imagine you encounter a server, denoted $\PARTY{D}$, 
 which houses an ageing but still operational $32$-bit Katmai model Intel 
@@ -49,9 +49,9 @@ each operation: it approximates this
 by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{c}$ once 
 provided with $\PUB{m}$.
 
-\subsection{Materials}
+\levelstay{Materials}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -135,7 +135,7 @@ Note that:
       $\PRI{\CHAL{k}}$ and $\PUB{m}$, as does the execution time.
 \end{itemize}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
 In many side-channel and fault attacks, the attacker is able to perform an 
 initial profiling or calibration phase: a common rationale for doing so is 
@@ -161,7 +161,7 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 to encrypt the
      chosen  DES  plaintext $\PUB{\REPL{m}}$.
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking

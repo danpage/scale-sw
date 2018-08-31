@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 Imagine you are tasked with attacking a device, denoted $\PARTY{D}$, 
 which houses an $8$-bit Intel $8051$ processor.
@@ -48,9 +48,9 @@ or fault, can be induced per interaction with $\PARTY{D}$: it will act to
 randomise one element of the state matrix used by AES, at a chosen point 
 during the associated encryption operation.
 
-\subsection{Material}
+\levelstay{Material}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -170,7 +170,7 @@ Note that:
 }%
 \end{itemize}
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking

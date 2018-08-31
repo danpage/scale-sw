@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 As part of a penetration testing team, imagine you are asked to assess a 
 specific e-commerce server, denoted $\PARTY{D}$, which houses a $64$-bit
@@ -77,9 +77,9 @@ that {\em some} error occurred).  The implementation used by $\PARTY{D}$
 does {\em not} adhere to this advice, meaning the error is exposed via 
 the result code produced.
 
-\subsection{Materials}
+\levelstay{Materials}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -147,7 +147,7 @@ The result code should be interpreted as follows:
       cause cannot be directly associated with any of the above.
 \end{itemize}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
 This file represents a set of attack parameters, with everything (e.g.,
 all public values) $\PARTY{E}$ has access to by default.  It contains 
@@ -213,7 +213,7 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
   }%
 }%
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking

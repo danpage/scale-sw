@@ -19,7 +19,7 @@
 
 % -----------------------------------------------------------------------------
 
-\subsection{Background}
+\leveldown{Background}
 
 Imagine you own a cryptographic accelerator, denoted $\PARTY{D}$: it is used
 as a low-cost HSM in your data center, supporting secure key generation and 
@@ -45,9 +45,9 @@ to be generated and used thereafter.  This means compatibility with various
 existing data sets will be lost, {\em unless} $\PRI{\CHAL{k}}$ itself can 
 be recovered by some other means.
 
-\subsection{Material}
+\levelstay{Material}
 
-\subsubsection{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
 reads the following input
@@ -117,7 +117,7 @@ Note that:
       and reject $\PUB{P}$ if not).
 \end{itemize}
 
-\subsection{Tasks}
+\levelup{Tasks}
 
 \begin{enumerate}
 \item Write a program that simulates the adversary $\PARTY{E}$ by attacking
