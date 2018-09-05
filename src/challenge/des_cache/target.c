@@ -123,10 +123,10 @@ int main( int argc, char* argv[] ) {
   while( true ) {
     // 1. consume input
 
-    CONSUME( octet_rd( stdin, m, DES_NB ), DES_NB );  
+    CONSUME( octetstr_rd( stdin, m, DES_NB ), DES_NB );  
 
     #if CONF( TARGET_R, CID )
-    CONSUME( octet_rd( stdin, k, DES_NK ), DES_NK );  
+    CONSUME( octetstr_rd( stdin, k, DES_NK ), DES_NK );  
     #endif
 
     // 2. execute operation
@@ -183,14 +183,14 @@ int main( int argc, char* argv[] ) {
     fprintf( stderr, "hits     = %d\n", stat_h );
     fprintf( stderr, "accesses = %d\n", stat_a );
 
-    fprintf( stderr, "c = " ); octet_wr( stderr, c, DES_NB );
-    fprintf( stderr, "m = " ); octet_wr( stderr, m, DES_NB );
-    fprintf( stderr, "k = " ); octet_wr( stderr, k, DES_NK );
+    fprintf( stderr, "c = " ); octetstr_wr( stderr, c, DES_NB );
+    fprintf( stderr, "m = " ); octetstr_wr( stderr, m, DES_NB );
+    fprintf( stderr, "k = " ); octetstr_wr( stderr, k, DES_NK );
     #endif
 
     // 3. produce output
 
-    fprintf( stdout, "%d\n", lambda ); octet_wr( stdout, c, DES_NB );
+    fprintf( stdout, "%d\n", lambda ); octetstr_wr( stdout, c, DES_NB );
 
     // 4. flush streams
 

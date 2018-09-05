@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
@@ -57,7 +67,7 @@ reads the following input
 \begin{itemize}
 \item $\PUB{c}$,
       an RSA ciphertext
-      (represented as a  hexadecimal integer string)
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
@@ -66,11 +76,11 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \begin{itemize}
 \item $\LEAK$,
       an execution time measured in clock cycles
-      (represented as a  decimal     integer string),
+      (represented as a                       decimal integer string),
       and
 \item $\PUB{m}$,
       an RSA plaintext
-      (represented as a  hexadecimal integer string)
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
@@ -118,12 +128,12 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \begin{itemize}
 \item $\PUB{\CHAL{N}}$,
       an RSA modulus
-      (represented as a  hexadecimal integer string),      
+      (represented as a                   hexadecimal integer string),
       and
 \item $\PUB{\CHAL{e}}$,
       an RSA public exponent
-      (represented as a  hexadecimal integer string)
-      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi(\CHAL{N})}}$
+      (represented as a                   hexadecimal integer string),
+      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi(\CHAL{N})}}$,
 \end{itemize}
 
 \noindent
@@ -150,14 +160,14 @@ $\PARTY{R}$ is identical to $\PARTY{D}$, bar accepting input of the form
 \begin{itemize}
 \item $\PUB{\REPL{c}}$,
       an RSA ciphertext
-      (represented as a  hexadecimal integer string),
+      (represented as a                   hexadecimal integer string),
 \item $\PUB{\REPL{N}}$,
       an RSA modulus
-      (represented as a  hexadecimal integer string),      
+      (represented as a                   hexadecimal integer string),
       and
 \item $\PUB{\REPL{d}}$,
       an RSA private exponent
-      (represented as a  hexadecimal integer string)
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
@@ -194,5 +204,28 @@ correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

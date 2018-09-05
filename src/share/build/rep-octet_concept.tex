@@ -1,0 +1,71 @@
+The term octet\footnote{
+\url{http://en.wikipedia.org/wiki/Octet_(computing)}
+} is normally used as a synonym for byte, most often within the context
+of communication (and computer networks).  Using octet is arguably more 
+precise than byte, in that the former is {\em always} $8$ bits whereas
+the latter {\em can}\footnote{
+\url{http://en.wikipedia.org/wiki/Byte}, for example, details the fact
+that byte can be and has been interpreted to mean
+a) a group of $n$ bits for $n < w$ (i.e., smaller than the word size),
+b) the data type used to represent characters,
+   or
+c) the (smallest) unit of addressable data in memory:
+although POSIX mandates $8$-bit bytes, for example, each of these cases
+permits an alternative definition.  
+} differ.  A string is a sequence of characters, and so, by analogy, an
+octet string\footnote{
+Note the octet string terminology stems from ASN.1 encoding; see, e.g., 
+\url{http://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One}.
+} is a sequence of octets: ignoring some corner cases, it is reasonable 
+to use octet string as a synonym for byte sequence.
+
+To represent a given byte sequence, we use what can be formally termed
+a (little-endian) length-prefixed, hexadecimal octet string.  However,
+doing so requires some explanation: each element of that term relates
+to a property of the representation, where we define
+a) little-endian\footnote{
+   \url{http://en.wikipedia.org/wiki/Endianness}
+   } to mean, if read left-to-right, the 
+   the first octet represents the     $0$-th element of the source byte sequence
+   and
+   the last  octet represents the $(n-1)$-st element of the source byte sequence,
+b) length-prefixed\footnote{
+   \url{http://en.wikipedia.org/wiki/String_(computer_science)}
+   } to mean $n$, the length of the source byte sequence, is prepended 
+   to the octet string as a single $8$-bit\footnote{
+   Although it simplifies the challenge associated with parsing such a 
+   representation, note that use of an $8$-bit length implies an upper 
+   limit of $255$ elements in the associated byte sequence.
+   } length or ``header'' octet,
+   and
+c) hexadecimal\footnote{
+   \url{http://en.wikipedia.org/wiki/Hexadecimal}
+   } to mean each octet is represented by using $2$ hexadecimal digits.  
+   Note that, confusingly, hexadecimal digits within each pair will be
+   big-endian: if read left-to-right, the most-significant is first.
+For convenience, we assume the term octet string is a catch-all implying
+all such properties from here on.
+
+An example likely makes all of the above {\em much} clearer: certainly
+there is nothing complex involved.  Concretely, consider a $16$-element 
+byte sequence 
+\[
+\mbox{\lstinline[language={C}]|uint8_t x[ 16 ] = \{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 \}|}
+\]
+defined using C.  This would be represented as
+\[
+\REP{x} ~=~ \mbox{\lstinline|10:000102030405060708090A0B0C0D0E0F|}
+\]
+using a colon to separate the length and value fields:
+
+\begin{itemize}
+\item the length (LHS of the colon) is the integer
+      $
+      n = \RADIX{10}{16} = \RADIX{16}{10} ,
+      $
+      and
+\item the value  (RHS of the colon) is the byte sequence
+      $
+      x = \LIST{ \RADIX{00}{16}, \RADIX{01}{16}, \ldots, \RADIX{0F}{16} } = \LIST{ \RADIX{0}{10}, \RADIX{1}{10}, \ldots, \RADIX{15}{10} } \equiv \mbox{\lstinline[language={C}]|x|} .
+      $
+\end{itemize}

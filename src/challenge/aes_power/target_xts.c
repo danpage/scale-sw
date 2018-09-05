@@ -27,11 +27,11 @@ int main( int argc, char* argv[] ) {
 
     uint8_t i[ 4 * AES_128_NB ];
 
-    CONSUME( octet_rd( stdin, i, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin, i, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
 
     #if CONF( TARGET_R, CID )
-    CONSUME( octet_rd( stdin, c, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
-    CONSUME( octet_rd( stdin, k, 2 * 4 * AES_128_NK ), 2 * 4 * AES_128_NK );
+    CONSUME( octetstr_rd( stdin, c, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin, k, 2 * 4 * AES_128_NK ), 2 * 4 * AES_128_NK );
     #endif
         
     // 2. execute operation
@@ -59,15 +59,15 @@ int main( int argc, char* argv[] ) {
     #if CONF( DEBUG )
     fprintf( stderr, "j = %d\n", j );    
 
-    fprintf( stderr, "i = " ); octet_wr( stderr, i, 1 * 4 * AES_128_NB );    
-    fprintf( stderr, "c = " ); octet_wr( stderr, c, 1 * 4 * AES_128_NB );
-    fprintf( stderr, "m = " ); octet_wr( stderr, m, 1 * 4 * AES_128_NB );
-    fprintf( stderr, "k = " ); octet_wr( stderr, k, 2 * 4 * AES_128_NK );
+    fprintf( stderr, "i = " ); octetstr_wr( stderr, i, 1 * 4 * AES_128_NB );    
+    fprintf( stderr, "c = " ); octetstr_wr( stderr, c, 1 * 4 * AES_128_NB );
+    fprintf( stderr, "m = " ); octetstr_wr( stderr, m, 1 * 4 * AES_128_NB );
+    fprintf( stderr, "k = " ); octetstr_wr( stderr, k, 2 * 4 * AES_128_NK );
     #endif
   
     // 3. produce output
 
-    trace_wr( stdout );        octet_wr( stdout, m, 1 * 4 * AES_128_NB );
+    trace_wr( stdout );        octetstr_wr( stdout, m, 1 * 4 * AES_128_NB );
 
     // 4. flush streams
 

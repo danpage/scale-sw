@@ -82,12 +82,12 @@ int main( int argc, char* argv[] ) {
       c  = ( uint8_t* )( realloc(  c, ( l * 4 * AES_128_NB ) * SIZEOF( uint8_t ) ) );
     }
 
-    CONSUME( octet_rd( stdin,    iv, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
-    CONSUME( octet_rd( stdin,     c, l * 4 * AES_128_NB ), l * 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin,    iv, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin,     c, l * 4 * AES_128_NB ), l * 4 * AES_128_NB );
 
     #if CONF( TARGET_R, CID )
-    CONSUME( octet_rd( stdin, k_enc, 1 * 4 * AES_128_NK ), 1 * 4 * AES_128_NK );
-    CONSUME( octet_rd( stdin, k_mac, 1 * 4 * AES_128_NK ), 1 * 4 * AES_128_NK );
+    CONSUME( octetstr_rd( stdin, k_enc, 1 * 4 * AES_128_NK ), 1 * 4 * AES_128_NK );
+    CONSUME( octetstr_rd( stdin, k_mac, 1 * 4 * AES_128_NK ), 1 * 4 * AES_128_NK );
     #endif
 
     // 2. execute operation
@@ -95,11 +95,11 @@ int main( int argc, char* argv[] ) {
     int lambda = dec( m, iv, c, l, k_enc, 4 * AES_128_NK, k_mac, 4 * AES_128_NK );
 
     #if CONF( DEBUG )
-    fprintf( stderr, "iv    = " ); octet_wr( stderr,    iv, 1 * 4 * AES_128_NB );
-    fprintf( stderr, "c     = " ); octet_wr( stderr,     c, l * 4 * AES_128_NB );
-    fprintf( stderr, "m     = " ); octet_wr( stderr,     m, l * 4 * AES_128_NB );
-    fprintf( stderr, "k_enc = " ); octet_wr( stderr, k_enc, 1 * 4 * AES_128_NK );
-    fprintf( stderr, "k_mac = " ); octet_wr( stderr, k_mac, 1 * 4 * AES_128_NK );
+    fprintf( stderr, "iv    = " ); octetstr_wr( stderr,    iv, 1 * 4 * AES_128_NB );
+    fprintf( stderr, "c     = " ); octetstr_wr( stderr,     c, l * 4 * AES_128_NB );
+    fprintf( stderr, "m     = " ); octetstr_wr( stderr,     m, l * 4 * AES_128_NB );
+    fprintf( stderr, "k_enc = " ); octetstr_wr( stderr, k_enc, 1 * 4 * AES_128_NK );
+    fprintf( stderr, "k_mac = " ); octetstr_wr( stderr, k_mac, 1 * 4 * AES_128_NK );
     #endif
 
     // 3. produce output

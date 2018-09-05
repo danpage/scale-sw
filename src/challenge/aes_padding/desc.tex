@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 Imagine you encounter a server, denoted $\PARTY{D}$, 
@@ -73,14 +83,14 @@ reads the following input
 \begin{itemize}
 \item $\PUB{l}$,
       a  length
-      (represented as a  decimal integer string),
+      (represented as a                       decimal integer string),
 \item $\PUB{iv}$,
       a      ${1}$-block AES-CBC initialisation vector
-      (represented as an octet string),
+      (represented as a  length-prefixed, hexadecimal octet   string),
       and
 \item $\PUB{c}$,
       an $\PUB{l}$-block AES-CBC ciphertext
-      (represented as an           octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string),
 \end{itemize}
 
 \noindent
@@ -89,7 +99,7 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \begin{itemize}
 \item $\LEAK$,
       a  result code
-      (represented as a  decimal integer string)
+      (represented as a                       decimal integer string),
 \end{itemize}
 
 \noindent
@@ -122,13 +132,13 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \begin{itemize}
 \item $\PUB{\CHAL{iv}}$,
       a  ${1}$-block AES-CBC initialisation vector
-      (represented as an           octet string),
+      (represented as a  length-prefixed, hexadecimal octet   string),
       and
 \item $\PUB{\CHAL{c}}$,
       a  ${1}$-block AES-CBC ciphertext 
-      (represented as an           octet string),
+      (represented as a  length-prefixed, hexadecimal octet   string),
       corresponding to an encryption of some unknown plaintext 
-      $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{iv}}$)
+      $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{iv}}$),
 \end{itemize}
 
 \noindent
@@ -178,5 +188,28 @@ whose decryption, i.e., recovery of $\PRI{\CHAL{m}}$, is the task at hand.
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

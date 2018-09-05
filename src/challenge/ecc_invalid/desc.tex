@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 Imagine you own a cryptographic accelerator, denoted $\PARTY{D}$: it is used
@@ -55,11 +65,11 @@ reads the following input
 \begin{itemize}
 \item $\PUB{P_x}$,
       the $x$-coordinate of elliptic curve point $\PUB{P} = \TUPLE{ \PUB{P_x}, \PUB{P_y} }$
-      (represented as a  hexadecimal integer string),      
+      (represented as a                   hexadecimal integer string),
       and
 \item $\PUB{P_y}$,
       the $y$-coordinate of elliptic curve point $\PUB{P} = \TUPLE{ \PUB{P_x}, \PUB{P_y} }$
-      (represented as a  hexadecimal integer string)
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
@@ -67,12 +77,12 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 
 \begin{itemize}
 \item $\PUB{Q_x}$,
-      the $x$-coordinate of elliptic curve point $\PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} }$
-      (represented as a  hexadecimal integer string),      
+      the $x$-coordinate of elliptic curve point $\PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$
+      (represented as a                   hexadecimal integer string),
       and
 \item $\PUB{Q_y}$,
-      the $y$-coordinate of elliptic curve point $\PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} }$
-      (represented as a  hexadecimal integer string)
+      the $y$-coordinate of elliptic curve point $\PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
@@ -142,5 +152,28 @@ Note that:
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

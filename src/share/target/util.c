@@ -21,6 +21,17 @@ int xtoi( char x ) {
   return -1;
 }
 
+char itox( int x ) {
+  if     ( x >=  0 && x <=  9 ) {
+    return ( char )( ( int )( '0' ) + x       );
+  }
+  else if( x >= 10 && x <= 15 ) {
+    return ( char )( ( int )( 'A' ) + x - 10  );
+  }
+
+  return '?';
+}
+
 void unmask( uint8_t* x, int n, uint8_t m ) {
   for( int i = 0; i < n; i++ ) {
     x[ i ] = x[ i ] ^ m;
@@ -72,48 +83,57 @@ char* strip( char* x ) {
   return x;
 }
 
-void octet_wr( FILE* fd, const uint8_t* x, int n_x ) {
-  for( int i = 0; i < n_x; i++ ) {
-    fprintf( fd, "%02X", x[ i ] );
+int  octetstr_rd( FILE* fd,       uint8_t* r, int n_r ) {
+  int n  = ( ( xtoi( fgetc( fd ) ) & 0xF ) << 4 );
+      n |= ( ( xtoi( fgetc( fd ) ) & 0xF ) << 0 );
+
+  if( n > n_r ) {
+    return -1;
   }
 
-  fprintf( fd, "\n" );
+  if( fgetc( fd ) != ':' ) {
+    return -1;
+  }
+
+  uint8_t t;
+
+  for( int i = 0; i < n; i++ ) {
+    r[ i ] = 0;
+
+    if( ( t = fgetc( fd ) ) != '\x0A' ) {
+      if( !isxdigit( t ) ) {
+	break;
+      }
+
+      r[ i ] |= ( uint8_t )( xtoi( t ) & 0xF ) << 4;
+    }
+    if( ( t = fgetc( fd ) ) != '\x0A' ) {
+      if( !isxdigit( t ) ) {
+	break;
+      }
+
+      r[ i ] |= ( uint8_t )( xtoi( t ) & 0xF ) << 0;
+    }
+  }
+
+  do {
+    t = fgetc( fd );
+  }
+  while( t != '\x0A' );
+
+  return n;
 }
 
-int  octet_rd( FILE* fd,       uint8_t* r, int n_r ) {
-  char T[ BUFFER ], *Tp = fgets( T, BUFFER, fd );
+void octetstr_wr( FILE* fd, const uint8_t* x, int n_x ) {
+             fputc( itox( ( n_x    >> 4 ) & 0xF ), fd );
+             fputc( itox( ( n_x    >> 0 ) & 0xF ), fd );
 
-  if( Tp == NULL ) {
-    return 0;
+             fputc( '\x3A', fd );
+
+  for( int i = 0; i < n_x; i++ ) {
+             fputc( itox( ( x[ i ] >> 4 ) & 0xF ), fd );
+             fputc( itox( ( x[ i ] >> 0 ) & 0xF ), fd );
   }
 
-  Tp = strip( Tp );
-
-  int i;
-
-  for( i = 0; *Tp != '\x00'; i++ ) {
-    uint8_t t = 0;
-
-    if( *Tp != '\x00' ) {
-      if( !isxdigit( *Tp ) ) {
-	break;
-      }
-
-      t |= ( uint8_t )( xtoi( *Tp++ ) ) << 4;
-    }
-
-    if( *Tp != '\x00' ) {
-      if( !isxdigit( *Tp ) ) {
-	break;
-      }
-
-      t |= ( uint8_t )( xtoi( *Tp++ ) ) << 0;
-    }
-
-    if( i < n_r ) {
-      r[ i ] = t;
-    }
-  }
-
-  return i;
+             fputc( '\x0A', fd );
 }

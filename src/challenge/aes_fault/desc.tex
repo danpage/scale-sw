@@ -17,6 +17,14 @@
 
 \begin{document}
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
 % -----------------------------------------------------------------------------
 
 \leveldown{Background}
@@ -62,7 +70,7 @@ reads the following input
       and
 \item $\PUB{m}$,
       a  ${1}$-block AES plaintext
-      (represented as an octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string),
 \end{itemize}
 
 \noindent
@@ -71,7 +79,7 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \begin{itemize}
 \item $\PUB{c}$,
       a  ${1}$-block AES ciphertext
-      (represented as an octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string),
 \end{itemize}
 
 \noindent
@@ -195,5 +203,28 @@ Note that:
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

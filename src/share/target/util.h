@@ -128,10 +128,10 @@
 /** @brief Rotate-right n-bit value x by y bits. */
 #define RTR(x,y,n) ( ( (x) >> (y) ) | ( (x) << ( (n) - (y) ) ) )
 
-
-
-
-
+// convert hexadecimal character to integer value
+int  xtoi( char x );
+// convert integer value to hexadecimal character
+char itox( int  x );
 
 // unmask an n-element sequence x using mask m
 extern void unmask( uint8_t* x, int n, uint8_t m );
@@ -148,9 +148,9 @@ extern uint32_t prng_32();
 // strip leading and trailing whitespace from string x
 extern char* strip( char* x );
 
-// write           n_x-element sequence x to   fd
-extern void octet_wr( FILE* fd, const uint8_t* x, int n_x );
 //  read (at most) n_r-element sequence r from fd, return elements read
-extern int  octet_rd( FILE* fd,       uint8_t* r, int n_r );
+extern int  octetstr_rd( FILE* fd,       uint8_t* r, int n_r );
+// write           n_x-element sequence x to   fd
+extern void octetstr_wr( FILE* fd, const uint8_t* x, int n_x );
 
 #endif

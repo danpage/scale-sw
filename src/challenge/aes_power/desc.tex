@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 \IfStrEqCase{CONF(VERSION,CID)}{%
@@ -109,21 +119,21 @@ reads the following input
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\item $\PUB{m}$,
             a  ${1}$-block     AES  plaintext
-            (represented as an               octet string)
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {1}{\item $\PUB{c}$,
             a  ${1}$-block     AES ciphertext
-            (represented as an               octet string)
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {2}{
       \item $\PUB{j}$,
             a block  address 
-            (represented as a      decimal integer string),
+            (represented as a                       decimal integer string),
             and            
       \item $\PUB{i}$,
             a sector address, i.e., 
             a  ${1}$-block XTS-AES tweak
-            (represented as an               octet string)
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
 }%
 \end{itemize}
@@ -139,15 +149,15 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\item $\PUB{c}$,
             a  ${1}$-block     AES ciphertext
-            (represented as an               octet string)
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {1}{\item $\PUB{m}$,
             a  ${1}$-block     AES  plaintext
-            (represented as an               octet string)    
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {2}{\item $\PUB{m}$,
             a  ${1}$-block XTS-AES  plaintext
-            (represented as an               octet string)    
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
 }%
 \end{itemize}
@@ -227,15 +237,16 @@ Note that:
          
       \begin{itemize}
       \item $l$
-            (represented as a      decimal integer string)
+            (represented as a                       decimal integer string),
             specifies the trace length, 
             and
-      \item a given $s_i$
-            (represented as a      decimal integer string)
+      \item a given $s_i$ 
+            (represented as a                       decimal integer string),
             specifies the $i$-th of $l$ power consumption samples, each 
             constituting an $8$-bit, unsigned decimal integer: in short, 
             this means $0 \leq s_i < 256$ for $0 \leq i < l$.
       \end{itemize}
+
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
@@ -262,34 +273,34 @@ also provided.
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\item $\PUB{\REPL{m}}$,
             a  ${1}$-block     AES  plaintext
-            (represented as an               octet string),
+            (represented as a  length-prefixed, hexadecimal octet   string),
             and            
       \item $\PUB{\REPL{k}}$,
             an                 AES cipher key
-            (represented as an               octet string)
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {1}{\item $\PUB{\REPL{c}}$,
             a  ${1}$-block     AES ciphertext
-            (represented as an               octet string),
+            (represented as a  length-prefixed, hexadecimal octet   string),
             and            
       \item $\PUB{\REPL{k}}$,
             an                 AES cipher key
-            (represented as an               octet string)              
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {2}{\item $\PUB{\REPL{j}}$,
             a block  address 
-            (represented as a      decimal integer string),
+            (represented as a                       decimal integer string),
       \item $\PUB{\REPL{i}}$,
             a sector address, i.e., 
             a  ${1}$-block XTS-AES tweak
-            (represented as an               octet string),
+            (represented as a  length-prefixed, hexadecimal octet   string),
       \item $\PUB{\REPL{c}}$,
             a  ${1}$-block XTS-AES ciphertext
-            (represented as an               octet string),
+            (represented as a  length-prefixed, hexadecimal octet   string),
             and            
       \item $\PUB{\REPL{k}}$,
             an             XTS-AES        key
-            (represented as an               octet string)              
+            (represented as a  length-prefixed, hexadecimal octet   string),
   }%  
 }%
 \end{itemize}
@@ -337,5 +348,28 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

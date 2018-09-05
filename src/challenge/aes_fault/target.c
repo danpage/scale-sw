@@ -144,10 +144,10 @@ int main( int argc, char* argv[] ) {
       }
     }
 
-    CONSUME( octet_rd( stdin, m, 4 * AES_128_NB ), 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin, m, 4 * AES_128_NB ), 4 * AES_128_NB );
 
     #if CONF( TARGET_R, CID )
-    CONSUME( octet_rd( stdin, k, 4 * AES_128_NK ), 4 * AES_128_NK );
+    CONSUME( octetstr_rd( stdin, k, 4 * AES_128_NK ), 4 * AES_128_NK );
     #endif
 
     // 2. execute operation
@@ -163,14 +163,14 @@ int main( int argc, char* argv[] ) {
     fprintf( stderr, "fault.row      = %d\n", fault.row      );
     fprintf( stderr, "fault.col      = %d\n", fault.col      );
   
-    fprintf( stderr, "c = " ); octet_wr( stderr, c, 4 * AES_128_NB );
-    fprintf( stderr, "m = " ); octet_wr( stderr, m, 4 * AES_128_NB );
-    fprintf( stderr, "k = " ); octet_wr( stderr, k, 4 * AES_128_NK );
+    fprintf( stderr, "c = " ); octetstr_wr( stderr, c, 4 * AES_128_NB );
+    fprintf( stderr, "m = " ); octetstr_wr( stderr, m, 4 * AES_128_NB );
+    fprintf( stderr, "k = " ); octetstr_wr( stderr, k, 4 * AES_128_NK );
     #endif
 
     // 3. produce output
     
-                               octet_wr( stdout, c, 4 * AES_128_NB ); 
+                               octetstr_wr( stdout, c, 4 * AES_128_NB ); 
    
     // 4. flush streams
 

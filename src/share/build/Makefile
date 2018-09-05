@@ -10,12 +10,14 @@ DIRS     += ./build/include
 SOURCES   = $(wildcard *.py )
 SOURCES  += $(wildcard *.mk )
 SOURCES  += $(wildcard *.m4 )
+SOURCES  += $(wildcard *.tex)
 SOURCES  += $(wildcard *.sty)
 SOURCES  += $(wildcard *.bib)
 
 TARGETS   = $(addprefix ./build/libbuild/, $(notdir $(filter %.py,  ${SOURCES})))
 TARGETS  += $(addprefix ./build/include/,  $(notdir $(filter %.mk,  ${SOURCES})))
 TARGETS  += $(addprefix ./build/include/,  $(notdir $(filter %.m4,  ${SOURCES})))
+TARGETS  += $(addprefix ./build/include/,  $(notdir $(filter %.tex, ${SOURCES})))
 TARGETS  += $(addprefix ./build/include/,  $(notdir $(filter %.sty, ${SOURCES})))
 TARGETS  += $(addprefix ./build/include/,  $(notdir $(filter %.bib, ${SOURCES})))
 
@@ -27,6 +29,8 @@ $(filter %.py,  ${TARGETS}) : ./build/libbuild/%.py : ${SOURCES}
 $(filter %.mk,  ${TARGETS}) : ./build/include/%.mk  : ${SOURCES}
 	@cp $(filter %$(notdir ${@}), ${^}) ${@}
 $(filter %.m4,  ${TARGETS}) : ./build/include/%.m4  : ${SOURCES}
+	@cp $(filter %$(notdir ${@}), ${^}) ${@}
+$(filter %.tex, ${TARGETS}) : ./build/include/%.tex : ${SOURCES}
 	@cp $(filter %$(notdir ${@}), ${^}) ${@}
 $(filter %.sty, ${TARGETS}) : ./build/include/%.sty : ${SOURCES}
 	@cp $(filter %$(notdir ${@}), ${^}) ${@}

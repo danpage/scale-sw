@@ -1,0 +1,74 @@
+Consider the following Python program
+ 
+\begin{lstlisting}[language={Python}]
+a = "09080706050403020100"
+
+b = long( a, 10 )
+c = long( a, 16 )
+
+d = ( "%d" % ( c ) )
+e = ( "%X" % ( c ) )
+
+f = ( "%X" % ( c ) ).zfill( 20 )
+
+print "type( a ) = %-13s a = %s" % ( type( a ), str( a ) )
+print "type( b ) = %-13s b = %s" % ( type( b ), str( b ) )
+print "type( c ) = %-13s c = %s" % ( type( c ), str( c ) )
+print "type( d ) = %-13s d = %s" % ( type( d ), str( d ) )
+print "type( e ) = %-13s e = %s" % ( type( e ), str( e ) )
+print "type( f ) = %-13s f = %s" % ( type( f ), str( f ) )
+\end{lstlisting}
+ 
+\noindent
+which, when executed, produces
+ 
+\begin{lstlisting}[language={bash}]
+type( a ) = <type 'str'>  a = 09080706050403020100
+type( b ) = <type 'long'> b = 9080706050403020100
+type( c ) = <type 'long'> c = 42649378395939397566720
+type( d ) = <type 'str'>  d = 42649378395939397566720
+type( e ) = <type 'str'>  e = 9080706050403020100
+type( f ) = <type 'str'>  f = 09080706050403020100
+\end{lstlisting}
+ 
+\noindent
+The idea is that
+ 
+\begin{itemize}
+\item \lstinline[language={Python}]|a| is an
+      integer string
+      (i.e., a sequence of characters),
+\item \lstinline[language={Python}]|b| 
+      and 
+      \lstinline[language={Python}]|c|
+      are conversions of 
+      \lstinline[language={Python}]|a| 
+      into
+      integers
+      (actually a Python \lstinline[language={Python}]|long|, which is the multi-precision integer type used),
+      using decimal and hexadecimal respectively,
+      and
+\item \lstinline[language={Python}]|d| 
+      and
+      \lstinline[language={Python}]|e|
+      are conversions of 
+      \lstinline[language={Python}]|c| 
+      into
+      strings
+      (i.e., a sequence of characters),
+      using decimal and hexadecimal respectively.
+\end{itemize}
+ 
+\noindent
+Note that 
+\lstinline[language={Python}]|a| 
+and 
+\lstinline[language={Python}]|e| do not match: the conversion ignored
+the left-most zero character, because this is not significant wrt. an
+integer value.  To resolve this issue if/when it is problematic, the
+\lstinline[language={Python}]|zfill| 
+function could be used to left-fill the string (with zero characters)
+until it is of the required length (here $20$ characters in total, so
+forming 
+\lstinline[language={Python}]|f| 
+which does then match).

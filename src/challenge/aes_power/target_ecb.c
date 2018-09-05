@@ -22,13 +22,13 @@ int main( int argc, char* argv[] ) {
     // 1. consume input
 
     #if   CONF( VERSION, CID ) == 0
-    CONSUME( octet_rd( stdin, m, 4 * AES_128_NB ), 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin, m, 4 * AES_128_NB ), 4 * AES_128_NB );
     #elif CONF( VERSION, CID ) == 1
-    CONSUME( octet_rd( stdin, c, 4 * AES_128_NB ), 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin, c, 4 * AES_128_NB ), 4 * AES_128_NB );
     #endif
 
     #if CONF( TARGET_R, CID )
-    CONSUME( octet_rd( stdin, k, 4 * AES_128_NK ), 4 * AES_128_NK );
+    CONSUME( octetstr_rd( stdin, k, 4 * AES_128_NK ), 4 * AES_128_NK );
     #endif
 
     // 2. execute operation
@@ -40,17 +40,17 @@ int main( int argc, char* argv[] ) {
     #endif
 
     #if CONF( DEBUG )
-    fprintf( stderr, "c = " ); octet_wr( stderr, c, 4 * AES_128_NB );
-    fprintf( stderr, "m = " ); octet_wr( stderr, m, 4 * AES_128_NB );
-    fprintf( stderr, "k = " ); octet_wr( stderr, k, 4 * AES_128_NK );
+    fprintf( stderr, "c = " ); octetstr_wr( stderr, c, 4 * AES_128_NB );
+    fprintf( stderr, "m = " ); octetstr_wr( stderr, m, 4 * AES_128_NB );
+    fprintf( stderr, "k = " ); octetstr_wr( stderr, k, 4 * AES_128_NK );
     #endif
 
     // 3. produce output
                                
     #if   CONF( VERSION, CID ) == 0
-    trace_wr( stdout );        octet_wr( stdout, c, 4 * AES_128_NB );
+    trace_wr( stdout );        octetstr_wr( stdout, c, 4 * AES_128_NB );
     #elif CONF( VERSION, CID ) == 1
-    trace_wr( stdout );        octet_wr( stdout, m, 4 * AES_128_NB );
+    trace_wr( stdout );        octetstr_wr( stdout, m, 4 * AES_128_NB );
     #endif
 
     // 4. flush streams

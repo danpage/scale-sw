@@ -307,8 +307,8 @@ int main( int argc, char* argv[] ) {
   while( true ) {
     // 1. consume input
   
-    CONSUME( n_l = octet_rd( stdin, l, k ) );
-    CONSUME( n_c = octet_rd( stdin, c, k ) );
+    CONSUME( n_l = octetstr_rd( stdin, l, k ) );
+    CONSUME( n_c = octetstr_rd( stdin, c, k ) );
 
     // 2. execute operation
 
@@ -325,9 +325,9 @@ int main( int argc, char* argv[] ) {
 
     fprintf( stderr, "k = " ); gmp_fprintf( stderr,  "%d\n", k      );
 
-    fprintf( stderr, "l = " );    octet_wr( stderr, l, n_l );
-    fprintf( stderr, "m = " );    octet_wr( stderr, m, n_m );
-    fprintf( stderr, "c = " );    octet_wr( stderr, c, n_c );
+    fprintf( stderr, "l = " );    octetstr_wr( stderr, l, n_l );
+    fprintf( stderr, "m = " );    octetstr_wr( stderr, m, n_m );
+    fprintf( stderr, "c = " );    octetstr_wr( stderr, c, n_c );
     #endif
 
     // 3. produce output

@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 A given device, denoted $\PARTY{D}$, 
@@ -55,8 +65,12 @@ reads the following input
 \item $\PUB{G}$,
       a  password guess
       \IfStrEqCase{CONF(ALPHABET,CID)}{%
-        {0}{(represented as an octet string) }%
-        {1}{(represented as an ASCII string) }%
+        {0}{%
+          (represented as a  length-prefixed, hexadecimal octet   string),
+        }%
+        {1}{%
+          (represented as an                              ASCII   string),
+        }%
       }%
 \end{itemize}
 
@@ -66,11 +80,11 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \begin{itemize}
 \item $\LEAK$,
       an execution time measured in clock cycles
-      (represented as a decimal integer string),
+          (represented as a                       decimal integer string),
       and
 \item $\PUB{r}$,
       a  result code
-      (represented as a decimal integer string)
+          (represented as a                       decimal integer string),
 \end{itemize}
 
 \noindent
@@ -113,15 +127,23 @@ $\PARTY{R}$ is identical to $\PARTY{D}$ bar accepting input of the form
 \item $\PUB{\REPL{G}}$,
       a  password guess
       \IfStrEqCase{CONF(ALPHABET,CID)}{%
-        {0}{(represented as an octet string),}%
-        {1}{(represented as an ASCII string),}%
+        {0}{%
+          (represented as a  length-prefixed, hexadecimal octet   string),
+        }%
+        {1}{%
+          (represented as an                              ASCII   string),
+        }%
       }%
       and
 \item $\PUB{\REPL{P}}$,
       a  password
       \IfStrEqCase{CONF(ALPHABET,CID)}{%
-        {0}{(represented as an octet string) }%
-        {1}{(represented as an ASCII string) }%
+        {0}{%
+          (represented as a  length-prefixed, hexadecimal octet   string),
+        }%
+        {1}{%
+          (represented as an                              ASCII   string),
+        }%
       }%
 \end{itemize}
 
@@ -153,5 +175,28 @@ for comparison with the
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

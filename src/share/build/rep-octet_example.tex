@@ -1,0 +1,123 @@
+Consider the following Python program
+
+\begin{lstlisting}[language={Python}]
+import binascii
+
+def str2seq( x ) :
+  return          [ ord( t ) for t in x ]
+
+def seq2str( x ) :
+  return ''.join( [ chr( t ) for t in x ] )
+
+def octetstr2str( x ) :
+  t = x.split( ':' ) ; n = int( t[ 0 ], 16 ) ; x = binascii.a2b_hex( t[ 1 ] )
+
+  if( n != len( x ) ) :
+    raise ValueError
+  else :
+    return x
+
+def str2octetstr( x ) :
+  return ( '%02X' % ( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ) )
+
+t_0 = '\xDE\xAD\xBE\xEF' ; t_1 = [ 0xDE, 0xAD, 0xBE, 0xEF ]
+
+t_2 = str2octetstr(          t_0   )
+t_3 = str2octetstr( seq2str( t_1 ) )
+
+print "type( t_0 ) = %-18s t_0 = %s" % ( type( t_0 ), repr( t_0 ) )
+print "type( t_1 ) = %-18s t_1 = %s" % ( type( t_1 ), repr( t_1 ) )
+print "type( t_2 ) = %-18s t_2 = %s" % ( type( t_2 ), repr( t_2 ) )
+print "type( t_3 ) = %-18s t_3 = %s" % ( type( t_3 ), repr( t_3 ) )
+
+t_4 = '04:8BADF00D'
+
+t_5 =          octetstr2str( t_4 )
+t_6 = str2seq( octetstr2str( t_4 ) )
+
+print "type( t_4 ) = %-18s t_4 = %s" % ( type( t_4 ), repr( t_4 ) )
+print "type( t_5 ) = %-18s t_5 = %s" % ( type( t_5 ), repr( t_5 ) )
+print "type( t_6 ) = %-18s t_6 = %s" % ( type( t_6 ), repr( t_6 ) )
+\end{lstlisting}
+
+\noindent
+which, when executed, produces
+
+\begin{lstlisting}[language={bash}]
+type( t_0 ) = <type 'str'>       t_0 = '\xde\xad\xbe\xef'
+type( t_1 ) = <type 'list'>      t_1 = [222, 173, 190, 239]
+type( t_2 ) = <type 'str'>       t_2 = '04:deadbeef'
+type( t_3 ) = <type 'str'>       t_3 = '04:deadbeef'
+type( t_4 ) = <type 'str'>       t_4 = '04:8BADF00D'
+type( t_5 ) = <type 'str'>       t_5 = '\x8b\xad\xf0\r'
+type( t_6 ) = <type 'list'>      t_6 = [139, 173, 240, 13]
+\end{lstlisting}
+
+\noindent
+as output.  This is intended to illustrate that
+
+\begin{itemize}
+
+\item If you start with 
+      byte string (or array)
+      \lstinline[language={Python}]|t_0|, 
+      then 
+                             \lstinline[language={Python}]|str2octetstr|
+      convert this into the 
+      octet string,
+      you expect that
+      $\mbox{\lstinline[language={Python}]|t_2|} = \mbox{\lstinline[language={Python}]|04:DEADBEEF|}$
+      implies 
+      $n = \RADIX{04}{16} = \RADIX{04}{10}$
+      and
+      $x = \LIST{ \RADIX{DE}{16}, \RADIX{AD}{16}, \RADIX{BE}{16}, \RADIX{EF}{16} }$
+      st.
+      $\mbox{\lstinline[language={Python}]|t_0[ 0 ]|} = \RADIX{DE}{16} = x_0$.
+
+\item If you start with 
+      byte sequence 
+      \lstinline[language={Python}]|t_1|, 
+      then 
+      \lstinline[language={Python}]|seq2str| and \lstinline[language={Python}]|str2octetstr|
+      convert this into the 
+      octet string,
+      you expect that
+      $\mbox{\lstinline[language={Python}]|t_3|} = \mbox{\lstinline[language={Python}]|04:DEADBEEF|}$
+      implies 
+      $n = \RADIX{04}{16} = \RADIX{04}{10}$
+      and
+      $x = \LIST{ \RADIX{DE}{16}, \RADIX{AD}{16}, \RADIX{BE}{16}, \RADIX{EF}{16} }$
+      st.
+      $\mbox{\lstinline[language={Python}]|t_1[ 1 ]|} = \RADIX{AD}{16} = x_1$.
+
+\item If you start with 
+      octet string  
+      \lstinline[language={Python}]|t_4|, 
+      then 
+      \lstinline[language={Python}]|octetstr2str|
+      convert this into the byte array,    
+      you expect that
+      $\mbox{\lstinline[language={Python}]|t_4|} = \mbox{\lstinline[language={Python}]|04:8BADF00D|}$
+      implies 
+      $n = \RADIX{04}{16} = \RADIX{04}{10}$
+      and
+      $x = \LIST{ \RADIX{8B}{16}, \RADIX{AD}{16}, \RADIX{F0}{16}, \RADIX{0D}{16} }$
+      st.
+      $\mbox{\lstinline[language={Python}]|t_5[ 2 ]|} = \RADIX{F0}{16} = x_2$.
+
+\item If you start with  
+      octet string  
+      \lstinline[language={Python}]|t_4|, 
+      then 
+      \lstinline[language={Python}]|octetstr2str| and \lstinline[language={Python}]|str2seq|
+      convert this into the byte sequence, 
+      you expect that
+      $\mbox{\lstinline[language={Python}]|t_4|} = \mbox{\lstinline[language={Python}]|04:8BADF00D|}$
+      implies 
+      $n = \RADIX{04}{16} = \RADIX{04}{10}$
+      and
+      $x = \LIST{ \RADIX{8B}{16}, \RADIX{AD}{16}, \RADIX{F0}{16}, \RADIX{0D}{16} }$
+      st.
+      $\mbox{\lstinline[language={Python}]|t_6[ 3 ]|} = \RADIX{0D}{16} = x_3$.
+
+\end{itemize}

@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 As part of a penetration testing team, imagine you are asked to assess a 
@@ -87,11 +97,11 @@ reads the following input
 \begin{itemize}
 \item $\PUB{l}$,
       an RSAES-OAEP label
-      (represented as an               octet string, which may be empty: a blank line represents a $0$-octet string),
+      (represented as a  length-prefixed, hexadecimal octet   string),
       and
 \item $\PUB{c}$,
       an RSAES-OAEP ciphertext
-      (represented as an               octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string),
 \end{itemize}
 
 \noindent
@@ -100,7 +110,7 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \begin{itemize}
 \item $\LEAK$,
       a  result code
-      (represented as a      decimal integer string)
+      (represented as a                       decimal integer string),
 \end{itemize}
 
 \noindent
@@ -155,20 +165,20 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \begin{itemize}
 \item $\PUB{\CHAL{N}}$,     
       an RSA        modulus
-      (represented as a  hexadecimal integer string),      
+      (represented as a                   hexadecimal integer string),
 \item $\PUB{\CHAL{e}}$,
-      an RSA        public exponent,
-      (represented as a  hexadecimal integer string)
+      an RSA        public exponent
+      (represented as a                   hexadecimal integer string),
       st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
 \item $\PUB{\CHAL{l}}$,
       an RSAES-OAEP label
-      (represented as an               octet string, which may be empty, i.e., a blank link meaning a $0$-octet string),
+      (represented as a  length-prefixed, hexadecimal octet   string),
       and
 \item $\PUB{\CHAL{c}}$,
       an RSAES-OAEP ciphertext 
-      (represented as an               octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string),
       corresponding to an encryption of some unknown plaintext 
-      $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{l}}$)
+      $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{l}}$),
 \end{itemize}
 
 \noindent
@@ -238,5 +248,28 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

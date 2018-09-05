@@ -19,6 +19,16 @@
 
 % -----------------------------------------------------------------------------
 
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% -----------------------------------------------------------------------------
+
 \leveldown{Background}
 
 Imagine you encounter a server, denoted $\PARTY{D}$, 
@@ -59,7 +69,7 @@ reads the following input
 \begin{itemize}
 \item $\PUB{m}$, 
       a  ${1}$-block DES plaintext 
-      (represented as an           octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string), 
 \end{itemize}
 
 \noindent
@@ -68,11 +78,11 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \begin{itemize}
 \item $\LEAK$,
       an execution time measured in clock cycles
-      (represented as a  decimal integer string),
+      (represented as a                       decimal integer string),
       and
 \item $\PUB{c}$,
       a  ${1}$-block DES ciphertext
-      (represented as an           octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string), 
 \end{itemize}
 
 \noindent
@@ -146,12 +156,12 @@ $\PARTY{R}$ is identical to $\PARTY{D}$, bar accepting input of the form
 
 \begin{itemize}
 \item $\PUB{\REPL{m}}$, 
-      a $1$-block DES plaintext
-      (represented as an           octet string),
+      a  $1$-block DES plaintext
+      (represented as a  length-prefixed, hexadecimal octet   string), 
       and
 \item $\PUB{\REPL{k}}$, 
       a           DES cipher key
-      (represented as an           octet string)
+      (represented as a  length-prefixed, hexadecimal octet   string), 
 \end{itemize}
 
 \noindent
@@ -186,5 +196,28 @@ to encrypt the
 \ifstandalone
 \printbibliography
 \fi
+
+% -----------------------------------------------------------------------------
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{rep-integer_concept.tex}
+\paragraph{Example.}
+\input{rep-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{rep-octet_concept.tex}
+\paragraph{Example.}
+\input{rep-octet_example.tex}
+\fi
+
+% -----------------------------------------------------------------------------
 
 \end{document}

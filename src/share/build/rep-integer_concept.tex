@@ -1,0 +1,142 @@
+An integer string (or literal) is written as a string of characters, 
+each of which represents a digit; the set of possible digits, and the 
+value being represented, depends on a base $b$.  We read digits from 
+right-to-left: the least-significant (resp. most-significant) digit 
+is the right-most (resp. left-most) character within the string.
+As such, the $20$-character string
+\[
+      \REP{x}  =        \mbox{\lstinline|09080706050403020100|}
+\]
+represents the integer value
+\[
+      \begin{array}{lcl}
+      \REP{x} &\mapsto& \begin{array}{*{5}{l@{\;}c@{\;}lc}}
+                        \REP{x}_{19}  &\cdot&  b^{19} &+&
+                        \REP{x}_{18}  &\cdot&  b^{18} &+&
+                        \REP{x}_{17}  &\cdot&  b^{17} &+&
+                        \REP{x}_{16}  &\cdot&  b^{16} &+&
+                        \REP{x}_{15}  &\cdot&  b^{15} &+\\
+                        \REP{x}_{14}  &\cdot&  b^{14} &+&
+                        \REP{x}_{13}  &\cdot&  b^{13} &+&
+                        \REP{x}_{12}  &\cdot&  b^{12} &+&
+                        \REP{x}_{11}  &\cdot&  b^{11} &+&
+                        \REP{x}_{10}  &\cdot&  b^{10} &+\\
+                        \REP{x}_{ 9}  &\cdot&  b^{ 9} &+&
+                        \REP{x}_{ 8}  &\cdot&  b^{ 8} &+&
+                        \REP{x}_{ 7}  &\cdot&  b^{ 7} &+&
+                        \REP{x}_{ 6}  &\cdot&  b^{ 6} &+&
+                        \REP{x}_{ 5}  &\cdot&  b^{ 5} &+\\                    
+                        \REP{x}_{ 4}  &\cdot&  b^{ 4} &+&
+                        \REP{x}_{ 3}  &\cdot&  b^{ 3} &+&
+                        \REP{x}_{ 2}  &\cdot&  b^{ 2} &+&
+                        \REP{x}_{ 1}  &\cdot&  b^{ 1} &+&
+                        \REP{x}_{ 0}  &\cdot&  b^{ 0} & \\
+                        \end{array}
+      \end{array}
+\]
+Of course the actual value depends on the base $b$ in which we interpret
+the representation $\REP{x}$:
+
+\begin{itemize}
+\item for a     decimal integer string $b=10$, meaning
+      \[
+      \begin{array}{lcl}
+      \REP{x} &\mapsto& \begin{array}{*{5}{l@{\;}c@{\;}lc}}
+                        \REP{x}_{19}  &\cdot& 10^{19} &+&
+                        \REP{x}_{18}  &\cdot& 10^{18} &+&
+                        \REP{x}_{17}  &\cdot& 10^{17} &+&
+                        \REP{x}_{16}  &\cdot& 10^{16} &+&
+                        \REP{x}_{15}  &\cdot& 10^{15} &+\\
+                        \REP{x}_{14}  &\cdot& 10^{14} &+&
+                        \REP{x}_{13}  &\cdot& 10^{13} &+&
+                        \REP{x}_{12}  &\cdot& 10^{12} &+&
+                        \REP{x}_{11}  &\cdot& 10^{11} &+&
+                        \REP{x}_{10}  &\cdot& 10^{10} &+\\
+                        \REP{x}_{ 9}  &\cdot& 10^{ 9} &+&
+                        \REP{x}_{ 8}  &\cdot& 10^{ 8} &+&
+                        \REP{x}_{ 7}  &\cdot& 10^{ 7} &+&
+                        \REP{x}_{ 6}  &\cdot& 10^{ 6} &+&
+                        \REP{x}_{ 5}  &\cdot& 10^{ 5} &+\\
+                        \REP{x}_{ 4}  &\cdot& 10^{ 4} &+&
+                        \REP{x}_{ 3}  &\cdot& 10^{ 3} &+&
+                        \REP{x}_{ 2}  &\cdot& 10^{ 2} &+&
+                        \REP{x}_{ 1}  &\cdot& 10^{ 1} &+&
+                        \REP{x}_{ 0}  &\cdot& 10^{ 0} & \\
+                        \end{array}                     \\\\
+              &\mapsto& \begin{array}{*{5}{l@{\;}c@{\;}lc}}
+                        \RADIX{0}{10} &\cdot& 10^{19} &+&
+                        \RADIX{9}{10} &\cdot& 10^{18} &+&
+                        \RADIX{0}{10} &\cdot& 10^{17} &+&
+                        \RADIX{8}{10} &\cdot& 10^{16} &+&
+                        \RADIX{0}{10} &\cdot& 10^{15} &+\\
+                        \RADIX{7}{10} &\cdot& 10^{14} &+&
+                        \RADIX{0}{10} &\cdot& 10^{13} &+&
+                        \RADIX{6}{10} &\cdot& 10^{12} &+&
+                        \RADIX{0}{10} &\cdot& 10^{11} &+&
+                        \RADIX{5}{10} &\cdot& 10^{10} &+\\
+                        \RADIX{0}{10} &\cdot& 10^{ 9} &+&
+                        \RADIX{4}{10} &\cdot& 10^{ 8} &+&
+                        \RADIX{0}{10} &\cdot& 10^{ 7} &+&
+                        \RADIX{3}{10} &\cdot& 10^{ 6} &+&
+                        \RADIX{0}{10} &\cdot& 10^{ 5} &+\\
+                        \RADIX{2}{10} &\cdot& 10^{ 4} &+&
+                        \RADIX{0}{10} &\cdot& 10^{ 3} &+&
+                        \RADIX{1}{10} &\cdot& 10^{ 2} &+&
+                        \RADIX{0}{10} &\cdot& 10^{ 1} &+&
+                        \RADIX{0}{10} &\cdot& 10^{ 0} & \\
+                        \end{array}                     \\\\
+              &\mapsto& \RADIX{9080706050403020100}{10}
+      \end{array}
+      \]
+      whereas
+\item for a hexadecimal integer string $b=16$, meaning
+      \[
+      \begin{array}{lcl}
+      \REP{x} &\mapsto& \begin{array}{*{5}{l@{\;}c@{\;}lc}}
+                        \REP{x}_{19}  &\cdot& 16^{19} &+&
+                        \REP{x}_{18}  &\cdot& 16^{18} &+&
+                        \REP{x}_{17}  &\cdot& 16^{17} &+&
+                        \REP{x}_{16}  &\cdot& 16^{16} &+&
+                        \REP{x}_{15}  &\cdot& 16^{15} &+\\
+                        \REP{x}_{14}  &\cdot& 16^{14} &+&
+                        \REP{x}_{13}  &\cdot& 16^{13} &+&
+                        \REP{x}_{12}  &\cdot& 16^{12} &+&
+                        \REP{x}_{11}  &\cdot& 16^{11} &+&
+                        \REP{x}_{10}  &\cdot& 16^{10} &+\\
+                        \REP{x}_{ 9}  &\cdot& 16^{ 9} &+&
+                        \REP{x}_{ 8}  &\cdot& 16^{ 8} &+&
+                        \REP{x}_{ 7}  &\cdot& 16^{ 7} &+&
+                        \REP{x}_{ 6}  &\cdot& 16^{ 6} &+&
+                        \REP{x}_{ 5}  &\cdot& 16^{ 5} &+\\
+                        \REP{x}_{ 4}  &\cdot& 16^{ 4} &+&
+                        \REP{x}_{ 3}  &\cdot& 16^{ 3} &+&
+                        \REP{x}_{ 2}  &\cdot& 16^{ 2} &+&
+                        \REP{x}_{ 1}  &\cdot& 16^{ 1} &+&
+                        \REP{x}_{ 0}  &\cdot& 16^{ 0} & \\
+                        \end{array}                     \\\\
+              &\mapsto& \begin{array}{*{5}{l@{\;}c@{\;}lc}}
+                        \RADIX{0}{16} &\cdot& 16^{19} &+&
+                        \RADIX{9}{16} &\cdot& 16^{18} &+&
+                        \RADIX{0}{16} &\cdot& 16^{17} &+&
+                        \RADIX{8}{16} &\cdot& 16^{16} &+&
+                        \RADIX{0}{16} &\cdot& 16^{15} &+\\
+                        \RADIX{7}{16} &\cdot& 16^{14} &+&
+                        \RADIX{0}{16} &\cdot& 16^{13} &+&
+                        \RADIX{6}{16} &\cdot& 16^{12} &+&
+                        \RADIX{0}{16} &\cdot& 16^{11} &+&
+                        \RADIX{5}{16} &\cdot& 16^{10} &+\\
+                        \RADIX{0}{16} &\cdot& 16^{ 9} &+&
+                        \RADIX{4}{16} &\cdot& 16^{ 8} &+&
+                        \RADIX{0}{16} &\cdot& 16^{ 7} &+&
+                        \RADIX{3}{16} &\cdot& 16^{ 6} &+&
+                        \RADIX{0}{16} &\cdot& 16^{ 5} &+\\
+                        \RADIX{2}{16} &\cdot& 16^{ 4} &+&
+                        \RADIX{0}{16} &\cdot& 16^{ 3} &+&
+                        \RADIX{1}{16} &\cdot& 16^{ 2} &+&
+                        \RADIX{0}{16} &\cdot& 16^{ 1} &+&
+                        \RADIX{0}{16} &\cdot& 16^{ 0} & \\
+                        \end{array}                     \\\\
+              &\mapsto& \RADIX{42649378395939397566720}{10}
+      \end{array}
+      \]
+\end{itemize}
