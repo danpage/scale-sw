@@ -107,11 +107,11 @@ Note that:
       (i.e., a $64$-bit unsigned integer), so will consume $512$ bytes 
       of memory.  Doing so improves efficiency: a look-up table captures 
       the function of an associated S-box {\em plus} the (inefficient) 
-      P- and E-permutations.
-      However, the implementation {\em used} differs slightly different.  
-      Given each of the look-up table entries holds $32$ bits of content, 
-      the type of entries has been altered to 
-      \lstinline[language=C]{unsigned int} 
+      P- and E-permutations.  However, the implementation actually used 
+      by $\PARTY{D}$ differs slightly.  Given each of the look-up table 
+      entries holds $32$ bits of content, the type of entries has been 
+      altered to 
+      \lstinline[language=C]{unsigned int}. 
       Once loaded, an entry is simply cast into 
       \lstinline[language=C]{unsigned long},
       roughly halving the memory footprint with no impact on efficiency.
@@ -186,7 +186,7 @@ to encrypt the
       print 
       a) any intermediate output you deem relevant, followed finally by 
       b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with attack target.
+         the total number of interactions with the attack target.
 \item Answer the exam-style questions in 
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}

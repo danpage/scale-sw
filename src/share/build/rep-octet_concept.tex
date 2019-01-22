@@ -5,7 +5,7 @@ of communication (and computer networks).  Using octet is arguably more
 precise than byte, in that the former is {\em always} $8$ bits whereas
 the latter {\em can}\footnote{
 \url{http://en.wikipedia.org/wiki/Byte}, for example, details the fact
-that byte can be and has been interpreted to mean
+that the term ``byte'' can be and has been interpreted to mean
 a) a group of $n$ bits for $n < w$ (i.e., smaller than the word size),
 b) the data type used to represent characters,
    or
@@ -17,7 +17,7 @@ octet string\footnote{
 Note the octet string terminology stems from ASN.1 encoding; see, e.g., 
 \url{http://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One}.
 } is a sequence of octets: ignoring some corner cases, it is reasonable 
-to use octet string as a synonym for byte sequence.
+to use the term ``octet string'' as a synonym for ``byte sequence''.
 
 To represent a given byte sequence, we use what can be formally termed
 a (little-endian) length-prefixed, hexadecimal octet string.  However,
@@ -25,7 +25,7 @@ doing so requires some explanation: each element of that term relates
 to a property of the representation, where we define
 a) little-endian\footnote{
    \url{http://en.wikipedia.org/wiki/Endianness}
-   } to mean, if read left-to-right, the 
+   } to mean, if read left-to-right,
    the first octet represents the     $0$-th element of the source byte sequence
    and
    the last  octet represents the $(n-1)$-st element of the source byte sequence,

@@ -159,9 +159,9 @@ Note that:
       \end{enumerate}
 
       \noindent
-      {\em or} a blank line: in this latter case, no fault will induced 
-      (which then obviously yields the correctly encrypted ciphertext 
-      for a given plaintext).
+      {\em or} a blank line.  In the latter case, {\em no} fault will 
+      be induced; this will obviously yield the correctly encrypted 
+      ciphertext for a given plaintext.
 \item The fault randomises one element of the state matrix: this can be
       captured by writing the resulting value as $s_{i,j} \XOR \delta$ 
       where $\delta$ is a (random) difference introduced by the fault.
@@ -193,7 +193,7 @@ Note that:
       print 
       a) any intermediate output you deem relevant, followed finally by 
       b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with attack target.
+         the total number of interactions with the attack target.
 \item Answer the exam-style questions in 
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}

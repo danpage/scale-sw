@@ -36,8 +36,8 @@ which acts as a storage repository for sensor data.  An installation of $50$
 or so IoT-class sensor nodes regularly transmit encrypted packets of data to
 $\PARTY{D}$, which stores them for later analysis (iff. they are deemed to be
 valid).  Having already captured some encrypted network traffic transmitted 
-from a particular sensor node to the server, you tasked with recovering the 
-underlying data.
+from a particular sensor node to the server, you are tasked with recovering 
+the underlying data.
 By leveraging access to the network, 
 an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
 
@@ -142,7 +142,7 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \end{itemize}
 
 \noindent
-with one field per-line.
+with one field per line.
 More specifically, this represents the previously captured network traffic
 whose decryption, i.e., recovery of $\PRI{\CHAL{m}}$, is the task at hand.
 \IfStrEqCase{CONF(CHALLENGE,CID)}{%
@@ -178,7 +178,7 @@ whose decryption, i.e., recovery of $\PRI{\CHAL{m}}$, is the task at hand.
       print 
       a) any intermediate output you deem relevant, followed finally by 
       b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with attack target.
+         the total number of interactions with the attack target.
 \item Answer the exam-style questions in 
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}

@@ -31,9 +31,10 @@
 
 \leveldown{Background}
 
-As part of a penetration testing team, imagine you are asked to assess a 
-specific e-commerce server, denoted $\PARTY{D}$, which houses a $64$-bit
-Intel Core2 processor.  
+Imagine you form part of a red team\footnote{
+\url{https://en.wikipedia.org/wiki/Red_team}
+} asked to assess of a specific e-commerce server, denoted $\PARTY{D}$, 
+which houses a $64$-bit Intel Core2 processor.  
 In reality, the server is a HSM-like device representing the back-office 
 infrastructure that supports various secure web-sites: the server offers
 secure key generation and storage, plus off-load for some cryptographic 
@@ -182,7 +183,7 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \end{itemize}
 
 \noindent
-with one field per-line.
+with one field per line.
 More specifically, this represents the RSA public key 
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
@@ -238,7 +239,7 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
       print 
       a) any intermediate output you deem relevant, followed finally by 
       b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with attack target.
+         the total number of interactions with the attack target.
 \item Answer the exam-style questions in 
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}
