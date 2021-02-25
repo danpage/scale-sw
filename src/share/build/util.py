@@ -6,7 +6,7 @@
 
 from __future__ import print_function
 
-import ConfigParser, Crypto.Cipher.AES as AES, Crypto.Cipher.DES as DES, Crypto.Hash.SHA as SHA, Crypto.Hash.HMAC as HMAC, Crypto.PublicKey.RSA as RSA, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.Util.number as number, functools, itertools, random
+import ConfigParser, Crypto.Cipher.AES as AES, Crypto.Cipher.DES as DES, Crypto.Hash.SHA as SHA, Crypto.Hash.HMAC as HMAC, Crypto.PublicKey.RSA as RSA, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.Util.number as number, binascii, functools, itertools, random
 
 # ...
 
@@ -66,6 +66,27 @@ def conf_str( mode, type, section, option, val = '' ) :
 
 def xopen( filename, mode ) :
   fd = open( filename, mode ) ; pr = functools.partial( print, file = fd ) ; return ( fd, pr )
+
+# convert a (structured) octet string to/from a (raw) byte string
+
+def octetstr2str( x ) :
+  t = x.split( ':' ) ; n = int( t[ 0 ], 16 ) ; x = binascii.a2b_hex( t[ 1 ] )
+
+  if( n != len( x ) ) :
+    raise ValueError
+  else :
+    return x
+
+def str2octetstr( x ) :
+  return ( '%02X' % ( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ) )
+
+# convert a byte string to/from a byte sequence
+
+def str2seq( x ) :
+  return          [ ord( t ) for t in x ]
+
+def seq2str( x ) :
+  return ''.join( [ chr( t ) for t in x ] )
 
 # convert an integer to/from a little- or big-endian base-b sequence
 

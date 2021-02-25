@@ -70,9 +70,9 @@ def build_conf() :
       continue
 
     if   ( type( val ) == long      ) :
-      pr( '%X' % (                   val           ) )
+      pr( '%X' % (                    val           ) )
     elif ( type( val ) == bytearray ) :
-      pr( '%s' % ( binascii.b2a_hex( val ).upper() ) )
+      pr( '%s' % ( util.str2octetstr( val ).upper() ) )
 
   fd.close()
 
