@@ -34,9 +34,9 @@ ${CURDIR}/build/desc.pdf : ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz
 ${BUILD_GLOB_DESC} : ${CURDIR}/build/desc.pdf
 	@cp ${<} ${@}
 ${BUILD_GLOB_CONF} :
-	@${PYTHON_ENV} python ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='conf' --cid='${CID}' --uid='${*F}'
+	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='conf' --cid='${CID}' --uid='${*F}'
 ${BUILD_GLOB_EXAM} :
-	@${PYTHON_ENV} python ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='exam' --cid='${CID}' --uid='${*F}'
+	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='exam' --cid='${CID}' --uid='${*F}'
 ${BUILD_GLOB_TAR}  : ${ARCHIVE_GLOB}
 	@tar --create --absolute-names --transform='s|${CURDIR}/build|${*F}/${ARCHIVE_PATH}|' --file='${@}' ${^}
 

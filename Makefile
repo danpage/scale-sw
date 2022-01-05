@@ -5,26 +5,26 @@
 # as LICENSE.txt within the associated archive or repository).
 
 define CHECK_DEPS_BASH
-  @if (     which "$(strip ${1})"                                                                  &> /dev/null ) ; then \
-     echo "+ deps-check passed : $(strip ${1})"                                                                   ;      \
-   else                                                                                                                  \
-     echo "- deps-check failed : $(strip ${1})"                                                                   ;      \
+  @if (     which "$(strip ${1})"                                                                   &> /dev/null ) ; then \
+     echo "+ deps-check passed : $(strip ${1})"                                                                    ;      \
+   else                                                                                                                   \
+     echo "- deps-check failed : $(strip ${1})"                                                                    ;      \
    fi
 endef
 
 define CHECK_DEPS_PYTHON
-  @if ( python -c 'import pkg_resources ; pkg_resources.require( "$(strip ${1})>=$(strip ${2})" )' &> /dev/null ) ; then \
-     echo "+ deps-check passed : $(strip ${1})"                                                                   ;      \
-   else                                                                                                                  \
-     echo "- deps-check failed : $(strip ${1})"                                                                   ;      \
+  @if ( python2 -c 'import pkg_resources ; pkg_resources.require( "$(strip ${1})>=$(strip ${2})" )' &> /dev/null ) ; then \
+     echo "+ deps-check passed : $(strip ${1})"                                                                    ;      \
+   else                                                                                                                   \
+     echo "- deps-check failed : $(strip ${1})"                                                                    ;      \
    fi
 endef
 
 define CHECK_DEPS_PDFLATEX
-  @if ( kpsewhich "$(strip ${1})"                                                                  &> /dev/null ) ; then \
-     echo "+ deps-check passed : $(strip ${1})"                                                                   ;      \
-   else                                                                                                                  \
-     echo "- deps-check failed : $(strip ${1})"                                                                   ;      \
+  @if ( kpsewhich "$(strip ${1})"                                                                   &> /dev/null ) ; then \
+     echo "+ deps-check passed : $(strip ${1})"                                                                    ;      \
+   else                                                                                                                   \
+     echo "- deps-check failed : $(strip ${1})"                                                                    ;      \
    fi
 endef
 
@@ -83,11 +83,11 @@ endif
 	@$(foreach DIR, ${SCALE_CONF_CHALLENGES},            make ${MAKE_PATHS} ${MAKE_FLAGS} -C ${DIR} ${*} ;)
 
 ${DIR_ROOT}/build/conf.mk  : ${CONF}
-	@${PYTHON_ENV} python ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='mk'
+	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='mk'
 ${DIR_ROOT}/build/conf.sh  : ${CONF}
-	@${PYTHON_ENV} python ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='sh'
+	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='sh'
 ${DIR_ROOT}/build/conf.arg : ${CONF}
-	@${PYTHON_ENV} python ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='arg'
+	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='arg'
 
 ${ARCHIVES} : ${DIR_ROOT}/build/%.tar.gz :
 	@$(foreach DIR, ${SCALE_CONF_CHALLENGES}, tar --concatenate --file=${DIR_ROOT}/build/${*F}.tar ${DIR}/build/${*F}.tar ;) gzip ${DIR_ROOT}/build/${*}.tar
@@ -102,7 +102,7 @@ check-deps  :
 	@$(call CHECK_DEPS_BASH,     make)
 	@$(call CHECK_DEPS_BASH,    patch)
 	@$(call CHECK_DEPS_BASH, pdflatex)
-	@$(call CHECK_DEPS_BASH,   python)
+	@$(call CHECK_DEPS_BASH,  python2)
 	@$(call CHECK_DEPS_BASH,   shasum)
 	@$(call CHECK_DEPS_BASH,    unzip)
 	@$(call CHECK_DEPS_BASH,     wget)
