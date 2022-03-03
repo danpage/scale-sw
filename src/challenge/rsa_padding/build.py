@@ -43,9 +43,9 @@ def build_params( args, conf ) :
   L = util.bytes_rand( int( math.ceil( log_L / 8 ) ) )
 
   if   ( conf.get( 'challenge', 'rsa_padding' ) == 'user_hash' ) :
-    m = bytearray( ( SHA.new( data = args.user ) ).digest() ) + m
+    m = bytes( ( SHA.new( data = args.uid.encode( 'ascii' ) ) ).digest() ) + m
   elif ( conf.get( 'challenge', 'rsa_padding' ) == 'user_text' ) :
-    m = bytearray(                   args.user              ) + m
+    m = bytes(                   args.uid.encode( 'ascii' )              ) + m
 
   if   ( conf.get( 'hash', 'rsa_padding' ) == 'sha1'   ) :
     H = SHA
@@ -56,7 +56,7 @@ def build_params( args, conf ) :
   elif ( conf.get( 'hash', 'rsa_padding' ) == 'sha512' ) :
     H = SHA512
 
-  c = bytearray( OAEP.new( RSA.construct( ( N, e, d ) ), label = L, hashAlgo = H ).encrypt( str( m ) ).zfill( k ) )
+  c = bytes( OAEP.new( RSA.construct( ( N, e, d ) ), label = L, hashAlgo = H ).encrypt( m ).zfill( k ) )
 
   return [ ( 'p', p, False ),
            ( 'q', q, False ),

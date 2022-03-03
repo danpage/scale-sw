@@ -4,21 +4,32 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-DIRS      = ./build/lib
-DIRS     += ./build/include/target
+ifndef REPO_HOME
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+ifndef REPO_VERSION
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
 
-INCLUDES  = . 
+# =============================================================================
 
-HEADERS   = $(wildcard *.h)
-SOURCES   = $(wildcard *.c)
+    DIRS   = ./build/lib 
+    DIRS  += ./build/include/target
 
-OBJECTS   = $(addprefix ./build/lib/,            $(notdir $(patsubst %.c, %.o, ${SOURCES})))
+INCLUDES   = . 
 
-TARGETS   = $(addprefix ./build/include/target/, $(notdir $(patsubst %.h, %.h, ${HEADERS})))
-TARGETS  += ./build/lib/libtarget.a
+ HEADERS   = $(wildcard *.h)
+ SOURCES   = $(wildcard *.c)
+
+ OBJECTS   = $(addprefix ./build/lib/,            $(notdir $(patsubst %.c, %.o, ${SOURCES})))
+
+ TARGETS   = $(addprefix ./build/include/target/, $(notdir $(patsubst %.h, %.h, ${HEADERS})))
+ TARGETS  += ./build/lib/libtarget.a
+
+# -----------------------------------------------------------------------------
 
 ${DIRS} :
-	@mkdir -p ${@}
+	@mkdir --parents ${@}
 
 ./build/lib/%.o : %.c %.h
 	@gcc $(patsubst %, -I %, ${INCLUDES}) ${GCC_PATHS} ${GCC_FLAGS} -c -o ${@} ${<}
@@ -39,4 +50,6 @@ $(filter %.mk, ${TARGETS}) : ./build/lib/%.mk    : $(filter %.mk, ${SCRIPTS})
 build  : ${DIRS} ${TARGETS}
 
 clean  :
-	@rm -rf ./build/*
+	@rm --force --recursive ./build/*
+
+# =============================================================================

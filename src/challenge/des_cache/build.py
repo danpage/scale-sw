@@ -10,4 +10,4 @@ def apply_fixups( args, conf ) :
   pass
 
 def build_params( args, conf ) :
-  return [ ( 'k', util.bytes_rand( 64 / 8 ), False ) ]
+  return [ ( 'k', util.bytes_rand( 64 // 8 ), False ) ]

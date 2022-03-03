@@ -4,6 +4,15 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
+ifndef REPO_HOME
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+ifndef REPO_VERSION
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+
+# =============================================================================
+
 CID = DES_CACHE
 
 include libbuild.mk
@@ -46,8 +55,10 @@ build-deps-hook :
 	@cd d4-7 && ./configure --quiet && make --quiet
 
 clean-deps-hook :
-	@rm -rf DES-OUTE.ZIP 
-	@rm -rf DES-OUTE
+	@rm --force --recursive DES-OUTE.ZIP 
+	@rm --force --recursive DES-OUTE
 
-	@rm -rf d4-7.tar.gz
-	@rm -rf d4-7
+	@rm --force --recursive d4-7.tar.gz
+	@rm --force --recursive d4-7
+
+# =============================================================================

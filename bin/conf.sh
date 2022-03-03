@@ -1,16 +1,15 @@
+#!/bin/bash
+
 # Copyright (C) 2017 Daniel Page <dan@phoo.org>
 #
 # Use of this source code is restricted per the CC BY-SA license, a copy of
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-PROJECT_NAME      = "Side-Channel Analysis Lab. Exercises (SCALE)"
+export REPO_HOME="${PWD}"
 
-INPUT             = ./src
-RECURSIVE         = YES
-FILE_PATTERNS     = *.c *.h *.py
+export REPO_VERSION_MAJOR="0"
+export REPO_VERSION_MINOR="1"
+export REPO_VERSION_PATCH="0"
 
-OUTPUT_DIRECTORY  = ./build/doc
-EXTRACT_ALL       = YES
-EXTRACT_STATIC    = YES
-GENERATE_TREEVIEW = YES
+export REPO_VERSION="${REPO_VERSION_MAJOR}.${REPO_VERSION_MINOR}.${REPO_VERSION_PATCH}"

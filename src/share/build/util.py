@@ -4,9 +4,18 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-from __future__ import print_function
+import binascii, configparser, functools, itertools, math, random
 
-import ConfigParser, Crypto.Cipher.AES as AES, Crypto.Cipher.DES as DES, Crypto.Hash.SHA as SHA, Crypto.Hash.HMAC as HMAC, Crypto.PublicKey.RSA as RSA, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.Util.number as number, binascii, functools, itertools, random
+import Crypto.Util.number as number
+
+import Crypto.Cipher.AES        as AES
+import Crypto.Cipher.DES        as DES
+import Crypto.Cipher.PKCS1_OAEP as OAEP
+
+import Crypto.Hash.SHA          as SHA
+import Crypto.Hash.HMAC         as HMAC
+
+import Crypto.PublicKey.RSA     as RSA
 
 # ...
 
@@ -17,7 +26,7 @@ CONF_MODE_ARG  = 2
 CONF_TYPE_CONF = 0
 CONF_TYPE_USER = 1
 
-class conf( ConfigParser.RawConfigParser, object ) :
+class conf( configparser.RawConfigParser, object ) :
   def __init__( self ) :
     super( conf, self ).__init__()
 
@@ -78,7 +87,7 @@ def octetstr2str( x ) :
     return x
 
 def str2octetstr( x ) :
-  return ( '%02X' % ( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ) )
+  return ( '%02X' % ( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ).decode( 'ascii' ) )
 
 # convert a byte string to/from a byte sequence
 
@@ -101,7 +110,7 @@ def int2seq( x, b, endian = +1 ) :
     elif ( endian == BE ) : 
       t = [ x % b ] + t
 
-    x = x / b
+    x = x // b
 
   return t
 
@@ -119,28 +128,28 @@ def seq2int( x, b, endian = +1 ) :
 def flatten( xs ) :
   return list( itertools.chain.from_iterable( xs ) )
 
-# generate a bytearray of n elements, each of whose value is either zero 
-# or sampled randomly
+# generate an array of n bytes, each of whose value is either zero or 
+# sampled randomly
 
-def bytes_rand( n, bytes = range( 0, 256 ) ) :
-  return bytearray( [ random.choice( bytes ) for i in range( n ) ] )
+def bytes_rand( n, xs = range( 0, 256 ) ) :
+  return bytes( [ random.choice( xs ) for i in range( n ) ] )
 
 def bytes_zero( n ) :
-  return bytearray( [ 0                      for i in range( n ) ] )
+  return bytes( [ 0                   for i in range( n ) ] )
 
 # compute padding required for x, formed of n+1 elements (each with the 
 # value n) st. the length with padding is zero modulo b
 
 def padding( x, b ) :
-  n = ( b - ( len( x ) + 1 ) ) % b ; return bytearray( [ n ] * ( n + 1 ) )
+  n = ( b - ( len( x ) + 1 ) ) % b ; return bytes( [ n ] * ( n + 1 ) )
 
 # key generation for RSA with (optionally) constrained private exponent
 
 def keygen_rsa( log_N, log_d = None ) :
-  f = lambda n : ''.join( [ chr( random.getrandbits( 8 ) ) for i in range( n ) ] )
+  f = lambda n : bytes( [ random.getrandbits( 8 ) for i in range( n ) ] )
 
-  p = number.getPrime( log_N / 2, randfunc = f )
-  q = number.getPrime( log_N / 2, randfunc = f )
+  p = number.getPrime( math.ceil( log_N / 2 ), randfunc = f )
+  q = number.getPrime( math.ceil( log_N / 2 ), randfunc = f )
 
   N = p * q ; phi = ( p - 1 ) * ( q - 1 )
 

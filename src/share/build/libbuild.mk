@@ -4,6 +4,15 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
+ifndef REPO_HOME
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+ifndef REPO_VERSION
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+
+# =============================================================================
+
 BUILD_GLOB_DESC  = %.pdf
 BUILD_GLOB_CONF  = %.conf %.conf_bin %.conf_txt %.conf_arg
 BUILD_GLOB_EXAM  = %.exam
@@ -17,6 +26,8 @@ define FIXUP_SYMBOLS
   @strip   --strip-all ${1}
   @objcopy --add-gnu-debuglink='$(strip ${1})_debug' ${1}
 endef
+
+# -----------------------------------------------------------------------------
 
 ${CURDIR}/build/desc.tex  : desc.tex 
 	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID=${CID} $(shell cat ${DIR_ROOT}/build/conf.arg) libbuild.m4 ${<} > ${@}
@@ -34,14 +45,17 @@ ${CURDIR}/build/desc.pdf : ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz
 ${BUILD_GLOB_DESC} : ${CURDIR}/build/desc.pdf
 	@cp ${<} ${@}
 ${BUILD_GLOB_CONF} :
-	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='conf' --cid='${CID}' --uid='${*F}'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='conf' --cid='${CID}' --uid='${*F}'
 ${BUILD_GLOB_EXAM} :
-	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='exam' --cid='${CID}' --uid='${*F}'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='exam' --cid='${CID}' --uid='${*F}'
 ${BUILD_GLOB_TAR}  : ${ARCHIVE_GLOB}
 	@tar --create --absolute-names --transform='s|${CURDIR}/build|${*F}/${ARCHIVE_PATH}|' --file='${@}' ${^}
 
-.PHONY          : build
-.PRECIOUS       : ${BUILD_GLOB_DESC} ${BUILD_GLOB_CONF} ${BUILD_GLOB_EXAM} ${BUILD_GLOB_TAR}
+# -----------------------------------------------------------------------------
+
+.PHONY : build
+
+.PRECIOUS : ${BUILD_GLOB_DESC} ${BUILD_GLOB_CONF} ${BUILD_GLOB_EXAM} ${BUILD_GLOB_TAR}
 
 fetch-deps-hook :
 fetch-deps      : fetch-deps-hook
@@ -61,3 +75,5 @@ clean      : clean-hook
 
 	@rm -f *.pyc
 	@rm -f *.pyo
+
+# =============================================================================

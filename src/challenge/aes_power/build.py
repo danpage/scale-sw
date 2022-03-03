@@ -16,15 +16,16 @@ def apply_fixups( args, conf ) :
 
 def build_params( args, conf ) :
   if   ( conf.get( 'version', 'aes_power' ) == 'ecb_enc' ) :
-    return [ ( 'k', util.bytes_rand( 128 / 8 ), False ) ]
+    k   =           util.bytes_rand( 128 // 8 )
   elif ( conf.get( 'version', 'aes_power' ) == 'ecb_dec' ) :
-    return [ ( 'k', util.bytes_rand( 128 / 8 ), False ) ]
+    k   =           util.bytes_rand( 128 // 8 )
   elif ( conf.get( 'version', 'aes_power' ) == 'xts'     ) :
-    k_1 =           util.bytes_rand( 128 / 8 )
-    k_2 =           util.bytes_rand( 128 / 8 )
+    k_1 =           util.bytes_rand( 128 // 8 )
+    k_2 =           util.bytes_rand( 128 // 8 )
+
     k   = k_1 + k_2
 
-    return [ ( 'k', k, False ) ]
+  return [ ( 'k', k, False ) ]
 
 
 

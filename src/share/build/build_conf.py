@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import libbuild.util as util, argparse, binascii, braceexpand, copy, ConfigParser, glob, os, pickle, random, sys, textwrap
+import libbuild.util as util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap
 
 def apply_fixups() :
   # apply global fixups

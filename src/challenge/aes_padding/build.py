@@ -20,21 +20,21 @@ def build_params( args, conf ) :
 
   log_k_enc = 128 ; log_b_enc = 128 ; log_k_mac = 128
 
-  k_enc = util.bytes_rand( log_k_enc / 8 )
-  k_mac = util.bytes_rand( log_k_mac / 8 )
+  k_enc = util.bytes_rand( math.ceil( log_k_enc / 8 ) )
+  k_mac = util.bytes_rand( math.ceil( log_k_mac / 8 ) )
 
-  iv    = util.bytes_rand( int( math.ceil( log_b_enc / 8 ) ) )
-  m     = util.bytes_rand( int( math.ceil( log_m     / 8 ) ) )
+  iv    = util.bytes_rand( math.ceil( log_b_enc / 8 ) )
+  m     = util.bytes_rand( math.ceil( log_m     / 8 ) )
 
   if   ( conf.get( 'challenge', 'aes_padding' ) == 'uid_hash' ) :
-    m = bytearray( ( SHA.new( data = args.uid ) ).digest() ) + m
+    m = bytes( ( SHA.new( data = args.uid.encode( 'ascii' ) ) ).digest() ) + m
   elif ( conf.get( 'challenge', 'aes_padding' ) == 'uid_text' ) :
-    m = bytearray(                   args.uid              ) + m
+    m = bytes(                   args.uid.encode( 'ascii' )              ) + m
 
-  tau = bytearray( HMAC.new( str( k_mac ), digestmod = SHA, msg = str( m ) ).digest() )
-  rho = util.padding( m + tau, log_b_enc / 8 )
+  tau   = bytes( HMAC.new( k_mac, digestmod = SHA, msg = m ).digest() )
+  rho   = util.padding( m + tau, math.ceil( log_b_enc / 8 ) )
 
-  c   = bytearray( AES.new( str( k_enc ), AES.MODE_CBC, IV = str( iv ) ).encrypt( str( m + tau + rho ) ) )
+  c     = bytes( AES.new( k_enc, AES.MODE_CBC, IV = iv ).encrypt( m + tau + rho ) )
 
   return [ ( 'k_enc', k_enc, False ),
            ( 'k_mac', k_mac, False ),

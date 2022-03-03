@@ -4,29 +4,14 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-define CHECK_DEPS_BASH
-  @if (     which "$(strip ${1})"                                                                   &> /dev/null ) ; then \
-     echo "+ deps-check passed : $(strip ${1})"                                                                    ;      \
-   else                                                                                                                   \
-     echo "- deps-check failed : $(strip ${1})"                                                                    ;      \
-   fi
-endef
+ifndef REPO_HOME
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+ifndef REPO_VERSION
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
 
-define CHECK_DEPS_PYTHON
-  @if ( python2 -c 'import pkg_resources ; pkg_resources.require( "$(strip ${1})>=$(strip ${2})" )' &> /dev/null ) ; then \
-     echo "+ deps-check passed : $(strip ${1})"                                                                    ;      \
-   else                                                                                                                   \
-     echo "- deps-check failed : $(strip ${1})"                                                                    ;      \
-   fi
-endef
-
-define CHECK_DEPS_PDFLATEX
-  @if ( kpsewhich "$(strip ${1})"                                                                   &> /dev/null ) ; then \
-     echo "+ deps-check passed : $(strip ${1})"                                                                    ;      \
-   else                                                                                                                   \
-     echo "- deps-check failed : $(strip ${1})"                                                                    ;      \
-   fi
-endef
+# =============================================================================
 
  ifndef CONF
  export CONF            = ${CURDIR}/scale.conf
@@ -50,6 +35,7 @@ endif
  export      GCC_PATHS += -L${DIR_ROOT}/src/share/target/build/lib
  export      GCC_PATHS += -I${DIR_ROOT}/src/share/target/build/include
  export      GCC_LIBS  += -ltarget -lcrypto -lgmp
+
  ifdef STATIC
  export      GCC_FLAGS += -static -static-libgcc
  export      GCC_LIBS  += -ldl 
@@ -75,7 +61,9 @@ endif
 
  export ARCHIVES     += $(patsubst %, ${DIR_ROOT}/build/%.tar.gz, ${SCALE_CONF_USERS})
 
-.PHONY   : build
+# -----------------------------------------------------------------------------
+
+.PHONY : build
 
 %-share     :
 	@$(foreach DIR, $(wildcard ${DIR_ROOT}/src/share/*), make ${MAKE_PATHS} ${MAKE_FLAGS} -C ${DIR} ${*} ;)
@@ -83,48 +71,14 @@ endif
 	@$(foreach DIR, ${SCALE_CONF_CHALLENGES},            make ${MAKE_PATHS} ${MAKE_FLAGS} -C ${DIR} ${*} ;)
 
 ${DIR_ROOT}/build/conf.mk  : ${CONF}
-	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='mk'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='mk'
 ${DIR_ROOT}/build/conf.sh  : ${CONF}
-	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='sh'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='sh'
 ${DIR_ROOT}/build/conf.arg : ${CONF}
-	@${PYTHON_ENV} python2 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='arg'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_conf.py --path='${CURDIR}' --conf='${CONF}' --mode='arg'
 
 ${ARCHIVES} : ${DIR_ROOT}/build/%.tar.gz :
 	@$(foreach DIR, ${SCALE_CONF_CHALLENGES}, tar --concatenate --file=${DIR_ROOT}/build/${*F}.tar ${DIR}/build/${*F}.tar ;) gzip ${DIR_ROOT}/build/${*}.tar
-
-check-deps  :
-	@$(call CHECK_DEPS_BASH,     as31)
-	@$(call CHECK_DEPS_BASH,    biber)
-	@$(call CHECK_DEPS_BASH,  doxygen)
-	@$(call CHECK_DEPS_BASH,      gcc)
-	@$(call CHECK_DEPS_BASH,     gzip)
-	@$(call CHECK_DEPS_BASH,       m4)
-	@$(call CHECK_DEPS_BASH,     make)
-	@$(call CHECK_DEPS_BASH,    patch)
-	@$(call CHECK_DEPS_BASH, pdflatex)
-	@$(call CHECK_DEPS_BASH,  python2)
-	@$(call CHECK_DEPS_BASH,   shasum)
-	@$(call CHECK_DEPS_BASH,    unzip)
-	@$(call CHECK_DEPS_BASH,     wget)
-	@$(call CHECK_DEPS_BASH,      zip)
-
-	@$(call CHECK_DEPS_PYTHON, pycrypto,    2.6.1)
-	@$(call CHECK_DEPS_PYTHON, braceexpand, 0.1.2)
-
-	@$(call CHECK_DEPS_PDFLATEX, algorithm2e.sty)
-	@$(call CHECK_DEPS_PDFLATEX,     amsmath.sty)
-	@$(call CHECK_DEPS_PDFLATEX,     amssymb.sty)
-	@$(call CHECK_DEPS_PDFLATEX,    biblatex.sty)
-	@$(call CHECK_DEPS_PDFLATEX,    fancyhdr.sty)
-	@$(call CHECK_DEPS_PDFLATEX,     fontenc.sty)
-	@$(call CHECK_DEPS_PDFLATEX,    geometry.sty)
-	@$(call CHECK_DEPS_PDFLATEX,    hyperref.sty)
-	@$(call CHECK_DEPS_PDFLATEX,    listings.sty)
-	@$(call CHECK_DEPS_PDFLATEX,     siunitx.sty)
-	@$(call CHECK_DEPS_PDFLATEX,  standalone.cls)
-	@$(call CHECK_DEPS_PDFLATEX,    titlesec.sty)
-	@$(call CHECK_DEPS_PDFLATEX,       xargs.sty)
-	@$(call CHECK_DEPS_PDFLATEX,     xstring.sty)
 
 build-deps  : fetch-deps-challenge patch-deps-challenge build-deps-challenge
 
@@ -132,27 +86,26 @@ build-conf  : ${DIR_ROOT}/build/conf.mk ${DIR_ROOT}/build/conf.sh ${DIR_ROOT}/bu
 
 build-dist  : ${ARCHIVES}
 
-build-doc   :
-	@doxygen
-
 clean-deps  : clean-deps-challenge
 
 clean-conf  :
-	@rm -f  ${DIR_ROOT}/build/conf.mk
-	@rm -f  ${DIR_ROOT}/build/conf.sh
-	@rm -f  ${DIR_ROOT}/build/conf.arg
-
-clean-doc   :
-	@rm -fr ${DIR_ROOT}/build/doc
+	@rm --force ${DIR_ROOT}/build/conf.mk
+	@rm --force ${DIR_ROOT}/build/conf.sh
+	@rm --force ${DIR_ROOT}/build/conf.arg
 
 clean-dist  :
-	@rm -f  ${DIR_ROOT}/build/*.tar.gz
+	@rm --force ${DIR_ROOT}/build/*.tar.gz
 
 build-step1 : build-share build-conf 
-build-step2 : build-doc build-deps build-challenge build-dist 
+build-step2 : build-deps build-challenge build-dist 
 
-clean-step1 : clean-doc clean-deps clean-challenge clean-dist
+clean-step1 : clean-deps clean-challenge clean-dist
 clean-step2 : clean-share clean-conf
 
+venv        : ${REPO_HOME}/requirements.txt
+	@${REPO_HOME}/bin/venv.sh
+
 spotless    : clean-step1 clean-step2
-	@rm -rf ${DIR_ROOT}/build/*
+	@rm --force --recursive ${REPO_HOME}/build/*
+
+# =============================================================================

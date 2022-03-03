@@ -17,8 +17,8 @@ def build_params( args, conf ) :
                           int( conf.get( 'len_P_max', 'demo' ) ) )
 
   if   ( conf.get( 'alphabet', 'demo' ) == 'binary' ) :
-    P = util.bytes_rand( len_P                                 ) + '\x00'
+    P = util.bytes_rand( len_P                                                ) + bytes( '\x00'.encode( 'ascii' ) )
   elif ( conf.get( 'alphabet', 'demo' ) == 'ascii'  ) :
-    P = util.bytes_rand( len_P, bytes = string.ascii_lowercase ) + '\x00'
+    P = util.bytes_rand( len_P, xs = string.ascii_lowercase.encode( 'ascii' ) ) + bytes( '\x00'.encode( 'ascii' ) )
 
   return [ ( 'P', P, False ) ]

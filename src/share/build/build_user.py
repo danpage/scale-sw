@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import libbuild.util as util, argparse, binascii, braceexpand, copy, ConfigParser, glob, os, pickle, random, sys, textwrap, Crypto.Hash.SHA as SHA
+import libbuild.util as util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap, Crypto.Hash.SHA as SHA
 
 def build_conf() :
   # build parameters for this user
@@ -29,12 +29,12 @@ def build_conf() :
   ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.conf_txt' ), 'w'  )
 
   for ( pid, val, pub ) in params :
-    if   ( type( val ) == long      ) :
-      pr( '%s = %X_{(16)}' % (          ( pid ),                   val           ) )
-      pr( '%s = %d_{(10)}' % ( ' ' * len( pid ),                   val           ) )
-    elif ( type( val ) == bytearray ) :
-      pr( '%s = %s'        % (       str( pid ),                   val           ) )
-      pr( '%s = %s'        % ( ' ' * len( pid ), binascii.b2a_hex( val ).upper() ) )
+    if   ( type( val ) == int   ) :
+      pr( '%s = %X_{(16)}' % (          ( pid ),                    val           ) )
+      pr( '%s = %d_{(10)}' % ( ' ' * len( pid ),                    val           ) )
+    elif ( type( val ) == bytes ) :
+      pr( '%s = %s'        % (       str( pid ),                    val           ) )
+      pr( '%s = %s'        % ( ' ' * len( pid ), util.str2octetstr( val ).upper() ) )
 
   fd.close()
 
@@ -43,9 +43,9 @@ def build_conf() :
   ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.conf_arg' ), 'w'  )
 
   for ( pid, val, pub ) in params :
-    if   ( type( val ) == long      ) :
+    if   ( type( val ) == int   ) :
       val = util.int2seq( val, 2 ** 8, util.LE ) ; 
-    elif ( type( val ) == bytearray ) :
+    elif ( type( val ) == bytes ) :
       pass
 
     if ( conf.get( 'obfuscate' ) == 'true' ) :
@@ -69,9 +69,9 @@ def build_conf() :
     if ( not pub ) :
       continue
 
-    if   ( type( val ) == long      ) :
+    if   ( type( val ) == int   ) :
       pr( '%X' % (                    val           ) )
-    elif ( type( val ) == bytearray ) :
+    elif ( type( val ) == bytes ) :
       pr( '%s' % ( util.str2octetstr( val ).upper() ) )
 
   fd.close()
@@ -124,7 +124,7 @@ def build_exam() :
   else :
     qs = qs_r +              ( qs_o    )
 
-  for ( i, t ) in sorted( qs, key = lambda ( x, y ) : x ) :
+  for ( i, t ) in sorted( qs, key = lambda x : x[ 0 ] ) :
     w = textwrap.TextWrapper( initial_indent = 'Q.%d ' % ( i ), subsequent_indent = ' ' * 4, width = 75, fix_sentence_endings = True )
 
     for line in w.wrap( qdb[ ( i, t ) ] ) :
@@ -155,9 +155,9 @@ if ( __name__ == '__main__' ) :
   seed = conf.get( 'seed' ).strip( ' ' )
 
   if ( seed == '' ) :
-    seed = int( SHA.new( data = args.cid + args.uid ).hexdigest(), 16 )
+    seed = int( SHA.new( data = ( args.cid + args.uid ).encode( 'ascii' ) ).hexdigest(), 16 )
   else :
-    seed = int( SHA.new( data = args.cid + args.uid ).hexdigest(), 16 ) + int( seed )
+    seed = int( SHA.new( data = ( args.cid + args.uid ).encode( 'ascii' ) ).hexdigest(), 16 ) + int( seed )
 
   random.seed( seed )
 

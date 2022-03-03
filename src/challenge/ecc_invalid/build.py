@@ -30,4 +30,4 @@ def build_params( args, conf ) :
   elif ( conf.get( 'curve', 'ecc_invalid' ) == 'nist-p-521' ) :
     log_k = 521
 
-  return [ ( 'k', util.bytes_rand( log_k / 8 ), False ) ]
+  return [ ( 'k', util.bytes_rand( math.ceil( log_k / 8 ) ), False ) ]

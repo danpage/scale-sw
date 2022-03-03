@@ -4,6 +4,15 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
+ifndef REPO_HOME
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+ifndef REPO_VERSION
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+
+# =============================================================================
+
 CID = AES_POWER
 
 include libbuild.mk
@@ -44,7 +53,9 @@ ${CURDIR}/build/%.R : ${TARGETS} ${CURDIR}/build/%.conf_arg aes.bin ${I8051_SOUR
 	$(call FIXUP_SYMBOLS, ${@})
 
 clean-hook :
-	@rm -f ${I8051_SOURCES_M4} 
-	@rm -f ${I8051_HEADERS_M4}
+	@rm --force --recursive ${I8051_SOURCES_M4} 
+	@rm --force --recursive ${I8051_HEADERS_M4}
 
-	@rm -f aes.S aes.hex aes.bin
+	@rm --force --recursive aes.S aes.hex aes.bin
+
+# =============================================================================

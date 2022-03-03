@@ -4,6 +4,15 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
+ifndef REPO_HOME
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+ifndef REPO_VERSION
+  $(error "execute 'source ./bin/conf.sh' to configure environment")
+endif
+
+# =============================================================================
+
 CID = DEMO
 
 include libbuild.mk
@@ -16,4 +25,4 @@ ${CURDIR}/build/%.R : $(wildcard target.[ch]) ${CURDIR}//build/%.conf_arg
 	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_R=1 $(shell cat ${DIR_ROOT}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	@$(call FIXUP_SYMBOLS, ${@})
 
-
+# =============================================================================
