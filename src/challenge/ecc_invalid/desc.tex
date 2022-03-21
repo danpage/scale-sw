@@ -92,7 +92,7 @@ then writing output, until it is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ uses an affine, left-to-right binary scalar multiplication
+\item $\PARTY{D}$ uses an left-to-right binary scalar multiplication
       (i.e., an additive analogue of~\cite[Section 2.1]{SCALE:Gordon:85}) to 
       compute $\PUB{Q} = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$: it assumes use of 
       the
@@ -125,6 +125,18 @@ Note that:
       \PUB{P} \in E( \DOM{\B{F}_p} )
       $ 
       and reject $\PUB{P}$ if not).
+\item At least from a Mathematical point of view, there is no valid affine 
+      representation of the point at infinity.  If computation of
+      $
+      \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}
+      $
+      does yield the point at infinity, $\PARTY{D}$ therefore signals this 
+      fact by producing
+      \[
+      \PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \TUPLE{ 0, 0 }
+      \]
+      as output 
+      (rather than some special-purpose mechanism, e.g., an error or an alternative output format).
 \end{itemize}
 
 \levelup{Tasks}
