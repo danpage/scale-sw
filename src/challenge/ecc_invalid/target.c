@@ -95,10 +95,16 @@ int main( int argc, char* argv[] ) {
 
     // 3. produce output
 
-    EC_POINT_get_affine_coordinates_GFp( G, Q, x, y, ctx );
+    if( EC_POINT_is_at_infinity( G, Q ) ) {
+                                fprintf( stdout, "0\n" );
+                                fprintf( stdout, "0\n" );
+    }
+    else {
+      EC_POINT_get_affine_coordinates_GFp( G, Q, x, y, ctx );
 
-                                 BN_print_fp( stdout, x ); fprintf( stdout, "\n" );
-                                 BN_print_fp( stdout, y ); fprintf( stdout, "\n" );
+      BN_print_fp( stdout, x ); fprintf( stdout,  "\n" );
+      BN_print_fp( stdout, y ); fprintf( stdout,  "\n" );
+    }
 
     // 4. flush streams
 
