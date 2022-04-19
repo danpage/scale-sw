@@ -6,6 +6,8 @@
 
 \begin{tikzpicture}
 
+% =============================================================================
+
 % configure
  \tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
 
@@ -35,5 +37,7 @@
  \draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
                              node [right,anchor=west] {$\PUB{r} = \ALG{Match}( \PRI{\CHAL{P}}, \PUB{G} )$}
                              (D.330) ;
+
+% =============================================================================
 
 \end{tikzpicture}

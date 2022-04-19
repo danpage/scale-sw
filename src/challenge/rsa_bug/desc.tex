@@ -17,7 +17,7 @@
 
 \begin{document}
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \author{\url{http://www.github.com/danpage/scale}}
@@ -27,7 +27,7 @@
 \maketitle
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \leveldown{Background}
 
@@ -56,6 +56,8 @@ the corresponding  plaintext.
 Unfortunately, however, the processor used by $\PARTY{D}$ has an important
 defect: the $( 64 \times 64 )$-bit integer multiplier implementation has a
 (deterministic) bug, meaning the output is incorrect for specific inputs.
+
+% -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
@@ -161,6 +163,8 @@ $
 $
 embedded in $\PARTY{D}$.
 
+% -----------------------------------------------------------------------------
+
 \levelup{Tasks}
 
 \begin{enumerate}
@@ -181,13 +185,13 @@ embedded in $\PARTY{D}$.
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \printbibliography
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \appendix 
@@ -208,6 +212,6 @@ embedded in $\PARTY{D}$.
 \input{rep-octet_example.tex}
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \end{document}

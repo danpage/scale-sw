@@ -17,7 +17,7 @@
 
 \begin{document}
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \author{\url{http://www.github.com/danpage/scale}}
@@ -27,7 +27,7 @@
 \maketitle
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \leveldown{Background}
 
@@ -56,6 +56,8 @@ each operation: it approximates this
 (keeping in mind there may be some experimental noise) 
 by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{m}$ once
 provided with $\PUB{c}$.
+
+% -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
@@ -179,6 +181,8 @@ to decrypt the
 Keep in mind that $\PARTY{R}$ uses Montgomery multiplication, so functions
 correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
 
+% -----------------------------------------------------------------------------
+
 \levelup{Tasks}
 
 \begin{enumerate}
@@ -199,13 +203,13 @@ correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \printbibliography
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \appendix 
@@ -226,6 +230,6 @@ correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
 \input{rep-octet_example.tex}
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \end{document}

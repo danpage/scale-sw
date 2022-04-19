@@ -17,7 +17,7 @@
 
 \begin{document}
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \author{\url{http://www.github.com/danpage/scale}}
@@ -27,7 +27,7 @@
 \maketitle
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \leveldown{Background}
 
@@ -87,6 +87,8 @@ is, a given application should not reveal {\em which} error occurred, only
 that {\em some} error occurred).  The implementation used by $\PARTY{D}$ 
 does {\em not} adhere to this advice, meaning the error is exposed via 
 the result code produced.
+
+% -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
@@ -224,6 +226,8 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
   }%
 }%
 
+% -----------------------------------------------------------------------------
+
 \levelup{Tasks}
 
 \begin{enumerate}
@@ -244,13 +248,13 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
       \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
 \end{enumerate}
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \printbibliography
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \ifstandalone
 \appendix 
@@ -271,6 +275,6 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
 \input{rep-octet_example.tex}
 \fi
 
-% -----------------------------------------------------------------------------
+% =============================================================================
 
 \end{document}

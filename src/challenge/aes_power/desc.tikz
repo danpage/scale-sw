@@ -6,6 +6,8 @@
 
 \begin{tikzpicture}
 
+% =============================================================================
+
 % configure
  \tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
 
@@ -68,5 +70,7 @@
                                   (D.330) ;
   }%
 }%
+
+% =============================================================================
 
 \end{tikzpicture}

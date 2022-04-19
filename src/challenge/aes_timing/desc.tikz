@@ -20,24 +20,25 @@
 
 %   direct input and output
  \draw [       >=stealth,->] (E.30)    to              
-                             node [above]             {$\PUB{P}$} 
+                             node [above]             {$\PUB{m}$} 
                              (E.30    -| D.west)  ;
  \draw [       >=stealth,<-] (E.330)   to              
-                             node [below]             {$\PUB{Q}$} 
+                             node [below]             {$\PUB{c}$} 
                              (E.330   -| D.west)  ;
 % indirect input and output
 %\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
 %                            node [above]             {} 
 %                            (D.north -| E.north) ;
-%\draw [dashed,>=stealth,->] (D.south) to [bend left]  
-%                            node [below]             {} 
-%                            (D.south -| E.south) ;
+ \draw [dashed,>=stealth,->] (D.south) to [bend left]  
+                             node [below]             {execution time} 
+                             (D.south -| E.south) ;
 
 % computation
  \draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                             node [right,anchor=west] {$\PRI{Q} = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$}
+                             node [right,anchor=west] {$\PUB{c} = \SCOPE{\ID{AES}}{\ALG{Enc}}( \PRI{\CHAL{k}}, \PUB{m} )$}
                              (D.330) ;
 
 % =============================================================================
 
 \end{tikzpicture}
+
