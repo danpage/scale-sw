@@ -1,58 +1,57 @@
-Consider the following Python program
+Consider the following Python $3.x$ program
  
 \begin{lstlisting}[language={Python}]
-a = "09080706050403020100"
+t_0 = '09080706050403020100'
 
-b = long( a, 10 )
-c = long( a, 16 )
+t_1 = int( t_0, 10 )
+t_2 = int( t_0, 16 )
 
-d = ( "%d" % ( c ) )
-e = ( "%X" % ( c ) )
+t_3 = ( '{0:d}'.format( t_2 ) )
+t_4 = ( '{0:X}'.format( t_2 ) )
 
-f = ( "%X" % ( c ) ).zfill( 20 )
+t_5 = ( '{0:X}'.format( t_2 ) ).zfill( 20 )
 
-print "type( a ) = %-13s a = %s" % ( type( a ), str( a ) )
-print "type( b ) = %-13s b = %s" % ( type( b ), str( b ) )
-print "type( c ) = %-13s c = %s" % ( type( c ), str( c ) )
-print "type( d ) = %-13s d = %s" % ( type( d ), str( d ) )
-print "type( e ) = %-13s e = %s" % ( type( e ), str( e ) )
-print "type( f ) = %-13s f = %s" % ( type( f ), str( f ) )
+print( 'type( t_0 ) = {0!s:14s} t_0 = {1!s}'.format( type( t_0 ), t_0 ) )
+print( 'type( t_1 ) = {0!s:14s} t_1 = {1!s}'.format( type( t_1 ), t_1 ) )
+print( 'type( t_2 ) = {0!s:14s} t_2 = {1!s}'.format( type( t_2 ), t_2 ) )
+print( 'type( t_3 ) = {0!s:14s} t_3 = {1!s}'.format( type( t_3 ), t_3 ) )
+print( 'type( t_4 ) = {0!s:14s} t_4 = {1!s}'.format( type( t_4 ), t_4 ) )
+print( 'type( t_5 ) = {0!s:14s} t_5 = {1!s}'.format( type( t_5 ), t_5 ) )
 \end{lstlisting}
  
 \noindent
 which, when executed, produces
  
 \begin{lstlisting}[language={bash}]
-type( a ) = <type 'str'>  a = 09080706050403020100
-type( b ) = <type 'long'> b = 9080706050403020100
-type( c ) = <type 'long'> c = 42649378395939397566720
-type( d ) = <type 'str'>  d = 42649378395939397566720
-type( e ) = <type 'str'>  e = 9080706050403020100
-type( f ) = <type 'str'>  f = 09080706050403020100
+type( t_0 ) = <class 'str'>  t_0 = 09080706050403020100
+type( t_1 ) = <class 'int'>  t_1 = 9080706050403020100
+type( t_2 ) = <class 'int'>  t_2 = 42649378395939397566720
+type( t_3 ) = <class 'str'>  t_3 = 42649378395939397566720
+type( t_4 ) = <class 'str'>  t_4 = 9080706050403020100
+type( t_5 ) = <class 'str'>  t_5 = 09080706050403020100
 \end{lstlisting}
- 
+
 \noindent
-The idea is that
+as output.  This is intended to illustrate that
  
 \begin{itemize}
-\item \lstinline[language={Python}]|a| is an
+\item \lstinline[language={Python}]|t_0| is an
       integer string
       (i.e., a sequence of characters),
-\item \lstinline[language={Python}]|b| 
+\item \lstinline[language={Python}]|t_1| 
       and 
-      \lstinline[language={Python}]|c|
+      \lstinline[language={Python}]|t_2|
       are conversions of 
-      \lstinline[language={Python}]|a| 
+      \lstinline[language={Python}]|t_0| 
       into
-      integers
-      (actually a Python \lstinline[language={Python}]|long|, which is the multi-precision integer type used),
+      integers,
       using decimal and hexadecimal respectively,
       and
-\item \lstinline[language={Python}]|d| 
+\item \lstinline[language={Python}]|t_3| 
       and
-      \lstinline[language={Python}]|e|
+      \lstinline[language={Python}]|t_4|
       are conversions of 
-      \lstinline[language={Python}]|c| 
+      \lstinline[language={Python}]|t_2| 
       into
       strings
       (i.e., a sequence of characters),
@@ -61,14 +60,20 @@ The idea is that
  
 \noindent
 Note that 
-\lstinline[language={Python}]|a| 
+\lstinline[language={Python}]|t_0| 
 and 
-\lstinline[language={Python}]|e| do not match: the conversion ignored
-the left-most zero character, because this is not significant wrt. an
-integer value.  To resolve this issue if/when it is problematic, the
+\lstinline[language={Python}]|t_4| 
+do not match: 
+the conversion ignored the left-most zero character, because it is not
+significant wrt. the associated integer value.  
+If/when this issue is problematic, it can be resolved by using the
 \lstinline[language={Python}]|zfill| 
-function could be used to left-fill the string (with zero characters)
-until it is of the required length (here $20$ characters in total, so
-forming 
-\lstinline[language={Python}]|f| 
-which does then match).
+function to left-fill the string (with zero characters) so it is of the 
+required length.
+\lstinline[language={Python}]|t_0| 
+and
+\lstinline[language={Python}]|t_5| 
+do     match,
+for example,
+because the latter has been filled to ensure an overall length of $20$ 
+characters.

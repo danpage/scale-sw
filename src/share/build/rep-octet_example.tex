@@ -1,123 +1,97 @@
-Consider the following Python program
+Consider the following Python $3.x$ program
 
 \begin{lstlisting}[language={Python}]
 import binascii
 
-def str2seq( x ) :
-  return          [ ord( t ) for t in x ]
-
-def seq2str( x ) :
-  return ''.join( [ chr( t ) for t in x ] )
-
-def octetstr2str( x ) :
+def octetstr2bytes( x ) :
   t = x.split( ':' ) ; n = int( t[ 0 ], 16 ) ; x = binascii.a2b_hex( t[ 1 ] )
 
-  if( n != len( x ) ) :
+  if ( n != len( x ) ) :
     raise ValueError
   else :
     return x
 
-def str2octetstr( x ) :
-  return ( '%02X' % ( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ) )
+def bytes2octetstr( x ) :
+  return ( '{0:02X}'.format( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ).decode( 'ascii' ).upper() )
 
-t_0 = '\xDE\xAD\xBE\xEF' ; t_1 = [ 0xDE, 0xAD, 0xBE, 0xEF ]
+def bytes2seq( x ) :
+  return            [ int( t ) for t in x ]
 
-t_2 = str2octetstr(          t_0   )
-t_3 = str2octetstr( seq2str( t_1 ) )
+def seq2bytes( x ) :
+  return bytearray( [ int( t ) for t in x ] )
 
-print "type( t_0 ) = %-18s t_0 = %s" % ( type( t_0 ), repr( t_0 ) )
-print "type( t_1 ) = %-18s t_1 = %s" % ( type( t_1 ), repr( t_1 ) )
-print "type( t_2 ) = %-18s t_2 = %s" % ( type( t_2 ), repr( t_2 ) )
-print "type( t_3 ) = %-18s t_3 = %s" % ( type( t_3 ), repr( t_3 ) )
+t_0 = [ 0xDE, 0xAD, 0xBE, 0xEF ]
+t_1 = bytes2octetstr( seq2bytes( t_0 ) )
 
-t_4 = '04:8BADF00D'
+print( 'type( t_0 ) = {0!s:14s} t_0 = {1!s}'.format( type( t_0 ), t_0 ) )
+print( 'type( t_1 ) = {0!s:14s} t_1 = {1!s}'.format( type( t_1 ), t_1 ) )
 
-t_5 =          octetstr2str( t_4 )
-t_6 = str2seq( octetstr2str( t_4 ) )
+t_2 = '04:DEADBEEF'
+t_3 = bytes2seq( octetstr2bytes( t_2 ) )
 
-print "type( t_4 ) = %-18s t_4 = %s" % ( type( t_4 ), repr( t_4 ) )
-print "type( t_5 ) = %-18s t_5 = %s" % ( type( t_5 ), repr( t_5 ) )
-print "type( t_6 ) = %-18s t_6 = %s" % ( type( t_6 ), repr( t_6 ) )
+print( 'type( t_2 ) = {0!s:14s} t_2 = {1!s}'.format( type( t_2 ), t_2 ) )
+print( 'type( t_3 ) = {0!s:14s} t_3 = {1!s}'.format( type( t_3 ), t_3 ) )
 \end{lstlisting}
 
 \noindent
 which, when executed, produces
 
 \begin{lstlisting}[language={bash}]
-type( t_0 ) = <type 'str'>       t_0 = '\xde\xad\xbe\xef'
-type( t_1 ) = <type 'list'>      t_1 = [222, 173, 190, 239]
-type( t_2 ) = <type 'str'>       t_2 = '04:deadbeef'
-type( t_3 ) = <type 'str'>       t_3 = '04:deadbeef'
-type( t_4 ) = <type 'str'>       t_4 = '04:8BADF00D'
-type( t_5 ) = <type 'str'>       t_5 = '\x8b\xad\xf0\r'
-type( t_6 ) = <type 'list'>      t_6 = [139, 173, 240, 13]
+type( t_0 ) = <class 'list'>   t_0 = [222, 173, 190, 239]
+type( t_1 ) = <class 'str'>    t_1 = 04:DEADBEEF
+type( t_2 ) = <class 'str'>    t_2 = 04:DEADBEEF
+type( t_3 ) = <class 'list'>   t_3 = [222, 173, 190, 239]
 \end{lstlisting}
 
 \noindent
 as output.  This is intended to illustrate that
 
 \begin{itemize}
-
-\item If you start with 
-      byte string (or array)
+\item If you start with a
+      list (or sequence)
       \lstinline[language={Python}]|t_0|, 
       then 
-                             \lstinline[language={Python}]|str2octetstr|
-      convert this into the 
-      octet string,
-      you expect that
+      \lstinline[language={Python}]|seq2bytes| 
+      and 
+      \lstinline[language={Python}]|bytes2octetstr|
+      will convert it first into a byte sequence then an octet string:
+      the fact that
+      $\mbox{\lstinline[language={Python}]|t_1|} = \mbox{\lstinline[language={Python}]|04:DEADBEEF|}$
+      implies 
+      $n = \RADIX{04}{16} = \RADIX{04}{10}$
+      and
+      $x = \LIST{ \RADIX{DE}{16}, \RADIX{AD}{16}, \RADIX{BE}{16}, \RADIX{EF}{16} }$,
+      i.e., 
+      $n = \mbox{\lstinline[language={Python}]|len( t_0 )|}$
+      and
+      $x = \mbox{\lstinline[language={Python}]|     t_0  |}$,
+      so, for example,
+      $x_1 = \mbox{\lstinline[language={Python}]|t_0[ 1 ]|} = \RADIX{AD}{16}$.
+
+\item If you start with an
+      octet string  
+      \lstinline[language={Python}]|t_2|, 
+      then 
+      \lstinline[language={Python}]|octetstr2bytes| and \lstinline[language={Python}]|bytes2seq|
+      will convert it first into a byte sequence then a list (or sequence):
+      the fact that
       $\mbox{\lstinline[language={Python}]|t_2|} = \mbox{\lstinline[language={Python}]|04:DEADBEEF|}$
       implies 
       $n = \RADIX{04}{16} = \RADIX{04}{10}$
       and
-      $x = \LIST{ \RADIX{DE}{16}, \RADIX{AD}{16}, \RADIX{BE}{16}, \RADIX{EF}{16} }$
-      st.
-      $\mbox{\lstinline[language={Python}]|t_0[ 0 ]|} = \RADIX{DE}{16} = x_0$.
-
-\item If you start with 
-      byte sequence 
-      \lstinline[language={Python}]|t_1|, 
-      then 
-      \lstinline[language={Python}]|seq2str| and \lstinline[language={Python}]|str2octetstr|
-      convert this into the 
-      octet string,
-      you expect that
-      $\mbox{\lstinline[language={Python}]|t_3|} = \mbox{\lstinline[language={Python}]|04:DEADBEEF|}$
-      implies 
-      $n = \RADIX{04}{16} = \RADIX{04}{10}$
+      $x = \LIST{ \RADIX{DE}{16}, \RADIX{AD}{16}, \RADIX{BE}{16}, \RADIX{EF}{16} }$,
+      i.e., 
+      $n = \mbox{\lstinline[language={Python}]|len( t_3 )|}$
       and
-      $x = \LIST{ \RADIX{DE}{16}, \RADIX{AD}{16}, \RADIX{BE}{16}, \RADIX{EF}{16} }$
-      st.
-      $\mbox{\lstinline[language={Python}]|t_1[ 1 ]|} = \RADIX{AD}{16} = x_1$.
-
-\item If you start with 
-      octet string  
-      \lstinline[language={Python}]|t_4|, 
-      then 
-      \lstinline[language={Python}]|octetstr2str|
-      convert this into the byte array,    
-      you expect that
-      $\mbox{\lstinline[language={Python}]|t_4|} = \mbox{\lstinline[language={Python}]|04:8BADF00D|}$
-      implies 
-      $n = \RADIX{04}{16} = \RADIX{04}{10}$
-      and
-      $x = \LIST{ \RADIX{8B}{16}, \RADIX{AD}{16}, \RADIX{F0}{16}, \RADIX{0D}{16} }$
-      st.
-      $\mbox{\lstinline[language={Python}]|t_5[ 2 ]|} = \RADIX{F0}{16} = x_2$.
-
-\item If you start with  
-      octet string  
-      \lstinline[language={Python}]|t_4|, 
-      then 
-      \lstinline[language={Python}]|octetstr2str| and \lstinline[language={Python}]|str2seq|
-      convert this into the byte sequence, 
-      you expect that
-      $\mbox{\lstinline[language={Python}]|t_4|} = \mbox{\lstinline[language={Python}]|04:8BADF00D|}$
-      implies 
-      $n = \RADIX{04}{16} = \RADIX{04}{10}$
-      and
-      $x = \LIST{ \RADIX{8B}{16}, \RADIX{AD}{16}, \RADIX{F0}{16}, \RADIX{0D}{16} }$
-      st.
-      $\mbox{\lstinline[language={Python}]|t_6[ 3 ]|} = \RADIX{0D}{16} = x_3$.
-
+      $x = \mbox{\lstinline[language={Python}]|     t_3  |}$,
+      so, for example,
+      $x_0 = \mbox{\lstinline[language={Python}]|t_3[ 0 ]|} = \RADIX{DE}{16}$.
 \end{itemize}
+
+\noindent
+Note that the conversions are self-consistent in the sense that
+$\mbox{\lstinline[language={Python}]|t_0|} = \mbox{\lstinline[language={Python}]|t_3|}$,
+or rather 
+\[
+\mbox{\lstinline[language={Python}]|t_0|} = \mbox{\lstinline[language={Python}]|bytes2seq( octetstr2bytes( bytes2octetstr( seq2bytes( t_0 ) ) ) )|} .
+\]
