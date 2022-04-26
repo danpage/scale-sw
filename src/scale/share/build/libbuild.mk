@@ -30,11 +30,11 @@ endef
 # -----------------------------------------------------------------------------
 
 ${CURDIR}/build/desc.tex  : desc.tex 
-	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID=${CID} $(shell cat ${DIR_ROOT}/build/conf.arg) libbuild.m4 ${<} > ${@}
+	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID='${CID}' $(shell cat ${REPO_HOME}/build/conf.arg) libbuild.m4 ${<} > ${@}
 ${CURDIR}/build/desc.tikz : desc.tikz
-	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID=${CID} $(shell cat ${DIR_ROOT}/build/conf.arg) libbuild.m4 ${<} > ${@}
+	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID='${CID}' $(shell cat ${REPO_HOME}/build/conf.arg) libbuild.m4 ${<} > ${@}
 
-${CURDIR}/build/desc.pdf : ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz
+${CURDIR}/build/desc.pdf  : ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz
 	@for i in $$(seq 3)                                                                                                               ; do   \
            ${PDFLATEX_ENV} pdflatex ${PDFTEX_FLAGS} -halt-on-error -output-directory ${CURDIR}/build ${CURDIR}/build/desc.tex > /dev/null ;      \
            if [ -n "$$(find ${CURDIR}/build -maxdepth 1 -name '*.bcf')" ]                                                                 ; then \
@@ -45,9 +45,9 @@ ${CURDIR}/build/desc.pdf : ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz
 ${BUILD_GLOB_DESC} : ${CURDIR}/build/desc.pdf
 	@cp ${<} ${@}
 ${BUILD_GLOB_CONF} :
-	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='conf' --cid='${CID}' --uid='${*F}'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='conf' --cid='${CID}' --uid='${*F}'
 ${BUILD_GLOB_EXAM} :
-	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${DIR_ROOT}/src/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='exam' --cid='${CID}' --uid='${*F}'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build/build/libbuild/build_user.py --path='${CURDIR}' --conf='${CONF}' --mode='exam' --cid='${CID}' --uid='${*F}'
 ${BUILD_GLOB_TAR}  : ${ARCHIVE_GLOB}
 	@tar --create --absolute-names --transform='s|${CURDIR}/build|${*F}/${ARCHIVE_PATH}|' --file='${@}' ${^}
 
@@ -71,9 +71,9 @@ build      : build-hook ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz $(for
 
 clean-hook :
 clean      : clean-hook
-	@rm -rf ${CURDIR}/build/*
+	@rm --force --recursive ${CURDIR}/build/*
 
-	@rm -f *.pyc
-	@rm -f *.pyo
+	@rm --force *.pyc
+	@rm --force *.pyo
 
 # =============================================================================

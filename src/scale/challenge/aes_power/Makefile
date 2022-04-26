@@ -45,11 +45,11 @@ ifeq (${SCALE_CONF_${CID}_VERSION},2)
 endif
 
 ${CURDIR}/build/%.D : ${TARGETS} ${CURDIR}/build/%.conf_arg aes.bin ${I8051_SOURCES} ${I8051_HEADERS} ${I8051_SOURCES_M4} ${I8051_HEADERS_M4} 
-	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${DIR_ROOT}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
+	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	$(call FIXUP_SYMBOLS, ${@})
 
 ${CURDIR}/build/%.R : ${TARGETS} ${CURDIR}/build/%.conf_arg aes.bin ${I8051_SOURCES} ${I8051_HEADERS} ${I8051_SOURCES_M4} ${I8051_HEADERS_M4} 
-	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_R=1 $(shell cat ${DIR_ROOT}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
+	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_R=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	$(call FIXUP_SYMBOLS, ${@})
 
 clean-hook :

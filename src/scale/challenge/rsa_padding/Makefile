@@ -18,7 +18,7 @@ CID = RSA_PADDING
 include libbuild.mk
 
 ${CURDIR}/build/%.D : $(wildcard target.[ch]) ${CURDIR}/build/%.conf_arg
-	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${DIR_ROOT}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
+	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	@$(call FIXUP_SYMBOLS, ${@})
 
 # =============================================================================
