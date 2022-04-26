@@ -7,6 +7,39 @@
 
 #include "target.h"
 
+int aes_enc( uint8_t* c, const uint8_t* m, const uint8_t* k ) {
+  uint8_t s[ 4 * AES_128_NB ], rk[ 4 * AES_128_NK ], rc = 0x01;
+
+  U8_TO_U8_N( rk, k );
+  U8_TO_U8_N(  s, m );
+
+  int cycles = 0;
+
+  //      1 initial round
+    aes_enc_key( s, rk );
+  // Nr - 1 normal  rounds
+  for( int r = 1; r < AES_128_NR; r++ ) {
+    for( int i = 0; i < ( 4 * AES_128_NB ); i++ ) {
+      cycles += ( s[ i ] & 0x80 ) ? 1 : 0;
+    }
+
+    aes_enc_sub( s     );
+    aes_enc_row( s     );
+    aes_enc_mix( s     );
+    rc = aes_enc_keyexp_step( rk, rk, rc );
+    aes_enc_key( s, rk );
+  }
+  //      1 final   round
+    aes_enc_sub( s     );
+    aes_enc_row( s     );
+    rc = aes_enc_keyexp_step( rk, rk, rc );
+    aes_enc_key( s, rk );
+
+  U8_TO_U8_N(  c, s );
+
+  return cycles;
+}
+
 int main( int argc, char* argv[] ) {
   uint8_t c[ 4 * AES_128_NB ], m[ 4 * AES_128_NB ], k[] = { USER( K_DATA, CID ) };
 
@@ -32,7 +65,6 @@ int main( int argc, char* argv[] ) {
     #if ( ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) > 0 )
     lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
     #endif
-
 
     #if CONF( DEBUG )
     fprintf( stderr, "c = " ); octetstr_wr( stderr, c, 4 * AES_128_NB );
