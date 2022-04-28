@@ -4,7 +4,9 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import math, random, string, libbuild.util as util, Crypto.Cipher.AES as AES, Crypto.Hash.HMAC as HMAC, Crypto.Hash.SHA as SHA
+import util, math, random, string, Crypto.Cipher.AES as AES, Crypto.Hash.HMAC as HMAC, Crypto.Hash.SHA as SHA
+
+# =============================================================================
 
 def apply_fixups( args, conf ) :
   if   ( conf.get( 'challenge', 'aes_padding' ) == 'uid_hash' ) :
@@ -43,3 +45,5 @@ def build_params( args, conf ) :
            (    'iv',    iv,  True ),
            (     'm',     m, False ),
            (     'c',     c,  True ) ]
+
+# =============================================================================

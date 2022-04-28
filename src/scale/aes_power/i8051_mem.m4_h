@@ -8,6 +8,8 @@
 #ifndef __I8051_MEM_H
 #define __I8051_MEM_H
 
+// ============================================================================
+
 #define I8051_MEM_PRAM      ( 0 )
 #define I8051_MEM_IRAM      ( 1 )
 #define I8051_MEM_XRAM      ( 2 )
@@ -53,7 +55,11 @@
 #define I8051_MEM_SFR_A       ( 0x60 )
 #define I8051_MEM_SFR_B       ( 0x70 )
 
+// ----------------------------------------------------------------------------
+
 #include "i8051.h"
+
+// ----------------------------------------------------------------------------
 
 extern uint8_t I8051_IMAGE_IRAM_DATA[];
 extern uint8_t I8051_IMAGE_PRAM_DATA[];
@@ -82,5 +88,7 @@ extern void i8051_mem_xram_ld_dir();
 extern void i8051_mem_pram_st_dir();
 extern void i8051_mem_iram_st_dir();
 extern void i8051_mem_xram_st_dir();
+
+// ============================================================================
 
 #endif

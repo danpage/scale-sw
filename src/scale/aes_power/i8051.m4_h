@@ -8,12 +8,16 @@
 #ifndef __I8051_H
 #define __I8051_H
 
-#include <target/util.h>
-#include <target/conv.h>
+// ============================================================================
+
+#include "util.h"
+#include "conv.h"
 
 #include "i8051_alu.h"
 #include "i8051_bus.h"
 #include "i8051_mem.h"
+
+// ----------------------------------------------------------------------------
 
 #define I8051_TRACE_SIZE_MIN ( 0       )
 #define I8051_TRACE_SIZE_INC ( 1 << 20 )
@@ -70,5 +74,7 @@ extern void     i8051_rst();
 
 extern void     i8051_core_whole();
 extern bool     i8051_core_cycle();
+
+// ============================================================================
 
 #endif

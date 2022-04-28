@@ -70,7 +70,7 @@ ${BUILD_GLOB_TAR}  : ${ARCHIVE_GLOB}
 
 .PRECIOUS : ${BUILD_GLOB_DESC} ${BUILD_GLOB_CONF} ${BUILD_GLOB_EXAM} ${BUILD_GLOB_TAR}
 
-deps-fetch      :
+deps-fetch-hook :
 deps-fetch      : ${BUILD} deps-fetch-hook
 deps-patch-hook :
 deps-patch      : ${BUILD} deps-patch-hook

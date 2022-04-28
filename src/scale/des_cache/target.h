@@ -8,9 +8,11 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
+// ============================================================================
+
 #include "util.h"
 #include "conv.h"
-#include "des.h"
+#include  "des.h"
 
 /* Dinero defines SIZEOF_VOIDP during configuration, but then doesn't include
  * it in config.h; it doesn't *seem* clear if this is intended or not, but it 
@@ -23,6 +25,8 @@
 #define SIZEOF_VOIDP ( 4 )
 
 #include <d4.h>
+
+// ----------------------------------------------------------------------------
 
 #define CACHE_TRACE_SIZE_MIN ( 0       )
 #define CACHE_TRACE_SIZE_INC ( 1 << 20 )
@@ -47,6 +51,8 @@
 #define CACHE_MODEL_L1_CAPACITY ( 14 ) /* 2^14 =   16384 =   16 * 1024 */
 #define CACHE_MODEL_L1_SUBWORDS (  5 ) /* 2^5 =       32               */
 #define CACHE_MODEL_L1_ASSOC    (  4 )
+
+// ============================================================================
 
 #endif
 

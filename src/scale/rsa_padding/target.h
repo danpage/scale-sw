@@ -8,13 +8,17 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <target/util.h>
-#include <target/conv.h>
+// ============================================================================
+
+#include "util.h"
+#include "conv.h"
 
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
 #include <gmp.h>
+
+// ----------------------------------------------------------------------------
 
 #define RESULT_CODE_0 ( +0 ) /* success                          */
 #define RESULT_CODE_1 ( +1 ) /* failed zero octet check          */
@@ -55,5 +59,7 @@
 #define HASH_FINI SHA512_Final
 #define HASH      SHA512
 #endif
+
+// ============================================================================
 
 #endif

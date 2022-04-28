@@ -8,9 +8,13 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <target/util.h>
-#include <target/conv.h>
-#include <target/aes.h>
+// ============================================================================
+
+#include "util.h"
+#include "conv.h"
+#include  "aes.h"
+
+// ============================================================================
 
 #endif
 

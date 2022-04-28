@@ -8,9 +8,21 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <target/util.h>
-#include <target/conv.h>
-#include <target/aes.h>
+// ============================================================================
+
+#include "util.h"
+#include "conv.h"
+#include  "aes.h"
+
+// ----------------------------------------------------------------------------
+
+#define FAULT_FUNCTION_KEY  (    0 )
+#define FAULT_FUNCTION_SUB  (    1 )
+#define FAULT_FUNCTION_ROW  (    2 )
+#define FAULT_FUNCTION_MIX  (    3 )
+
+#define FAULT_PRIORITY_PRE  (    0 )
+#define FAULT_PRIORITY_POST (    1 )
 
 typedef struct __fault_t {
   bool enable;    // enable/disable fault injection
@@ -23,13 +35,7 @@ typedef struct __fault_t {
   int  col;       // state matrix column index
 } fault_t;
 
-#define FAULT_FUNCTION_KEY  (    0 )
-#define FAULT_FUNCTION_SUB  (    1 )
-#define FAULT_FUNCTION_ROW  (    2 )
-#define FAULT_FUNCTION_MIX  (    3 )
-
-#define FAULT_PRIORITY_PRE  (    0 )
-#define FAULT_PRIORITY_POST (    1 )
+// ============================================================================
 
 #endif
 

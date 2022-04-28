@@ -8,13 +8,17 @@
 #ifndef __TARGET_XTS_H
 #define __TARGET_XTS_H
 
-#include <target/util.h>
-#include <target/conv.h>
-#include <target/aes.h>
+// ============================================================================
+
+#include "util.h"
+#include "conv.h"
+#include  "aes.h"
+
+#include "wrapper.h"
 
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
-#include "wrapper.h"
+// ============================================================================
 
 #endif

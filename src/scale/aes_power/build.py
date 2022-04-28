@@ -4,7 +4,9 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import math, random, string, libbuild.util as util
+import util, math, random, string
+
+# =============================================================================
 
 def apply_fixups( args, conf ) :
   if   ( conf.get( 'version', 'aes_power' ) == 'ecb_enc' ) :
@@ -27,7 +29,7 @@ def build_params( args, conf ) :
 
   return [ ( 'k', k, False ) ]
 
-
+# =============================================================================
 
 
 

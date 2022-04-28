@@ -8,11 +8,15 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <target/util.h>
-#include <target/conv.h>
-#include <target/mrz.h>
+// ============================================================================
+
+#include "util.h"
+#include "conv.h"
+#include  "mrz.h"
 
 #include <gmp.h>
+
+// ----------------------------------------------------------------------------
 
 #if   ( CONF( POISONED_N, CID ) == 16 )
 typedef uint16_t poisoned_t;
@@ -21,5 +25,7 @@ typedef uint32_t poisoned_t;
 #elif ( CONF( POISONED_N, CID ) == 64 )
 typedef uint64_t poisoned_t;
 #endif
+
+// ============================================================================
 
 #endif

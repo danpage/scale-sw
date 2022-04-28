@@ -4,7 +4,9 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import math, random, string, libbuild.util as util, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.PublicKey.RSA as RSA ; from Crypto.Hash import SHA, SHA256, SHA384, SHA512
+import util, math, random, string, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.PublicKey.RSA as RSA ; from Crypto.Hash import SHA, SHA256, SHA384, SHA512
+
+# =============================================================================
 
 def apply_fixups( args, conf ) :
   if   ( conf.get( 'challenge', 'rsa_padding' ) == 'user_hash' ) :
@@ -66,3 +68,5 @@ def build_params( args, conf ) :
            ( 'L', L, True  ),
            ( 'm', m, False ),
            ( 'c', c, True  ) ]
+
+# =============================================================================

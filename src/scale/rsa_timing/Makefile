@@ -13,15 +13,20 @@ endif
 
 # =============================================================================
 
-CID = RSA_TIMING
+CID          = RSA_TIMING
 
-include libbuild.mk
+include util.mk
 
-${CURDIR}/build/%.D : $(wildcard target.[ch]) ${CURDIR}/build/%.conf_arg
+CID_SOURCES  = target.c util.c conv.c mrz.c
+CID_HEADERS  = target.h util.h conv.h mrz.h
+
+# -----------------------------------------------------------------------------
+
+${BUILD}/%.D : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}
 	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	@$(call FIXUP_SYMBOLS, ${@})
 
-${CURDIR}/build/%.R : $(wildcard target.[ch]) ${CURDIR}/build/%.conf_arg
+${BUILD}/%.R : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}
 	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_R=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	@$(call FIXUP_SYMBOLS, ${@})
 
