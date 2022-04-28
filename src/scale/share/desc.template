@@ -7,12 +7,12 @@
 \documentclass[crop={false},multi={true},tikz={true}]{standalone}
 
 \ifstandalone
-\usepackage{libbuild-style}
-\usepackage{libbuild-macro}
+\usepackage{desc-style}
+\usepackage{desc-macro}
 \fi
 
 \ifstandalone
-\addbibresource{libbuild.bib}
+\addbibresource{desc.bib}
 \fi
 
 \begin{document}
@@ -46,16 +46,16 @@
 \subsection{Integers}
 
 \paragraph{Concept.}
-\input{desc-integer_concept.tex}
+\input{desc-appx_integer_concept.tex}
 \paragraph{Example.}
-\input{desc-integer_example.tex}
+\input{desc-appx_integer_example.tex}
 
 \subsection{Octet strings}
 
 \paragraph{Concept.}
-\input{desc-octet_concept.tex}
+\input{desc-appx_octet_concept.tex}
 \paragraph{Example.}
-\input{desc-octet_example.tex}
+\input{desc-appx_octet_example.tex}
 \fi
 
 % =============================================================================

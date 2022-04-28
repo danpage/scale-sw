@@ -19,12 +19,12 @@ endif
 
 # -----------------------------------------------------------------------------
 
-export CONF           ?= ${REPO_HOME}/src/scale/scale.conf
+export CONF           ?= ${REPO_HOME}/src/scale/Makefile.conf
 
 export      GCC_FLAGS += -std='gnu99' -m64 -O3 -g -ggdb -Wl,--build-id='sha1'
-export      GCC_PATHS += -L ${REPO_HOME}/src/scale/share/target/build/lib
-export      GCC_PATHS += -I ${REPO_HOME}/src/scale/share/target/build/include
-export      GCC_LIBS  += -ltarget -lcrypto -lgmp
+export      GCC_PATHS += -L ${REPO_HOME}/src/scale/share
+export      GCC_PATHS += -I ${REPO_HOME}/src/scale/share
+export      GCC_LIBS  += -lcrypto -lgmp
 
 ifdef STATIC
 export      GCC_FLAGS += -static -static-libgcc
@@ -32,67 +32,62 @@ export      GCC_LIBS  += -ldl
 endif
 
 export     MAKE_FLAGS +=
-export     MAKE_PATHS += -I ${REPO_HOME}/src/scale/share/build/build/include
+export     MAKE_PATHS += -I ${REPO_HOME}/src/scale/share
 
 export       M4_FLAGS +=
-export       M4_PATHS += -I ${REPO_HOME}/src/scale/share/build/build/include
+export       M4_PATHS += -I ${REPO_HOME}/src/scale/share
 
 export   PYTHON_FLAGS +=                   -O
-export   PYTHON_PATHS +=    ${REPO_HOME}/src/scale/share/build/build
+export   PYTHON_PATHS +=    ${REPO_HOME}/src/scale/share
 export   PYTHON_ENV   += PYTHONPATH="${PYTHONPATH}:${PYTHON_PATHS}"
 
 export PDFLATEX_FLAGS += -shell-escape
-export PDFLATEX_PATHS +=    ${REPO_HOME}/src/scale/share/build/build/include:${REPO_HOME}/build
+export PDFLATEX_PATHS +=    ${REPO_HOME}/src/scale/share
 export PDFLATEX_ENV   += TEXINPUTS="${TEXINPUTS}:${PDFLATEX_PATHS}"
 
 export    BIBER_FLAGS += 
-export    BIBER_PATHS +=    ${REPO_HOME}/src/scale/share/build/build/include:${REPO_HOME}/build
+export    BIBER_PATHS +=    ${REPO_HOME}/src/scale/share
 export    BIBER_ENV   += BIBINPUTS="${BIBINPUTS}:${BIBER_PATHS}"
 
 export ARCHIVES       += $(patsubst %, ${REPO_HOME}/build/%.tar.gz, ${SCALE_CONF_USERS})
 
 # -----------------------------------------------------------------------------
 
-%-share     :
-	@$(foreach DIR, $(wildcard ${REPO_HOME}/src/scale/share/*), make ${MAKE_PATHS} ${MAKE_FLAGS} --directory='${DIR}' ${*} ;)
 %-challenge :
-	@$(foreach DIR, ${SCALE_CONF_CHALLENGES},                   make ${MAKE_PATHS} ${MAKE_FLAGS} --directory='${DIR}' ${*} ;)
+	@$(foreach DIR, ${SCALE_CONF_CHALLENGES}, make ${MAKE_PATHS} ${MAKE_FLAGS} --directory='${DIR}' ${*} ;)
 
 ${REPO_HOME}/build/conf.mk  : ${CONF}
-	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build/build/libbuild/build_conf.py --path='${REPO_HOME}' --conf='${CONF}' --mode='mk'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build_conf.py --output='${REPO_HOME}/build' --conf='${CONF}' --mode='mk'  
 ${REPO_HOME}/build/conf.sh  : ${CONF}
-	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build/build/libbuild/build_conf.py --path='${REPO_HOME}' --conf='${CONF}' --mode='sh'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build_conf.py --output='${REPO_HOME}/build' --conf='${CONF}' --mode='sh'
 ${REPO_HOME}/build/conf.arg : ${CONF}
-	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build/build/libbuild/build_conf.py --path='${REPO_HOME}' --conf='${CONF}' --mode='arg'
+	@${PYTHON_ENV} python3 ${PYTHON_FLAGS} ${REPO_HOME}/src/scale/share/build_conf.py --output='${REPO_HOME}/build' --conf='${CONF}' --mode='arg'
 
 ${ARCHIVES} : ${REPO_HOME}/build/%.tar.gz :
-	@$(foreach DIR, ${SCALE_CONF_CHALLENGES}, tar --concatenate --file='${REPO_HOME}/build/${*F}.tar' ${DIR}/build/${*F}.tar ;) gzip ${REPO_HOME}/build/${*}.tar
+	@$(foreach DIR, ${SCALE_CONF_CHALLENGES}, tar --concatenate --file='${REPO_HOME}/build/${*F}.tar' ${REPO_HOME}/build/$(notdir ${DIR})/${*F}.tar ;) gzip ${REPO_HOME}/build/${*}.tar
 
-build-deps  : fetch-deps-challenge patch-deps-challenge build-deps-challenge
+build-deps : deps-fetch-challenge deps-patch-challenge deps-build-challenge
 
-build-conf  : ${REPO_HOME}/build/conf.mk ${REPO_HOME}/build/conf.sh ${REPO_HOME}/build/conf.arg
+build-conf : ${REPO_HOME}/build/conf.mk ${REPO_HOME}/build/conf.sh ${REPO_HOME}/build/conf.arg
 
-build-dist  : ${ARCHIVES}
+build-dist : ${ARCHIVES}
 
-clean-deps  : clean-deps-challenge
+clean-deps : deps-clean-challenge
 
-clean-conf  :
+clean-conf :
 	@rm --force ${REPO_HOME}/build/conf.mk
 	@rm --force ${REPO_HOME}/build/conf.sh
 	@rm --force ${REPO_HOME}/build/conf.arg
 
-clean-dist  :
+clean-dist :
 	@rm --force ${REPO_HOME}/build/*.tar.gz
 
 # -----------------------------------------------------------------------------
 
-build-step1 : build-share build-conf 
+build-step1 : build-conf 
 build-step2 : build-deps build-challenge build-dist 
 
 clean-step1 : clean-deps clean-challenge clean-dist
-clean-step2 : clean-share clean-conf
-
-spotless    :
-	@rm --force --recursive ${REPO_HOME}/build/*
+clean-step2 : clean-conf
 
 # =============================================================================

@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import libbuild.util as util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap
+import util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap
 
 def apply_fixups() :
   # apply global fixups
@@ -47,7 +47,7 @@ def apply_fixups() :
     del sys.modules[ 'build' ]
 
 def dump() :
-  ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', 'conf' + '.' + args.mode ), 'w' )
+  ( fd, pr ) = util.xopen( os.path.join( args.output, 'conf' + '.' + args.mode ), 'w' )
 
   for section in conf.sections() :
     for option in conf.options( section ) :
@@ -67,9 +67,10 @@ if ( __name__ == '__main__' ) :
 
   parser = argparse.ArgumentParser()
 
-  parser.add_argument( '--path', action = 'store', dest = 'path'                                  )
-  parser.add_argument( '--conf', action = 'store', dest = 'conf'                                  )
-  parser.add_argument( '--mode', action = 'store', dest = 'mode', choices = [ 'mk', 'sh', 'arg' ] )
+  parser.add_argument( '--output', action = 'store', dest = 'output'                                  )
+
+  parser.add_argument( '--conf',   action = 'store', dest =   'conf'                                  )
+  parser.add_argument( '--mode',   action = 'store', dest =   'mode', choices = [ 'mk', 'sh', 'arg' ] )
 
   args = parser.parse_args()
 

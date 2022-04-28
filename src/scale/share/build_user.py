@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import libbuild.util as util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap, Crypto.Hash.SHA as SHA
+import util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap, Crypto.Hash.SHA as SHA
 
 def build_conf() :
   # build parameters for this user
@@ -18,7 +18,7 @@ def build_conf() :
 
   # dump all parameters as machine-readable blob
 
-  ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.conf_bin' ), 'wb' )
+  ( fd, pr ) = util.xopen( os.path.join( args.output, args.uid + '.conf_bin' ), 'wb' )
 
   pickle.dump( params, fd )
 
@@ -26,7 +26,7 @@ def build_conf() :
 
   # dump all parameters as   human-readable text
 
-  ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.conf_txt' ), 'w'  )
+  ( fd, pr ) = util.xopen( os.path.join( args.output, args.uid + '.conf_txt' ), 'w'  )
 
   for ( pid, val, pub ) in params :
     if   ( type( val ) == int   ) :
@@ -40,7 +40,7 @@ def build_conf() :
 
   # dump all parameters as machine-readable macro definitions
 
-  ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.conf_arg' ), 'w'  )
+  ( fd, pr ) = util.xopen( os.path.join( args.output, args.uid + '.conf_arg' ), 'w'  )
 
   for ( pid, val, pub ) in params :
     if   ( type( val ) == int   ) :
@@ -63,7 +63,7 @@ def build_conf() :
 
   # dump public parameters only, for distribution to user
 
-  ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.conf'     ), 'w'  )
+  ( fd, pr ) = util.xopen( os.path.join( args.output, args.uid + '.conf'     ), 'w'  )
 
   for ( pid, val, pub ) in params :
     if ( not pub ) :
@@ -111,7 +111,7 @@ def build_exam() :
   
   # select and dump required then optional questions
 
-  ( fd, pr ) = util.xopen( os.path.join( args.path, 'build', args.uid + '.exam' ), 'w' )
+  ( fd, pr ) = util.xopen( os.path.join( args.output, args.uid + '.exam' ), 'w' )
 
   n = random.randint( int( conf.get( 'optional_min' ) ),
                       int( conf.get( 'optional_max' ) ) )
@@ -137,12 +137,15 @@ if ( __name__ == '__main__' ) :
 
   parser = argparse.ArgumentParser()
 
-  parser.add_argument( '--path', action = 'store', dest = 'path'                               )
-  parser.add_argument( '--conf', action = 'store', dest = 'conf'                               )
-  parser.add_argument( '--mode', action = 'store', dest = 'mode', choices = [ 'conf', 'exam' ] )
+  parser.add_argument( '--output', action = 'store', dest = 'output'                               )
 
-  parser.add_argument( '--cid',  action = 'store', dest = 'cid'                                )
-  parser.add_argument( '--uid',  action = 'store', dest = 'uid'                                )
+  parser.add_argument( '--conf',   action = 'store', dest =   'conf'                               )
+  parser.add_argument( '--mode',   action = 'store', dest =   'mode', choices = [ 'conf', 'exam' ] )
+
+  parser.add_argument( '--path',   action = 'store', dest =   'path'                               )
+
+  parser.add_argument( '--cid',    action = 'store', dest =    'cid'                               )
+  parser.add_argument( '--uid',    action = 'store', dest =    'uid'                               )
 
   args = parser.parse_args()
 

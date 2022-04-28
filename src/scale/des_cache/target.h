@@ -8,18 +8,17 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <target/util.h>
-#include <target/conv.h>
-#include <target/des.h>
+#include "util.h"
+#include "conv.h"
+#include "des.h"
 
-/*
-Dinero defines SIZEOF_VOIDP during configuration, but then doesn't include
-it in config.h; it doesn't *seem* clear if this is intended or not, but it 
-means that unless it's defined here before d4.h is included we get d4addr 
-type of the wrong size (because the test whether SIZEOF_INT >= SIZEOF_VOID 
-will always be true).  The important thing to note is that we're modelling 
-a 32-bit processor, so need SIZEOF_VOIDP to match.
-*/
+/* Dinero defines SIZEOF_VOIDP during configuration, but then doesn't include
+ * it in config.h; it doesn't *seem* clear if this is intended or not, but it 
+ * means that unless it's defined here before d4.h is included we get d4addr 
+ * type of the wrong size (because the test whether SIZEOF_INT >= SIZEOF_VOID 
+ * will always be true).  The important thing to note is that we're modelling 
+ * a 32-bit processor, so need SIZEOF_VOIDP to match.
+ */
 
 #define SIZEOF_VOIDP ( 4 )
 
@@ -32,9 +31,9 @@ a 32-bit processor, so need SIZEOF_VOIDP to match.
 #define CACHE_TRACE_STAT_H   ( 1 )  /* hit    */
 #define CACHE_TRACE_STAT_A   ( 2 )  /* access */
 
-/*
-Cache parameters for attack target model a Pentium III "Katmai"
-*/
+/* Cache parameters for attack target model a Pentium III "Katmai"
+ *
+ */
 
 #define CACHE_MODEL_LN_ID       "Ln"
 #define CACHE_MODEL_LN_CAPACITY ( 20 ) /* 2^20 = 1048576 = 1024 * 1024 */
