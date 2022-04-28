@@ -13,15 +13,17 @@ endif
 
 # =============================================================================
 
-export CONF           ?= ${REPO_HOME}/src/scale/scale.conf
-
 ifneq "$(strip $(wildcard ${REPO_HOME}/build/conf.mk))" ""
 include ${REPO_HOME}/build/conf.mk
 endif
 
+# -----------------------------------------------------------------------------
+
+export CONF           ?= ${REPO_HOME}/src/scale/scale.conf
+
 export      GCC_FLAGS += -std='gnu99' -m64 -O3 -g -ggdb -Wl,--build-id='sha1'
-export      GCC_PATHS += -L${REPO_HOME}/src/scale/share/target/build/lib
-export      GCC_PATHS += -I${REPO_HOME}/src/scale/share/target/build/include
+export      GCC_PATHS += -L ${REPO_HOME}/src/scale/share/target/build/lib
+export      GCC_PATHS += -I ${REPO_HOME}/src/scale/share/target/build/include
 export      GCC_LIBS  += -ltarget -lcrypto -lgmp
 
 ifdef STATIC
@@ -30,28 +32,26 @@ export      GCC_LIBS  += -ldl
 endif
 
 export     MAKE_FLAGS +=
-export     MAKE_PATHS += -I${REPO_HOME}/src/scale/share/build/build/include
+export     MAKE_PATHS += -I ${REPO_HOME}/src/scale/share/build/build/include
 
 export       M4_FLAGS +=
-export       M4_PATHS += -I${REPO_HOME}/src/scale/share/build/build/include
+export       M4_PATHS += -I ${REPO_HOME}/src/scale/share/build/build/include
 
-export   PYTHON_FLAGS +=                 -O
-export   PYTHON_PATHS +=   ${REPO_HOME}/src/scale/share/build/build
+export   PYTHON_FLAGS +=                   -O
+export   PYTHON_PATHS +=    ${REPO_HOME}/src/scale/share/build/build
 export   PYTHON_ENV   += PYTHONPATH="${PYTHONPATH}:${PYTHON_PATHS}"
 
 export PDFLATEX_FLAGS += -shell-escape
-export PDFLATEX_PATHS +=   ${REPO_HOME}/src/scale/share/build/build/include:${REPO_HOME}/build
+export PDFLATEX_PATHS +=    ${REPO_HOME}/src/scale/share/build/build/include:${REPO_HOME}/build
 export PDFLATEX_ENV   += TEXINPUTS="${TEXINPUTS}:${PDFLATEX_PATHS}"
 
 export    BIBER_FLAGS += 
-export    BIBER_PATHS +=   ${REPO_HOME}/src/scale/share/build/build/include:${REPO_HOME}/build
+export    BIBER_PATHS +=    ${REPO_HOME}/src/scale/share/build/build/include:${REPO_HOME}/build
 export    BIBER_ENV   += BIBINPUTS="${BIBINPUTS}:${BIBER_PATHS}"
 
 export ARCHIVES       += $(patsubst %, ${REPO_HOME}/build/%.tar.gz, ${SCALE_CONF_USERS})
 
 # -----------------------------------------------------------------------------
-
-.PHONY : build
 
 %-share     :
 	@$(foreach DIR, $(wildcard ${REPO_HOME}/src/scale/share/*), make ${MAKE_PATHS} ${MAKE_FLAGS} --directory='${DIR}' ${*} ;)
@@ -83,6 +83,8 @@ clean-conf  :
 
 clean-dist  :
 	@rm --force ${REPO_HOME}/build/*.tar.gz
+
+# -----------------------------------------------------------------------------
 
 build-step1 : build-share build-conf 
 build-step2 : build-deps build-challenge build-dist 

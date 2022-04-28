@@ -4,36 +4,134 @@
 % which can be found via http://creativecommons.org (and should be included 
 % as LICENSE.txt within the associated archive or repository).
 
-\documentclass[crop={false},multi={true},tikz={true}]{standalone}
-
-\ifstandalone
-\usepackage{libbuild-style}
-\usepackage{libbuild-macro}
-\fi
-
-\ifstandalone
-\addbibresource{libbuild.bib}
-\fi
-
-\begin{document}
-
-% =============================================================================
-
-\ifstandalone
-\author{\url{http://www.github.com/danpage/scale}}
-\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
-\date{\today}
-
-\maketitle
-\fi
-
 % =============================================================================
 
 \leveldown{Background}
 
+Imagine you are tasked with attacking a device, denoted $\PARTY{D}$, 
+which houses an $8$-bit Intel $8051$ processor.
+$\PARTY{D}$ represents an ISO/IEC 7816 compliant contact-based smart-card
+chip, used within larger devices as a co-processor module: it has support
+for secure key generation and storage, plus off-load of some cryptographic 
+operations, such as AES, via a standardised protocol (or API).
+By leveraging physical access, 
+an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+\noindent
+That is, in each interaction $\PARTY{E}$ can (adaptively) send 
+a chosen AES  plaintext
+to $\PARTY{D}$; the device will
+encrypt that  plaintext under the fixed, unknown AES cipher key $\PRI{\CHAL{k}}$,
+and produce 
+the corresponding ciphertext.
+In addition, $\PARTY{E}$ can measure the time $\PARTY{D}$ takes to execute 
+each operation: it approximates this 
+(keeping in mind there may be some experimental noise) 
+by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{c}$ once
+provided with $\PUB{m}$.
+
 % -----------------------------------------------------------------------------
 
 \levelstay{Material}
+
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item $\PUB{m}$,
+      a  ${1}$-block AES plaintext
+      (represented as a  length-prefixed, hexadecimal octet   string),
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item $\PUB{c}$,
+      a  ${1}$-block AES ciphertext
+      (represented as a  length-prefixed, hexadecimal octet   string),
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item $\PARTY{D}$ uses an AES-128 implementation,
+      which clearly implies $128$-bit block and cipher key lengths;
+      following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
+      fact that 
+      $
+      Nb =  4
+      $ 
+      and 
+      $
+      Nr = 10
+      $ 
+      means a $( 4 \times 4 )$-element state matrix is used in a total of 
+      $11$ rounds.
+\item More concretely, it is an $8$-bit, memory-constrained implementation
+      with the S-box held as a $\SI{256}{\byte}$ look-up table in memory. 
+      In line with the goal of minimising the memory footprint, the round
+      keys are not pre-computed: each encryption takes the cipher key and
+      evolves it forward, step-by-step, to form successive round keys for
+      use during key addition.  
+
+      Crucially, the implementation realises 
+      \lstinline[language={C}]|xtime| (i.e., multiplication-by-$\IND{x}$,
+      as used in the \lstinline{MixColumns} round function) by computing
+      it via
+
+      \begin{lstlisting}[language={C},gobble={6},frame={single},basicstyle={\ttfamily\small}]
+      uint8_t xtime( uint8_t a ) {
+        if( a & 0x80 ) {
+          return 0x1B ^ ( a << 1 );
+        }
+        else {
+          return        ( a << 1 );
+        }
+      }
+      \end{lstlisting}
+
+      \noindent
+      rather than, e.g., pre-computed and then realised via accesses into 
+      a look-up table.  Note that the resulting computation is {\em not} 
+      data-independent.
+\end{itemize}
+
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
+
+In many side-channel and fault attacks, the attacker is able to perform an 
+initial profiling or calibration phase: a common rationale for doing so is 
+to support selection or fine-tuning of parameters for a subsequent attack.  
+With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
+also provided.
+$\PARTY{R}$ is identical to $\PARTY{D}$, bar accepting input of the form
+
+\begin{itemize}
+\item $\PUB{\REPL{m}}$,
+      a  ${1}$-block     AES  plaintext
+      (represented as a  length-prefixed, hexadecimal octet   string),
+      and            
+\item $\PUB{\REPL{k}}$,
+      an                 AES cipher key
+      (represented as a  length-prefixed, hexadecimal octet   string),
+\end{itemize}
+
+\noindent
+on \lstinline[language={bash}]{stdin} (again with one field per line):
+in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+{\em chosen} cipher key $\PUB{\REPL{k}}$ 
+to encrypt the
+     chosen  plaintext  $\PUB{\REPL{m}}$.
 
 % -----------------------------------------------------------------------------
 
@@ -58,32 +156,3 @@
 \end{enumerate}
 
 % =============================================================================
-
-\ifstandalone
-\printbibliography
-\fi
-
-% =============================================================================
-
-\ifstandalone
-\appendix 
-\section{Representation and conversion}
-
-\subsection{Integers}
-
-\paragraph{Concept.}
-\input{rep-integer_concept.tex}
-\paragraph{Example.}
-\input{rep-integer_example.tex}
-
-\subsection{Octet strings}
-
-\paragraph{Concept.}
-\input{rep-octet_concept.tex}
-\paragraph{Example.}
-\input{rep-octet_example.tex}
-\fi
-
-% =============================================================================
-
-\end{document}

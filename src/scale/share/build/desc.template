@@ -1,0 +1,63 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+\documentclass[crop={false},multi={true},tikz={true}]{standalone}
+
+\ifstandalone
+\usepackage{libbuild-style}
+\usepackage{libbuild-macro}
+\fi
+
+\ifstandalone
+\addbibresource{libbuild.bib}
+\fi
+
+\begin{document}
+
+% =============================================================================
+
+\ifstandalone
+\author{\url{http://www.github.com/danpage/scale}}
+\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
+\date{\today}
+
+\maketitle
+\fi
+
+% =============================================================================
+
+\input{desc.tex}
+
+% =============================================================================
+
+\ifstandalone
+\printbibliography
+\fi
+
+% =============================================================================
+
+\ifstandalone
+\appendix 
+\section{Representation and conversion}
+
+\subsection{Integers}
+
+\paragraph{Concept.}
+\input{desc-integer_concept.tex}
+\paragraph{Example.}
+\input{desc-integer_example.tex}
+
+\subsection{Octet strings}
+
+\paragraph{Concept.}
+\input{desc-octet_concept.tex}
+\paragraph{Example.}
+\input{desc-octet_example.tex}
+\fi
+
+% =============================================================================
+
+\end{document}

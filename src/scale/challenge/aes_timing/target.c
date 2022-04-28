@@ -13,18 +13,19 @@ int aes_enc( uint8_t* c, const uint8_t* m, const uint8_t* k ) {
   U8_TO_U8_N( rk, k );
   U8_TO_U8_N(  s, m );
 
-  int cycles = 0;
+  int cycles = 1000;
 
   //      1 initial round
     aes_enc_key( s, rk );
   // Nr - 1 normal  rounds
   for( int r = 1; r < AES_128_NR; r++ ) {
-    for( int i = 0; i < ( 4 * AES_128_NB ); i++ ) {
-      cycles += ( s[ i ] & 0x80 ) ? 1 : 0;
-    }
-
     aes_enc_sub( s     );
     aes_enc_row( s     );
+
+    for( int i = 0; i < ( 4 * AES_128_NB ); i++ ) {
+      cycles += ( s[ i ] & 0x80 ) ? 2 : 1;
+    }
+
     aes_enc_mix( s     );
     rc = aes_enc_keyexp_step( rk, rk, rc );
     aes_enc_key( s, rk );

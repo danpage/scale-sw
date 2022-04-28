@@ -4,29 +4,6 @@
 % which can be found via http://creativecommons.org (and should be included 
 % as LICENSE.txt within the associated archive or repository).
 
-\documentclass[crop={false},multi={true},tikz={true}]{standalone}
-
-\ifstandalone
-\usepackage{libbuild-style}
-\usepackage{libbuild-macro}
-\fi
-
-\ifstandalone
-\addbibresource{libbuild.bib}
-\fi
-
-\begin{document}
-
-% =============================================================================
-
-\ifstandalone
-\author{\url{http://www.github.com/danpage/scale}}
-\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
-\date{\today}
-
-\maketitle
-\fi
-
 % =============================================================================
 
 \leveldown{Background}
@@ -174,8 +151,16 @@ Note that:
 \item $\PARTY{D}$ uses an AES-128 implementation,
       which clearly implies $128$-bit block and cipher key lengths;
       following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
-      fact that $Nb=4$ and $Nr=10$ means a $(4 \times 4)$-element state 
-      matrix will be used in a total of $11$ rounds.
+      fact that 
+      $
+      Nb =  4
+      $ 
+      and 
+      $
+      Nr = 10
+      $ 
+      means a $( 4 \times 4 )$-element state matrix is used in a total of 
+      $11$ rounds.
 \item More concretely, it is an $8$-bit, memory-constrained implementation
       with the S-box held as a $\SI{256}{\byte}$ look-up table in memory. 
       In line with the goal of minimising the memory footprint, the round
@@ -233,20 +218,20 @@ Note that:
 \item Each power consumption trace $\LEAK$ is a comma-separated line of the 
       form
       \[
-      l, s_0, s_1, \ldots, s_{l-1}
+      n, T_0, T_1, \ldots, T_{n-1}
       \]
       where
          
       \begin{itemize}
-      \item $l$
+      \item $n$
             (represented as a                       decimal integer string),
             specifies the trace length, 
             and
-      \item a given $s_i$ 
+      \item a given $T_i$ 
             (represented as a                       decimal integer string),
-            specifies the $i$-th of $l$ power consumption samples, each 
+            specifies the $i$-th of $n$ power consumption samples, each 
             constituting an $8$-bit, unsigned decimal integer: in short, 
-            this means $0 \leq s_i < 256$ for $0 \leq i < l$.
+            this means $0 \leq T_i < 256$ for $0 \leq i < n$.
       \end{itemize}
 
 \end{itemize}
@@ -348,32 +333,3 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 \end{enumerate}
 
 % =============================================================================
-
-\ifstandalone
-\printbibliography
-\fi
-
-% =============================================================================
-
-\ifstandalone
-\appendix 
-\section{Representation and conversion}
-
-\subsection{Integers}
-
-\paragraph{Concept.}
-\input{rep-integer_concept.tex}
-\paragraph{Example.}
-\input{rep-integer_example.tex}
-
-\subsection{Octet strings}
-
-\paragraph{Concept.}
-\input{rep-octet_concept.tex}
-\paragraph{Example.}
-\input{rep-octet_example.tex}
-\fi
-
-% =============================================================================
-
-\end{document}

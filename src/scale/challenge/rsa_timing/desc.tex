@@ -4,29 +4,6 @@
 % which can be found via http://creativecommons.org (and should be included 
 % as LICENSE.txt within the associated archive or repository).
 
-\documentclass[crop={false},multi={true},tikz={true}]{standalone}
-
-\ifstandalone
-\usepackage{libbuild-style}
-\usepackage{libbuild-macro}
-\fi
-
-\ifstandalone
-\addbibresource{libbuild.bib}
-\fi
-
-\begin{document}
-
-% =============================================================================
-
-\ifstandalone
-\author{\url{http://www.github.com/danpage/scale}}
-\title{\Large SCALE challenge description : \lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)|}
-\date{\today}
-
-\maketitle
-\fi
-
 % =============================================================================
 
 \leveldown{Background}
@@ -204,32 +181,3 @@ correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
 \end{enumerate}
 
 % =============================================================================
-
-\ifstandalone
-\printbibliography
-\fi
-
-% =============================================================================
-
-\ifstandalone
-\appendix 
-\section{Representation and conversion}
-
-\subsection{Integers}
-
-\paragraph{Concept.}
-\input{rep-integer_concept.tex}
-\paragraph{Example.}
-\input{rep-integer_example.tex}
-
-\subsection{Octet strings}
-
-\paragraph{Concept.}
-\input{rep-octet_concept.tex}
-\paragraph{Example.}
-\input{rep-octet_example.tex}
-\fi
-
-% =============================================================================
-
-\end{document}

@@ -1,6 +1,6 @@
 Consider the following Python $3.x$ program
 
-\begin{lstlisting}[language={Python}]
+\begin{lstlisting}[language={Python},frame={single},basicstyle={\ttfamily\small}]
 import binascii
 
 def octetstr2bytes( x ) :
@@ -12,7 +12,9 @@ def octetstr2bytes( x ) :
     return x
 
 def bytes2octetstr( x ) :
-  return ( '{0:02X}'.format( len( x ) ) ) + ':' + ( binascii.b2a_hex( x ).decode( 'ascii' ).upper() )
+  n = '{0:02X}'.format( len( x ) ) ; x = binascii.b2a_hex( x ).decode( 'ascii' ).upper()
+
+  return n + ':' + x
 
 def bytes2seq( x ) :
   return            [ int( t ) for t in x ]
@@ -36,7 +38,7 @@ print( 'type( t_3 ) = {0!s:14s} t_3 = {1!s}'.format( type( t_3 ), t_3 ) )
 \noindent
 which, when executed, produces
 
-\begin{lstlisting}[language={bash}]
+\begin{lstlisting}[language={bash},  frame={single},basicstyle={\ttfamily\small}] 
 type( t_0 ) = <class 'list'>   t_0 = [222, 173, 190, 239]
 type( t_1 ) = <class 'str'>    t_1 = 04:DEADBEEF
 type( t_2 ) = <class 'str'>    t_2 = 04:DEADBEEF

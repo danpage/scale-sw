@@ -9,7 +9,7 @@
 % =============================================================================
 
 % configure
- \tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
+\tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
 
 % adversary and target device
  \node [                party] (E) {$\PARTY{E}$} ;

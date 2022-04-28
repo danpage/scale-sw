@@ -29,12 +29,10 @@ endef
 
 # -----------------------------------------------------------------------------
 
-${CURDIR}/build/desc.tex  : desc.tex 
-	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID='${CID}' $(shell cat ${REPO_HOME}/build/conf.arg) libbuild.m4 ${<} > ${@}
-${CURDIR}/build/desc.tikz : desc.tikz
-	@m4 ${M4_PATHS} ${M4_FLAGS} -DCID='${CID}' $(shell cat ${REPO_HOME}/build/conf.arg) libbuild.m4 ${<} > ${@}
+${CURDIR}/build/desc.tex : desc.tex
+	@TEXINPUTS="${REPO_HOME}/src/scale/share/build:${CURDIR}" latexpand ${REPO_HOME}/src/scale/share/build/desc.template | m4 ${M4_PATHS} ${M4_FLAGS} -DCID='${CID}' $(shell cat ${REPO_HOME}/build/conf.arg) libbuild.m4 - > ${@}
 
-${CURDIR}/build/desc.pdf  : ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz
+${CURDIR}/build/desc.pdf : ${CURDIR}/build/desc.tex
 	@for i in $$(seq 3)                                                                                                               ; do   \
            ${PDFLATEX_ENV} pdflatex ${PDFTEX_FLAGS} -halt-on-error -output-directory ${CURDIR}/build ${CURDIR}/build/desc.tex > /dev/null ;      \
            if [ -n "$$(find ${CURDIR}/build -maxdepth 1 -name '*.bcf')" ]                                                                 ; then \
@@ -67,7 +65,7 @@ clean-deps-hook :
 clean-deps      : clean-deps-hook
 
 build-hook : 
-build      : build-hook ${CURDIR}/build/desc.tex ${CURDIR}/build/desc.tikz $(foreach P, ${ARCHIVE_GLOB} %.tar,$(addprefix ${CURDIR}/build/, $(patsubst %, ${P}, ${SCALE_CONF_USERS})))
+build      : build-hook ${CURDIR}/build/desc.tex $(foreach P, ${ARCHIVE_GLOB} %.tar,$(addprefix ${CURDIR}/build/, $(patsubst %, ${P}, ${SCALE_CONF_USERS})))
 
 clean-hook :
 clean      : clean-hook
