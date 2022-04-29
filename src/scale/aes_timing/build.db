@@ -6,6 +6,24 @@
 
 % -----------------------------------------------------------------------------
 
+1.r ! Fundamentally, the attack is enabled by the specific implementation 
+    ! strategy employed for xtime.  *Other* implementation strategies are
+    ! possible.  List as many correct, secure implementations of xtime
+    ! you can think of, detailing how the implementation works and why it 
+    ! prevents the attack; express each implementation as a C function.
+2.r ! As well as improving efficiency, AES-NI can act as a countermeasure 
+    ! against timing attacks that may otherwise be possible.  Explain what
+    ! AES-NI is and how it is used to implement AES, then outline sources
+    ! of data-dependent execution latency (and hence timing attacks) that
+    ! it prevents.
+
 % -----------------------------------------------------------------------------
+
+3.o ! Your implementation of this attack will use some form of statistical 
+    ! test.  Explain what test you have used, how it works, and also how it 
+    ! compares with at least one alternative.
+4.o ! Numerous factors might produce noise within measurements of execution
+    ! time: based on the given attack target and context, outline at least
+    ! two examples.
 
 % -----------------------------------------------------------------------------
