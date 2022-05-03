@@ -13,59 +13,60 @@ endif
 
 # =============================================================================
 
-I8051_SOURCES    =                         $(wildcard wrapper.c i8051*.c   )
-I8051_HEADERS    =                         $(wildcard wrapper.h i8051*.h   )
-I8051_SOURCES_M4 = $(patsubst %.m4_c, %.c, $(wildcard           i8051*.m4_c))
-I8051_HEADERS_M4 = $(patsubst %.m4_h, %.h, $(wildcard           i8051*.m4_h))
-
-${I8051_SOURCES_M4} : %.c : i8051.m4 %.m4_c
-	@m4 ${^} > ${@}
-${I8051_HEADERS_M4} : %.h : i8051.m4 %.m4_h
-	@m4 ${^} > ${@}
-
-aes.S   : aes.m4_S
-	@m4             ${<}                                                                            > ${@}
-aes.hex : aes.S
-	@as31 -Fhex  -s ${<}                                                                            > ${@}
-aes.bin : aes.S
-	@as31 -Fbyte -s ${<} | cut -d' ' -f2 | awk 'NR > 1 { printf( "," ) } { printf( "0x%s", $$1 ) }' > ${@}
-
-# -----------------------------------------------------------------------------
-
 CID          = AES_POWER
 
 include util.mk
 
 ifeq (${SCALE_CONF_${CID}_VERSION},0)
-CID_SOURCES  = target_ecb.c
-CID_HEADERS  = target_ecb.h
+CID_SOURCES  = target_ecb.c util.c conv.c
+CID_HEADERS  = target_ecb.h util.h conv.h
 endif
 ifeq (${SCALE_CONF_${CID}_VERSION},1)
-CID_SOURCES  = target_ecb.c
-CID_HEADERS  = target_ecb.h
+CID_SOURCES  = target_ecb.c util.c conv.c
+CID_HEADERS  = target_ecb.h util.h conv.h
 endif
 ifeq (${SCALE_CONF_${CID}_VERSION},2)
-CID_SOURCES  = target_xts.c
-CID_HEADERS  = target_xts.h
+CID_SOURCES  = target_xts.c util.c conv.c
+CID_HEADERS  = target_xts.h util.h conv.h
 endif
 
-CID_SOURCES += util.c conv.c ${I8051_SOURCES} ${I8051_SOURCES_M4}
-CID_HEADERS += util.h conv.h ${I8051_HEADERS} ${I8051_HEADERS_M4}
+  GCC_PATHS += -L ${BUILD}
+  GCC_PATHS += -I ${BUILD}
+  GCC_LIBS  +=
 
-${BUILD}/%.D : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS} aes.bin
-	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
-	$(call FIXUP_SYMBOLS, ${@})
-
-${BUILD}/%.R : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS} aes.bin
-	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_R=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
-	$(call FIXUP_SYMBOLS, ${@})
+vpath %.h ${BUILD}
+vpath %.c ${BUILD}
 
 # -----------------------------------------------------------------------------
 
-clean-hook :
-	@rm --force --recursive ${I8051_SOURCES_M4} 
-	@rm --force --recursive ${I8051_HEADERS_M4}
+I8051_SOURCES     = wrapper.c                                      $(wildcard i8051*.c   ) 
+I8051_HEADERS     = wrapper.h                                      $(wildcard i8051*.h   )
+I8051_SOURCES_M4  = $(addprefix ${BUILD}/, $(patsubst %.m4_c, %.c, $(wildcard i8051*.m4_c)))
+I8051_HEADERS_M4  = $(addprefix ${BUILD}/, $(patsubst %.m4_h, %.h, $(wildcard i8051*.m4_h)))
 
-	@rm --force --recursive aes.S aes.hex aes.bin
+${I8051_SOURCES_M4} : ${BUILD}/%.c : i8051.m4 %.m4_c
+	@m4 ${^} > ${@}
+${I8051_HEADERS_M4} : ${BUILD}/%.h : i8051.m4 %.m4_h
+	@m4 ${^} > ${@}
+
+${BUILD}/aes.S   :          aes.m4_S
+	@m4             ${<}                                                                            > ${@}
+${BUILD}/aes.hex : ${BUILD}/aes.S
+	@as31 -Fhex  -s ${<}                                                                            > ${@}
+${BUILD}/aes.bin : ${BUILD}/aes.S
+	@as31 -Fbyte -s ${<} | cut -d' ' -f2 | awk 'NR > 1 { printf( "," ) } { printf( "0x%s", $$1 ) }' > ${@}
+
+CID_SOURCES += ${I8051_SOURCES} ${I8051_SOURCES_M4} ${BUILD}/aes.bin
+CID_HEADERS += ${I8051_HEADERS} ${I8051_HEADERS_M4}
+
+# -----------------------------------------------------------------------------
+
+${BUILD}/%.D : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS} 
+	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
+	@$(call FIXUP_SYMBOLS, ${@})
+
+${BUILD}/%.R : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}
+	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_R=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
+	@$(call FIXUP_SYMBOLS, ${@})
 
 # =============================================================================

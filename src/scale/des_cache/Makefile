@@ -20,12 +20,12 @@ include util.mk
 CID_SOURCES  = target.c util.c conv.c des.c
 CID_HEADERS  = target.h util.h conv.h des.h
 
-  GCC_PATHS += -L ${BUILD}/d4-7 -L ${BUILD}/DES-OUTE
-  GCC_PATHS += -I ${BUILD}/d4-7 -I ${BUILD}/DES-OUTE
+  GCC_PATHS += -L ${BUILD} -L ${BUILD}/d4-7 -L ${BUILD}/DES-OUTE
+  GCC_PATHS += -I ${BUILD} -I ${BUILD}/d4-7 -I ${BUILD}/DES-OUTE
   GCC_LIBS  += -ld4
 
-vpath %.h ${REPO_HOME}/build/DES-OUTE
-vpath %.c ${REPO_HOME}/build/DES-OUTE
+vpath %.h ${BUILD}:${REPO_HOME}/build/DES-OUTE
+vpath %.c ${BUILD}:${REPO_HOME}/build/DES-OUTE
 
 # -----------------------------------------------------------------------------
 
