@@ -17,8 +17,12 @@ Vagrant.configure( "2" ) do |config|
   # configure shared folder
   config.vm.synced_folder "./share", "/home/vagrant/share", owner: "vagrant", group: "vagrant"
 
-  # perform provisioning via external shell script
-  config.vm.provision "provision", type: "shell", preserve_order: true, run: "once", path: "provision.sh"
+  # provisioning step: general-purpose prologue
+  config.vm.provision "prologue", type: "shell", preserve_order: true, run: "once", path: "provision_prologue.sh"
+  # provisioning step: special-purpose wrt. SCALE
+  config.vm.provision    "scale", type: "shell", preserve_order: true, run: "once", path: "provision_scale.sh"
+  # provisioning step: general-purpose epilogue
+  config.vm.provision "epilogue", type: "shell", preserve_order: true, run: "once", path: "provision_epilogue.sh"
 end
 
 # =============================================================================
