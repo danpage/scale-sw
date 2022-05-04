@@ -9,20 +9,20 @@ import util, math, random, string, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.Publ
 # =============================================================================
 
 def apply_fixups( args, conf ) :
-  if   ( conf.get( 'challenge', 'rsa_padding' ) == 'user_hash' ) :
+  if   ( conf.get( 'challenge', 'rsa_padding' ) == 'uid_hash' ) :
     conf.set( 'challenge', 0, 'rsa_padding' )    
-  elif ( conf.get( 'challenge', 'rsa_padding' ) == 'user_text' ) :
+  elif ( conf.get( 'challenge', 'rsa_padding' ) == 'uid_text' ) :
     conf.set( 'challenge', 1, 'rsa_padding' )    
-  elif ( conf.get( 'challenge', 'rsa_padding' ) == 'rand'      ) :
+  elif ( conf.get( 'challenge', 'rsa_padding' ) == 'rand'     ) :
     conf.set( 'challenge', 2, 'rsa_padding' )        
 
-  if   ( conf.get( 'hash', 'rsa_padding'      ) == 'sha1'      ) :
+  if   ( conf.get( 'hash', 'rsa_padding'      ) == 'sha1'     ) :
     conf.set( 'hash',      0, 'rsa_padding' )
-  elif ( conf.get( 'hash', 'rsa_padding'      ) == 'sha256'    ) :
+  elif ( conf.get( 'hash', 'rsa_padding'      ) == 'sha256'   ) :
     conf.set( 'hash',      1, 'rsa_padding' )
-  elif ( conf.get( 'hash', 'rsa_padding'      ) == 'sha384'    ) :
+  elif ( conf.get( 'hash', 'rsa_padding'      ) == 'sha384'   ) :
     conf.set( 'hash',      2, 'rsa_padding' )
-  elif ( conf.get( 'hash', 'rsa_padding'      ) == 'sha512'    ) :
+  elif ( conf.get( 'hash', 'rsa_padding'      ) == 'sha512'   ) :
     conf.set( 'hash',      3, 'rsa_padding' )
 
 def build_params( args, conf ) :
@@ -44,9 +44,9 @@ def build_params( args, conf ) :
   m = util.bytes_rand( int( math.ceil( log_m / 8 ) ) )
   L = util.bytes_rand( int( math.ceil( log_L / 8 ) ) )
 
-  if   ( conf.get( 'challenge', 'rsa_padding' ) == 'user_hash' ) :
+  if   ( conf.get( 'challenge', 'rsa_padding' ) == 'uid_hash' ) :
     m = bytes( ( SHA.new( data = args.uid.encode( 'ascii' ) ) ).digest() ) + m
-  elif ( conf.get( 'challenge', 'rsa_padding' ) == 'user_text' ) :
+  elif ( conf.get( 'challenge', 'rsa_padding' ) == 'uid_text' ) :
     m = bytes(                   args.uid.encode( 'ascii' )              ) + m
 
   if   ( conf.get( 'hash', 'rsa_padding' ) == 'sha1'   ) :

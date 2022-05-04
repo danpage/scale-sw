@@ -14,7 +14,7 @@ endif
 # =============================================================================
 
 venv     : ${REPO_HOME}/requirements.txt
-	@${REPO_HOME}/bin/venv.sh
+	@bash ${REPO_HOME}/bin/venv.sh
 
 clean    :
 

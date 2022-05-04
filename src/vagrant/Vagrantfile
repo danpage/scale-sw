@@ -1,0 +1,20 @@
+# Copyright (C) 2017 Daniel Page <dan@phoo.org>
+#
+# Use of this source code is restricted per the CC BY-SA license, a copy of
+# which can be found via http://creativecommons.org (and should be included 
+# as LICENSE.txt within the associated archive or repository).
+
+Vagrant.configure( "2" ) do |config|
+  # define base box
+  config.vm.box = "ubuntu/bionic64"
+
+  # configure SSH-based access
+  config.ssh.forward_agent = true
+  config.ssh.forward_x11   = true
+
+  # configure shared folder
+  config.vm.synced_folder "./share", "/home/vagrant/share", owner: "vagrant", group: "vagrant"
+
+  # perform provisioning via external shell script
+  config.vm.provision "provision", type: "shell", preserve_order: true, run: "once", path: "provision.sh"
+end
