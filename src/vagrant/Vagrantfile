@@ -8,7 +8,10 @@
 
 Vagrant.configure( "2" ) do |config|
   # define base box
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "ubuntu/jammy64"
+
+  # configure a generous boot timeout
+  config.vm.boot_timeout = 600
 
   # configure SSH-based access
   config.ssh.forward_agent = true
