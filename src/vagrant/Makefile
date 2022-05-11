@@ -13,16 +13,14 @@ endif
 
 # =============================================================================
 
-up       :
+up    :
 	@vagrant up
-
-ssh      :
+ssh   :
 	@vagrant ssh
-
-clean    :
+down  :
 	@vagrant destroy --force --graceful
 
-spotless : clean
+clean : down
 	@rm --force --recursive .vagrant
 
 	@rm --force --recursive *.box
