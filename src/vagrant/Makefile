@@ -20,7 +20,7 @@ ssh      :
 	@vagrant ssh
 
 clean    :
-	@vagrant --force --graceful destroy
+	@vagrant destroy --force --graceful
 
 spotless : clean
 	@rm --force --recursive .vagrant
