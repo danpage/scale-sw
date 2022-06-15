@@ -105,7 +105,7 @@ The basic idea is that
   source ${REPO_HOME}/build/venv/bin/activate
   ```
 
-- Build the material in two steps, i.e.,
+- Build the material:
 
   - execute
 
@@ -119,7 +119,8 @@ The basic idea is that
     make --directory="${REPO_HOME}/src/scale" build-step2
     ```
 
-- Make use of the material, e.g., in the archive
+- Make use of the material in, 
+  e.g., the archive
 
   ```sh
   ${REPO_HOME}/build/alice.tar.gz
