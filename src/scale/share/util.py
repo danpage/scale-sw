@@ -137,11 +137,11 @@ def bytes_rand( n, xs = range( 0, 256 ) ) :
 def bytes_zero( n ) :
   return bytes( [ 0                   for i in range( n ) ] )
 
-# compute padding required for x, formed of n+1 elements (each with the 
-# value n) st. the length with padding is zero modulo b
+# compute padding required for x, formed of b - ( l mod b ) elements 
+# each with the value b - ( l mod b )
 
 def padding( x, b ) :
-  n = ( b - ( len( x ) + 1 ) ) % b ; return bytes( [ n ] * ( n + 1 ) )
+  t = b - ( len( x ) % b ) ; return bytes( [ t ] * t )
 
 # key generation for RSA with (optionally) constrained private exponent
 

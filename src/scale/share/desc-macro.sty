@@ -39,13 +39,15 @@
 \providecommandx{\REP}[1]{\ensuremath{\hat{#1}}}
 \providecommandx{\IND}[1]{\ensuremath{\mbox{\bf #1}}}
 
-\providecommandx{\PUB}[1]{\textcolor{blue}{#1}}          % a public    value
-\providecommandx{\PRI}[1]{\textcolor{red}{#1}}           % a private   value
-\providecommandx{\DOM}[1]{\textcolor{magenta}{#1}}       % a domain    value or parameter
-\providecommandx{\CHAL}[1]{\hat{#1}}                     % a challenge value, e.g., one embedded in the target  device
-\providecommandx{\REPL}[1]{\bar{#1}}                     % a replica   value, i.e., one supplied to the replica device
+\providecommandx{\PUB}[1]{\textcolor{blue}{#1}}
+\providecommandx{\PRI}[1]{\textcolor{red}{#1}}
+\providecommandx{\DOM}[1]{\textcolor{magenta}{#1}}
+\providecommandx{\CHAL}[1]{\hat{#1}}
+\providecommandx{\REPL}[1]{\bar{#1}}
 
-\providecommandx{\PAD}{\ensuremath{\rho}}                % the padding value
-\providecommandx{\TAG}{\ensuremath{\tau}}                % the tag     value
-\providecommandx{\FAULT}{\ensuremath{\Delta}}            % the fault   value
-\providecommandx{\LEAK}{\ensuremath{\Lambda}}            % the leakage value
+\providecommandx{\PAD}{\ensuremath{\rho}}
+\providecommandx{\TAG}{\ensuremath{\tau}}
+\providecommandx{\FAULT}{\ensuremath{\Delta}}
+\providecommandx{\LEAK}{\ensuremath{\Lambda}}
+
+\providecommandx{\PKCS}[2][2={}]{PKCS$\##1${\IfEq{#2}{}{}{~v$#2$}}}

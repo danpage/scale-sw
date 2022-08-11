@@ -22,10 +22,14 @@ int dec( uint8_t* m,
 
   // check validity of padding
 
-  uint8_t *t = m + l * 4 * AES_128_NB - 1, p = *t--;
+  uint8_t *t = m + l * 4 * AES_128_NB - 1, alpha = *t;
 
-  for( int i = 0; i < p; i++, t-- ) {
-    if( p != *t ) {
+    if( ( alpha < 1 ) || ( alpha > ( 4 * AES_128_NB ) ) ) {
+      return RESULT_CODE_1;
+    }
+
+  for( int i = 0; i < alpha; i++, t-- ) {
+    if( alpha != *t ) {
       return RESULT_CODE_1;
     }
   }

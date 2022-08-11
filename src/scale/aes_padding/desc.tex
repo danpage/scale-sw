@@ -94,13 +94,20 @@ Note that:
       this clearly implies $128$-bit block and cipher key lengths.  
 \item Keep in mind some limits, namely $0 \leq \PUB{l} < 256$, on maximum
       plaintext and/or ciphertext length.
-\item The padding scheme used matches that of TLS.  This means
+\item The \PKCS{7}[1.5]~\cite[Section 10.3]{SCALE:RFC:2315} padding scheme 
+      is used: given a block size of $16$ bytes, define
+      $
+      \alpha = 16 - ( | \PRI{m} \CONS \PRI{\TAG} | \bmod 16 ) 
+      $
+      which implies that
+      $
+      1 \leq \alpha \leq 16 .
+      $
+      The padding can then be described as
       \[
-      \PRI{\PAD} = \LIST{ \underbrace{ \alpha, \alpha, \ldots, \alpha }_{\mbox{$\alpha$ + 1 octets}} }
+      \PRI{\PAD} = \LIST{ \underbrace{ \alpha, \alpha, \ldots, \alpha }_{\mbox{$\alpha$ octets}} } ,
       \]
-      is a sequence of $\alpha + 1$ octets, each of whose value is $\alpha$
-      and where $0 \leq \alpha < 256$, constructed st. the AES-CBC input is
-      always a multiple of the block size.
+      i.e., a sequence of $\alpha$ octets each of whose value is $\alpha$.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
