@@ -1,0 +1,89 @@
+% Copyright (C) 2017 Daniel Page <dan@phoo.org>
+%
+% Use of this source code is restricted per the CC BY-SA license, a copy of
+% which can be found via http://creativecommons.org (and should be included 
+% as LICENSE.txt within the associated archive or repository).
+
+% =============================================================================
+
+\leveldown{Background}
+
+\begin{center}
+\input{desc.tikz}
+\end{center}
+
+% -----------------------------------------------------------------------------
+
+\levelstay{Material}
+
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+
+This executable simulates the attack target $\PARTY{D}$.  When executed it 
+reads the following input
+
+\begin{itemize}
+\item ...
+\end{itemize}
+
+\noindent
+from \lstinline[language={bash}]{stdin} and writes the following output
+
+\begin{itemize}
+\item ...
+\end{itemize}
+
+\noindent
+to \lstinline[language={bash}]{stdout}, in both cases with one field per 
+line.  Execution continues this way, i.e., by repeatedly reading input 
+then writing output, until it is forcibly terminated (or crashes).  
+
+\levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
+
+This file represents a set of attack parameters, with everything (e.g.,
+all public values) $\PARTY{E}$ has access to by default.  It contains 
+
+\begin{itemize}
+\item $\PUB{\CHAL{N}}$,     
+      an RSA        modulus
+      (represented as a                   hexadecimal integer string),
+\item $\PUB{\CHAL{e}}$,
+      an RSA        public exponent
+      (represented as a                   hexadecimal integer string),
+      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
+\end{itemize}
+
+\noindent
+with one field per line.
+More specifically, this represents the RSA public key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
+$
+associated with the unknown RSA private key 
+$
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
+$
+embedded in $\PARTY{D}$.
+
+% -----------------------------------------------------------------------------
+
+\levelup{Tasks}
+
+\begin{enumerate}
+\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
+      the simulated target, or, more specifically, that recovers the target 
+      material $\PRI{\CHAL{d}}$.  
+      When executed using a command of the form
+      \[
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}
+      \]
+      the attack should be invoked on the simulated target named (not some
+      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
+      print 
+      a) any intermediate output you deem relevant, followed finally by 
+      b) two lines which clearly detail the target material recovered plus
+         the total number of interactions with the attack target.
+\item Answer the exam-style questions in 
+      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\end{enumerate}
+
+% =============================================================================
