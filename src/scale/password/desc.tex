@@ -38,7 +38,7 @@ provided with $\PUB{G}$.
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
-reads the following input
+ reads the following  input (one field per line)
 
 \begin{itemize}
 \item $\PUB{G}$,
@@ -54,7 +54,9 @@ reads the following input
 \end{itemize}
 
 \noindent
-from \lstinline[language={bash}]{stdin} and writes the following output
+from \lstinline[language={bash}]{stdin},
+and 
+writes the following output (one field per line)
 
 \begin{itemize}
 \item $\LEAK$,
@@ -67,9 +69,9 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \end{itemize}
 
 \noindent
-to \lstinline[language={bash}]{stdout}, in both cases with one field per 
-line.  Execution continues this way, i.e., by repeatedly reading input 
-then writing output, until it is forcibly terminated (or crashes).  
+to   \lstinline[language={bash}]{stdout}.
+Execution continues this way, i.e., repeatedly reading input then writing 
+output, until $\PARTY{D}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
@@ -100,7 +102,8 @@ initial profiling or calibration phase: a common rationale for doing so is
 to support selection or fine-tuning of parameters for a subsequent attack.  
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
-$\PARTY{R}$ is identical to $\PARTY{D}$ bar accepting input of the form
+$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+ reads the following  input (one field per line)
 
 \begin{itemize}
 \item $\PUB{\REPL{G}}$,
@@ -127,7 +130,7 @@ $\PARTY{R}$ is identical to $\PARTY{D}$ bar accepting input of the form
 \end{itemize}
 
 \noindent
-on \lstinline[language={bash}]{stdin} (again with one field per line):
+on \lstinline[language={bash}]{stdin}:
 in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 {\em chosen} password $\PUB{\REPL{P}}$
 for comparison with the

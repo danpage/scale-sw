@@ -7,8 +7,20 @@
 
 #include "target.h"
 
-int sign( mpz_t sigma, const mpz_t N, const mpz_t p, const mpz_t q, const mpz_t d, const mpz_t m ) {
-  return 0; // TODO
+/* TODO: 
+ * 
+ * 1. compute 
+ *    
+ *    sigma = RSA.Sig( ( N, p, q, d ), m )
+ *          = m^d \pmod{N}
+ * 
+ *    inducing a fault in cycle delta if delta > 0,
+ * 
+ * 2. return number of elapsed cycles
+ */
+
+int sign( mpz_t sigma, const mpz_t N, const mpz_t p, const mpz_t q, const mpz_t d, const mpz_t m, int delta ) {
+  return 0;
 }
 
 int main( int argc, char* argv[] ) {
@@ -34,9 +46,12 @@ int main( int argc, char* argv[] ) {
   #endif
 
   while( true ) {
+    int lambda, delta;
+
     // 1. consume input
 
-    CONSUME( gmp_scanf( "%ZX", m ), 1 );
+    CONSUME( gmp_scanf(  "%d", &delta ), 1 );
+    CONSUME( gmp_scanf( "%ZX",  m     ), 1 );
 
     #if   CONF( TARGET_D, CID )
     mpz_import( N, USER( N_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __N );
@@ -44,17 +59,19 @@ int main( int argc, char* argv[] ) {
     mpz_import( q, USER( Q_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __q );
     mpz_import( d, USER( D_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __d );
     #elif CONF( TARGET_R, CID )
-    CONSUME( gmp_scanf( "%ZX", N ), 1 );
-    CONSUME( gmp_scanf( "%ZX", p ), 1 );
-    CONSUME( gmp_scanf( "%ZX", q ), 1 );
-    CONSUME( gmp_scanf( "%ZX", d ), 1 );
+    CONSUME( gmp_scanf( "%ZX",  N     ), 1 );
+    CONSUME( gmp_scanf( "%ZX",  p     ), 1 );
+    CONSUME( gmp_scanf( "%ZX",  q     ), 1 );
+    CONSUME( gmp_scanf( "%ZX",  d     ), 1 );
     #endif
 
     // 2. execute operation
 
-    int lambda = sign( sigma, N, p, q, d, m );
+    lambda = sign( sigma, N, p, q, d, m, delta );
 
     #if CONF( DEBUG )
+    fprintf( stderr, "delta = " ); gmp_fprintf( stderr,  "%d\n", delta  );
+
     fprintf( stderr, "N     = " ); gmp_fprintf( stderr, "%ZX\n", N      );
     fprintf( stderr, "p     = " ); gmp_fprintf( stderr, "%ZX\n", p      );
     fprintf( stderr, "q     = " ); gmp_fprintf( stderr, "%ZX\n", q      );
@@ -66,7 +83,8 @@ int main( int argc, char* argv[] ) {
 
     // 3. produce output
 
-                               gmp_fprintf( stdout,  "%d\n", lambda );
+                                   gmp_fprintf( stdout,  "%d\n", lambda );
+                                   gmp_fprintf( stderr, "%ZX\n", sigma  );
 
     // 4. flush streams
 

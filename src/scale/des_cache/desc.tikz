@@ -9,7 +9,7 @@
 % =============================================================================
 
 % configure
-\tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
+ \tikzset{node distance={6cm},party/.style={rectangle,minimum width={2.0cm},minimum height={2.0cm}}}
 
 % adversary and target device
  \node [                party] (E) {$\PARTY{E}$} ;
@@ -25,12 +25,13 @@
  \draw [       >=stealth,<-] (E.330)   to              
                              node [below]             {$\PUB{c}$} 
                              (E.330   -| D.west)  ;
+
 % indirect input and output
 %\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
 %                            node [above]             {} 
 %                            (D.north -| E.north) ;
  \draw [dashed,>=stealth,->] (D.south) to [bend left]  
-                             node [below]             {execution time} 
+                             node [below]             {$\LEAK  \models \mbox{execution latency}$} 
                              (D.south -| E.south) ;
 
 % computation

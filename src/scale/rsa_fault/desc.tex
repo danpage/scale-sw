@@ -8,9 +8,13 @@
 
 \leveldown{Background}
 
+% TODO
+
 \begin{center}
 \input{desc.tikz}
 \end{center}
+
+% TODO
 
 % -----------------------------------------------------------------------------
 
@@ -19,28 +23,46 @@
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
-reads the following input
+ reads the following  input (one field per line)
 
 \begin{itemize}
-\item ...
+\item $\FAULT$
+      a  fault specification
+      (represented as a                       decimal integer string),
+\item $\PUB{m}$,
+      a message
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
-from \lstinline[language={bash}]{stdin} and writes the following output
+from \lstinline[language={bash}]{stdin},
+and 
+writes the following output (one field per line)
 
 \begin{itemize}
-\item ...
+\item $\LEAK$,
+      an execution time measured in clock cycles
+      (represented as a                       decimal integer string),
+      and
+\item $\PUB{\SIG}$,
+      an RSA signature on $m$
+      (represented as a                   hexadecimal integer string),
 \end{itemize}
 
 \noindent
-to \lstinline[language={bash}]{stdout}, in both cases with one field per 
-line.  Execution continues this way, i.e., by repeatedly reading input 
-then writing output, until it is forcibly terminated (or crashes).  
+to   \lstinline[language={bash}]{stdout}.
+Execution continues this way, i.e., repeatedly reading input then writing 
+output, until $\PARTY{D}$ is forcibly terminated (or crashes).  
+Note that:
+
+\begin{itemize}
+\item ... % TODO
+\end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
 This file represents a set of attack parameters, with everything (e.g.,
-all public values) $\PARTY{E}$ has access to by default.  It contains 
+all public values) $\PARTY{E}$ has access to by default.  It captures
 
 \begin{itemize}
 \item $\PUB{\CHAL{N}}$,     
@@ -53,7 +75,7 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \end{itemize}
 
 \noindent
-with one field per line.
+using one field per line.
 More specifically, this represents the RSA public key 
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }

@@ -25,12 +25,13 @@
  \draw [       >=stealth,<-] (E.330)   to              
                              node [below]             {$\PUB{m}$} 
                              (E.330   -| D.west)  ;
+
 % indirect input and output
 %\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
 %                            node [above]             {} 
 %                            (D.north -| E.north) ;
  \draw [dashed,>=stealth,->] (D.south) to [bend left]  
-                             node [below]             {execution time} 
+                             node [below]             {$\LEAK  \models \mbox{execution latency}$}
                              (D.south -| E.south) ;
 
 % computation

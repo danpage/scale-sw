@@ -41,7 +41,7 @@ provided with $\PUB{c}$.
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
-reads the following input
+ reads the following  input (one field per line)
 
 \begin{itemize}
 \item $\PUB{c}$,
@@ -50,7 +50,9 @@ reads the following input
 \end{itemize}
 
 \noindent
-from \lstinline[language={bash}]{stdin} and writes the following output
+from \lstinline[language={bash}]{stdin},
+and 
+writes the following output (one field per line)
 
 \begin{itemize}
 \item $\LEAK$,
@@ -63,9 +65,9 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \end{itemize}
 
 \noindent
-to \lstinline[language={bash}]{stdout}, in both cases with one field per 
-line.  Execution continues this way, i.e., by repeatedly reading input 
-then writing output, until it is forcibly terminated (or crashes).  
+to   \lstinline[language={bash}]{stdout}.
+Execution continues this way, i.e., repeatedly reading input then writing 
+output, until $\PARTY{D}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
@@ -102,7 +104,7 @@ Note that:
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
 This file represents a set of attack parameters, with everything (e.g.,
-all public values) $\PARTY{E}$ has access to by default.  It contains 
+all public values) $\PARTY{E}$ has access to by default.  It captures
 
 \begin{itemize}
 \item $\PUB{\CHAL{N}}$,
@@ -116,7 +118,7 @@ all public values) $\PARTY{E}$ has access to by default.  It contains
 \end{itemize}
 
 \noindent
-with one field per line.
+using one field per line.
 More specifically, this represents the RSA public key 
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
@@ -134,7 +136,8 @@ initial profiling or calibration phase: a common rationale for doing so is
 to support selection or fine-tuning of parameters for a subsequent attack.  
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
-$\PARTY{R}$ is identical to $\PARTY{D}$, bar accepting input of the form
+$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+ reads the following  input (one field per line)
 
 \begin{itemize}
 \item $\PUB{\REPL{c}}$,
@@ -150,7 +153,7 @@ $\PARTY{R}$ is identical to $\PARTY{D}$, bar accepting input of the form
 \end{itemize}
 
 \noindent
-on \lstinline[language={bash}]{stdin} (again with one field per line):
+from \lstinline[language={bash}]{stdin}:
 in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 {\em chosen} RSA private key $\TUPLE{ \PUB{\REPL{N}}, \PUB{\REPL{d}} }$ 
 to decrypt the

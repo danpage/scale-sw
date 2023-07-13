@@ -7,25 +7,27 @@
 
 #include "target.h"
 
-bool match( int* lambda, const char* x, const char* y ) {
+int match( int* r, const char* x, const char* y ) {
+  int lambda;
+
   int l_x = strlen( x );
   int l_y = strlen( y );
 
-  *lambda = 0;
+  lambda = 0;
 
   if( l_x != l_y ) {
-    return 0;
+      *r = 0; return lambda;
   }
 
-  *lambda = 1;
+  lambda = 1;
 
-  for( int i = 0; i < l_x; i++, *lambda = *lambda + 1 ) {
+  for( int i = 0; i < l_x; i++, lambda = lambda + 1 ) {
     if( x[ i ] != y[ i ] ) {
-      return 0;
+      *r = 0; return lambda;
     }
   }
 
-  return 1;
+      *r = 1; return lambda;
 }
 
 int main( int argc, char* argv[] ) {
@@ -38,6 +40,8 @@ int main( int argc, char* argv[] ) {
   #endif
 
   while( true ) {
+    int lambda, r;
+
     // 1. consume input
 
     CONSUME( fscanf( stdin, "%" STR( CONF( LEN_P_MAX, CID ) ) "s", G ), 1 );
@@ -48,7 +52,7 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation
 
-    int lambda, r = match( &lambda, G, P );
+    lambda = match( &r, G, P );
 
     #if CONF( DEBUG )
     fprintf( stderr, "G = %s\n", G      );

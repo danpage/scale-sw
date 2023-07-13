@@ -51,6 +51,8 @@ int main( int argc, char* argv[] ) {
   #endif
 
   while( true ) {
+    int lambda;
+
     // 1. consume input
 
     CONSUME( octetstr_rd( stdin, m, 4 * AES_128_NB ), 4 * AES_128_NB );
@@ -61,7 +63,7 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation
   
-    int lambda = aes_enc( c, m, k );
+    lambda = aes_enc( c, m, k );
  
     #if ( ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) > 0 )
     lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );

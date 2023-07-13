@@ -25,17 +25,18 @@
 %\draw [       >=stealth,<-] (E.330)   to              
 %                            node [below]             {} 
 %                            (E.330   -| D.west)  ;
+
 % indirect input and output
 %\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
 %                            node [above]             {} 
 %                            (D.north -| E.north) ;
  \draw [dashed,>=stealth,->] (D.south) to [bend left]  
-                             node [below]             {result code}
+                             node [below]             {$\LEAK  \models \mbox{result code}$}
                              (D.south -| E.south) ;
 
 % computation
  \draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                             node [right,anchor=west] {$\PRI{m} \CONS \PRI{\TAG} \CONS \PRI{\PAD} = \SCOPE{\ID{AES-CBC}}{\ALG{Dec}}( \PRI{\CHAL{k}_1}, \PUB{iv}, \PUB{c} )$}
+                             node [right,anchor=west] {$\PRI{m} \CONS \PRI{\TAG} \CONS \PRI{\PAD} = \SCOPE{\ID{AES-128-CBC}}{\ALG{Dec}}( \PRI{\CHAL{k}_1}, \PUB{iv}, \PUB{c} )$}
                              (D.330) ;
 
 % =============================================================================

@@ -121,6 +121,8 @@ int main( int argc, char* argv[] ) {
   }
 
   while( true ) {
+    int lambda;
+
     // 1. consume input
 
     CONSUME( octetstr_rd( stdin, m, DES_NB ), DES_NB );  
@@ -150,7 +152,7 @@ int main( int argc, char* argv[] ) {
     int stat_h = ( int )( cache_model_L1->fetch[ D4XREAD ] - cache_model_L1->miss[ D4XREAD ] );
     int stat_a = ( int )( cache_model_L1->fetch[ D4XREAD ]                                   );
 
-    int lambda = 1000 + ( 10 * stat_m ); 
+    lambda = 1000 + ( 10 * stat_m ); 
 
     #if ( ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) > 0 )
     lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );

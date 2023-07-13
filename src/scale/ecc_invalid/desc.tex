@@ -39,7 +39,7 @@ be recovered by some other means.
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
-reads the following input
+ reads the following  input (one field per line)
 
 \begin{itemize}
 \item $\PUB{P_x}$,
@@ -52,7 +52,9 @@ reads the following input
 \end{itemize}
 
 \noindent
-from \lstinline[language={bash}]{stdin} and writes the following output
+from \lstinline[language={bash}]{stdin},
+and 
+writes the following output (one field per line)
 
 \begin{itemize}
 \item $\PUB{Q_x}$,
@@ -65,9 +67,9 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \end{itemize}
 
 \noindent
-to \lstinline[language={bash}]{stdout}, in both cases with one field per 
-line.  Execution continues this way, i.e., by repeatedly reading input 
-then writing output, until it is forcibly terminated (or crashes).  
+to   \lstinline[language={bash}]{stdout}.
+Execution continues this way, i.e., repeatedly reading input then writing 
+output, until $\PARTY{D}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}

@@ -41,7 +41,7 @@ defect: the $( 64 \times 64 )$-bit integer multiplier implementation has a
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
-reads the following input
+ reads the following  input
 
 \begin{itemize}
 \item $\PUB{c}$,
@@ -50,7 +50,9 @@ reads the following input
 \end{itemize}
 
 \noindent
-from \lstinline[language={bash}]{stdin} and writes the following output
+from \lstinline[language={bash}]{stdin},
+and 
+writes the following output
 
 \begin{itemize}
 \item $\PUB{m}$,
@@ -59,9 +61,9 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \end{itemize}
 
 \noindent
-to \lstinline[language={bash}]{stdout}, in both cases with one field per 
-line.  Execution continues this way, i.e., by repeatedly reading input 
-then writing output, until it is forcibly terminated (or crashes).  
+to   \lstinline[language={bash}]{stdout} (using one field per line in both cases).  
+Execution continues this way, i.e., repeatedly reading input then writing 
+output, until $\PARTY{D}$ is forcibly terminated (or crashes).  
 Note that:
 
 \begin{itemize}

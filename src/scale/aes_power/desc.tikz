@@ -52,21 +52,21 @@
 %                            node [above]             {} 
 %                            (D.north -| E.north) ;
  \draw [dashed,>=stealth,->] (D.south) to [bend left]  
-                             node [below]             {power consumption} 
+                             node [below]             {$\LEAK  \models \mbox{power consumption}$}
                              (D.south -| E.south) ;
 
 % computation
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                                  node [right,anchor=west] {$\PUB{c} = \SCOPE{    \ID{AES}}{\ALG{Enc}}(      \PRI{\CHAL{k}}, \PUB{m}                   )$}
+                                  node [right,anchor=west] {$\PUB{c} = \SCOPE{    \ID{AES-128}}{\ALG{Enc}}(      \PRI{\CHAL{k}}, \PUB{m}                   )$}
                                   (D.330) ;
   }%
   {1}{\draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                                  node [right,anchor=west] {$\PUB{m} = \SCOPE{    \ID{AES}}{\ALG{Dec}}(      \PRI{\CHAL{k}}, \PUB{c}                   )$}
+                                  node [right,anchor=west] {$\PUB{m} = \SCOPE{    \ID{AES-128}}{\ALG{Dec}}(      \PRI{\CHAL{k}}, \PUB{c}                   )$}
                                   (D.330) ;
   }%
   {2}{\draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                                  node [right,anchor=west] {$\PUB{m} = \SCOPE{\ID{XTS-AES}}{\ALG{blockDec}}( \PRI{\CHAL{k}}, \PRI{c}, \PUB{i}, \PUB{j} )$}
+                                  node [right,anchor=west] {$\PUB{m} = \SCOPE{\ID{XTS-AES-128}}{\ALG{blockDec}}( \PRI{\CHAL{k}}, \PRI{c}, \PUB{i}, \PUB{j} )$}
                                   (D.330) ;
   }%
 }%

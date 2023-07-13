@@ -71,9 +71,9 @@ int main( int argc, char* argv[] ) {
   OpenSSL_add_all_algorithms();
 
   while( true ) {
-    // 1. consume input
+    int lambda, l;
 
-    int l;
+    // 1. consume input
 
     CONSUME( fscanf( stdin, "%d\n", &l ), 1 );
 
@@ -96,7 +96,7 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation
 
-    int lambda = dec( m, iv, c, l, k_enc, 4 * AES_128_NK, k_mac, 4 * AES_128_NK );
+    lambda = dec( m, iv, c, l, k_enc, 4 * AES_128_NK, k_mac, 4 * AES_128_NK );
 
     #if CONF( DEBUG )
     fprintf( stderr, "iv    = " ); octetstr_wr( stderr,    iv, 1 * 4 * AES_128_NB );

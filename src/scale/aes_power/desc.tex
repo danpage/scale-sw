@@ -92,7 +92,7 @@ and supplied to $\PARTY{D}$).
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
 This executable simulates the attack target $\PARTY{D}$.  When executed it 
-reads the following input
+ reads the following  input (one field per line)
 
 \begin{itemize}
 \IfStrEqCase{CONF(VERSION,CID)}{%
@@ -118,7 +118,9 @@ reads the following input
 \end{itemize}
 
 \noindent
-from \lstinline[language={bash}]{stdin} and writes the following output
+from \lstinline[language={bash}]{stdin},
+and 
+writes the following output (one field per line)
 
 \begin{itemize}
       \item $\LEAK$,
@@ -142,9 +144,9 @@ from \lstinline[language={bash}]{stdin} and writes the following output
 \end{itemize}
 
 \noindent
-to \lstinline[language={bash}]{stdout}, in both cases with one field per 
-line.  Execution continues this way, i.e., by repeatedly reading input 
-then writing output, until it is forcibly terminated (or crashes).  
+to   \lstinline[language={bash}]{stdout}.
+Execution continues this way, i.e., repeatedly reading input then writing 
+output, until $\PARTY{D}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
@@ -244,15 +246,16 @@ to support selection or fine-tuning of parameters for a subsequent attack.
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{$\PARTY{R}$ is identical to $\PARTY{D}$, bar
-                                     accepting input of the form
+  {0}{$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+      reads the following  input (one field per line)
   }%
-  {1}{$\PARTY{R}$ is identical to $\PARTY{D}$, bar
-                                     accepting input of the form
+  {1}{$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+      reads the following  input (one field per line)
   }%
   {2}{In this case, $\PARTY{R}$ is a prototype version of $\PARTY{D}$ used
       to develop and debug the encryption mechanism: although identical in
-      terms of power consumption, it accepts   input of the form
+      terms of power consumption, it 
+      reads the following  input (one field per line)
   }%  
 }%
 
@@ -293,7 +296,7 @@ also provided.
 \end{itemize}
 
 \noindent
-on \lstinline[language={bash}]{stdin} (again with one field per line):
+from \lstinline[language={bash}]{stdin}:
 in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{{\em chosen} cipher key $\PUB{\REPL{k}}$ 

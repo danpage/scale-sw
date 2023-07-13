@@ -16,26 +16,27 @@
  \node [right of=E,draw,party] (D) {$\PARTY{D}$} ;
 
 % embedded material
- \node at (D.south east) [anchor=south east,draw,rectangle] {\tiny $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{p}, \PRI{\CHAL{q}, \PRI{\CHAL{d} }}$} ;
+ \node at (D.south east) [anchor=south east,draw,rectangle] {\tiny $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{p}}, \PRI{\CHAL{q}}, \PRI{\CHAL{d} }}$} ;
 
 %   direct input and output
  \draw [       >=stealth,->] (E.30)    to              
-                             node [above]             {$\TUPLE{ \PUB{l}, \PUB{c} }$} 
+                             node [above]             {$\PUB{m}$}
                              (E.30    -| D.west)  ;
-%\draw [       >=stealth,<-] (E.330)   to              
-%                            node [below]             {} 
-%                            (E.330   -| D.west)  ;
+ \draw [       >=stealth,<-] (E.330)   to              
+                             node [below]             {$\PUB{\SIG}$} 
+                             (E.330   -| D.west)  ;
+
 % indirect input and output
-%\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
-%                            node [above]             {} 
-%                            (D.north -| E.north) ;
+ \draw [dashed,>=stealth,<-] (D.north) to [bend right] 
+                             node [above]             {$\FAULT \models \mbox{power supply}$}
+                             (D.north -| E.north) ;
  \draw [dashed,>=stealth,->] (D.south) to [bend left]  
-                             node [below]             {result code} 
+                             node [below]             {$\LEAK  \models \mbox{execution latency}$}
                              (D.south -| E.south) ;
 
 % computation
  \draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                             node [right,anchor=west] {$\PRI{m} = \ALG{RSAES-OAEP-Decrypt}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }, \PUB{c} )$}
+                             node [right,anchor=west] {$\PRI{\SIG} = \SCOPE{\ID{RSA}}{\ALG{Sig}}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{p}}, \PRI{\CHAL{q}}, \PRI{\CHAL{d}} }, \PUB{m} )$}
                              (D.330) ;
 
 % =============================================================================

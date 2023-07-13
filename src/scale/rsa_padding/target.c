@@ -305,14 +305,14 @@ int main( int argc, char* argv[] ) {
   OpenSSL_add_all_algorithms();
 
   while( true ) {
+    int lambda;
+
     // 1. consume input
   
     CONSUME( n_l = octetstr_rd( stdin, l, k ) );
     CONSUME( n_c = octetstr_rd( stdin, c, k ) );
 
-    // 2. execute operation
-
-    int lambda;
+    // 2. execute operation    
 
     if( !( lambda = setjmp( env ) ) ) {
       n_m = rsaes_oaep_decrypt( m, N, d, c, n_c, l, n_l ); lambda = RESULT_CODE_0;

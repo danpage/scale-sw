@@ -71,6 +71,8 @@ int main( int argc, char* argv[] ) {
   mpz_inits( N, d, c, m, NULL );
   
   while( true ) {
+    int lambda;
+
     // 1. consume input
     
     CONSUME( gmp_scanf( "%ZX", c ), 1 );
@@ -90,9 +92,9 @@ int main( int argc, char* argv[] ) {
     mrz_init( &p, N );
     mrz_import( &p, t, c );
 
-    int lambda  = mrz_mul( &p, t, t, p.rho_2 );
-        lambda += mrz_exp( &p, t, t, d       );
-        lambda += mrz_mul( &p, t, t, p.rho_0 );
+    lambda  = mrz_mul( &p, t, t, p.rho_2 );
+    lambda += mrz_exp( &p, t, t, d       );
+    lambda += mrz_mul( &p, t, t, p.rho_0 );
 
     mrz_export( &p, m, t );
     mrz_fini( &p    );
