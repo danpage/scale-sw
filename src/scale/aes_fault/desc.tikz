@@ -28,7 +28,7 @@
 
 % indirect input and output
  \draw [dashed,>=stealth,<-] (D.north) to [bend right] 
-                             node [above]             {$\FAULT \models \mbox{power supply}$}
+                             node [above]             {$\FAULT \models \mbox{clock glitch}$}
                              (D.north -| E.north) ;
 %\draw [dashed,>=stealth,->] (D.south) to [bend left]  
 %                            node [below]             {} 
