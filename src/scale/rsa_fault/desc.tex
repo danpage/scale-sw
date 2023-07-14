@@ -56,7 +56,10 @@ output, until $\PARTY{D}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item ... % TODO
+\item $\PARTY{D}$ uses a CRT-based implementation of RSA which is computed by
+an external coprocessor which can perform basic arithmetic on large integers.
+\item The fault specification $\FAULT$ induces a fault on this external
+coprocessor.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
