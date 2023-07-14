@@ -19,6 +19,8 @@
  * 2. return number of elapsed cycles
  */
 
+// test comment
+
 int sign( mpz_t sigma, const mpz_t N, const mpz_t p, const mpz_t q, const mpz_t d, const mpz_t m, int delta ) {
   return 0;
 }
