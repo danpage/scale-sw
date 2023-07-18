@@ -236,7 +236,7 @@ int main( int argc, char* argv[] ) {
     // 3. produce output
 
                                    gmp_fprintf( stdout,  "%d\n", lambda );
-                                   gmp_fprintf( stderr, "%ZX\n", sigma  );
+                                   gmp_fprintf( stdout, "%ZX\n", sigma  );
 
     // 4. flush streams
 
