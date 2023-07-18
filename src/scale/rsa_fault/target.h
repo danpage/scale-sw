@@ -13,6 +13,8 @@
 #include "util.h"
 #include "conv.h"
 
+#include "copro.h"
+
 #include <gmp.h>
 
 // ============================================================================

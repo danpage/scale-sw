@@ -17,8 +17,8 @@ CID          = RSA_FAULT
 
 include util.mk
 
-CID_SOURCES  = target.c util.c conv.c
-CID_HEADERS  = target.h util.h conv.h
+CID_SOURCES  = target.c util.c conv.c copro.c
+CID_HEADERS  = target.h util.h conv.h copro.h
 
   GCC_PATHS += -L ${BUILD}
   GCC_PATHS += -I ${BUILD}
