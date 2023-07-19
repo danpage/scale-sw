@@ -8,15 +8,15 @@
 
 \leveldown{Background}
 
-Imagine you encounter a server, denoted $\PARTY{D}$, 
+Imagine you encounter a server, denoted $\PARTY{T}$, 
 which acts as a storage repository for sensor data.  An installation of $50$ 
 or so IoT-class sensor nodes regularly transmit encrypted packets of data to
-$\PARTY{D}$, which stores them for later analysis (iff. they are deemed to be
+$\PARTY{T}$, which stores them for later analysis (iff. they are deemed to be
 valid).  Having already captured some encrypted network traffic transmitted 
 from a particular sensor node to the server, you are tasked with recovering 
 the underlying data.
 By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
 
 \begin{center}
 \input{desc.tikz}
@@ -25,7 +25,7 @@ an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
 \noindent
 That is, in each interaction $\PARTY{E}$ can (adaptively) send 
 a chosen AES ciphertext
-to $\PARTY{D}$; the device
+to $\PARTY{T}$; the device
 
 \begin{enumerate}
 \item decrypts $\PUB{c}$, i.e., computes
@@ -54,9 +54,9 @@ output.
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
 reads the following input
 
 \begin{itemize}
@@ -88,7 +88,7 @@ then writing output, until it is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item To avoid timing attacks, $\PARTY{D}$ makes use of a high-performance
+\item To avoid timing attacks, $\PARTY{T}$ makes use of a high-performance
       yet constant-time AES-128 implementation (operated in CBC mode) that
       is derived from techniques in~\cite{SCALE:KasSch:09};
       this clearly implies $128$-bit block and cipher key lengths.  
@@ -159,7 +159,7 @@ whose decryption, i.e., recovery of $\PRI{\CHAL{m}}$, is the task at hand.
       material $\PRI{\CHAL{m}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

@@ -8,16 +8,16 @@
 
 \leveldown{Background}
 
-Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
+Imagine you are tasked with attacking a server, denoted $\PARTY{T}$, 
 which houses a ``cloned'' $64$-bit MIPS64 processor: the low cost (versus a 
 legitimate alternative) made it an attractive option for the owner, who was
 forced to economise when upgrading an old data center.
-$\PARTY{D}$ is used by several front-line e-commerce servers, which offload
-computation relating to the TLS handshake.  More specifically, $\PARTY{D}$ 
+$\PARTY{T}$ is used by several front-line e-commerce servers, which offload
+computation relating to the TLS handshake.  More specifically, $\PARTY{T}$ 
 is used to compute an RSA decryption (in software, of the pre-master secret)
 whenever RSA-based key exchange is required.
 By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
 
 \begin{center}
 \input{desc.tikz}
@@ -26,11 +26,11 @@ an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
 \noindent
 That is, in each interaction $\PARTY{E}$ can (adaptively) send 
 a chosen RSA ciphertext
-to $\PARTY{D}$; the device will
+to $\PARTY{T}$; the device will
 decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
 and produce 
 the corresponding  plaintext.
-Unfortunately, however, the processor used by $\PARTY{D}$ has an important
+Unfortunately, however, the processor used by $\PARTY{T}$ has an important
 defect: the $( 64 \times 64 )$-bit integer multiplier implementation has a
 (deterministic) bug, meaning the output is incorrect for specific inputs.
 
@@ -38,9 +38,9 @@ defect: the $( 64 \times 64 )$-bit integer multiplier implementation has a
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input
 
 \begin{itemize}
@@ -63,14 +63,14 @@ writes the following output
 \noindent
 to   \lstinline[language={bash}]{stdout} (using one field per line in both cases).  
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).  
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).  
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
+\item $\PARTY{T}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
       representation of multi-precision integers throughout.  Put another 
       way, since $w = 64$, it selects $b = 2^{w} = 2^{64}$.
-\item Rather than a CRT-based approach, $\PARTY{D}$ uses a left-to-right 
+\item Rather than a CRT-based approach, $\PARTY{T}$ uses a left-to-right 
       binary exponentiation~\cite[Section 2.1]{SCALE:Gordon:85} algorithm
       to compute 
       $
@@ -83,7 +83,7 @@ Note that:
       \ALG{MonPro}~\cite[Section 2]{SCALE:KocAcaKal:96} perhaps offers a 
       more direct way to explain this: steps $1$ and $2$ are the integer 
       multiplication and Montgomery reduction written both separately and 
-      abstractly, whereas $\PARTY{D}$ realises them concretely using the 
+      abstractly, whereas $\PARTY{T}$ realises them concretely using the 
       integrated CIOS algorithm.
       } an integer multiplication with a subsequent Montgomery reduction.
 \item Following the notation in~\cite{SCALE:Gordon:85}, $\PRI{\CHAL{d}}$
@@ -103,7 +103,7 @@ Note that:
       We say that $t$ is $\gamma$-poisoned iff. there exists an $i$ st.
       $0 \leq i < n$ and $t_i = \gamma$, i.e., at least one of the limbs 
       is equal to $\gamma$.  Recall that the integer multiplier used by
-      $\PARTY{D}$ is defective: for
+      $\PARTY{T}$ is defective: for
       \[
       \begin{array}{lcl}
       \alpha &=& \RADIX{CONF(POISONED_X,CID)}{CONF(POISONED_N,CID)} \\
@@ -140,7 +140,7 @@ associated with the unknown RSA private key
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }
 $
-embedded in $\PARTY{D}$.
+embedded in $\PARTY{T}$.
 
 % -----------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ embedded in $\PARTY{D}$.
       material $\PRI{\CHAL{d}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

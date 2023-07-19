@@ -17,6 +17,8 @@ import Crypto.Hash.HMAC         as HMAC
 
 import Crypto.PublicKey.RSA     as RSA
 
+# =============================================================================
+
 # ...
 
 CONF_MODE_MK   = 0
@@ -168,3 +170,5 @@ def keygen_rsa( log_N, log_d = None ) :
         e = number.inverse( d, phi ) ; break
 
   return p, q, N, e, d
+
+# =============================================================================

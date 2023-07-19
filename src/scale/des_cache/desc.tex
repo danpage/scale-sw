@@ -8,7 +8,7 @@
 
 \leveldown{Background}
 
-Imagine you encounter a server, denoted $\PARTY{D}$, 
+Imagine you encounter a server, denoted $\PARTY{T}$, 
 which houses an ageing but still operational $32$-bit Katmai model Intel 
 Pentium III processor.  
 A datasheet you find for this processor lists it having a $16$ kilobyte, 
@@ -17,7 +17,7 @@ around $1999$, the server has performed a mission-critical back-office
 role in a banking application: you discover it acts as a primitive form 
 of HSM, performing DES encryption on behalf of front-end clients.
 By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
 
 \begin{center}
 \input{desc.tikz}
@@ -26,23 +26,23 @@ an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
 \noindent
 That is, in each interaction $\PARTY{E}$ can (adaptively) send 
 a chosen DES  plaintext
-to $\PARTY{D}$; the device will
+to $\PARTY{T}$; the device will
 encrypt that  plaintext under the fixed, unknown DES cipher key $\PRI{\CHAL{k}}$,
 and produce 
 the corresponding ciphertext.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{D}$ takes to execute 
+In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
 each operation: it approximates this 
 (keeping in mind there may be some experimental noise) 
-by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{c}$ once 
+by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{c}$ once 
 provided with $\PUB{m}$.
 
 % -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -69,11 +69,11 @@ writes the following output (one field per line)
 \noindent
 to   \lstinline[language={bash}]{stdout}.
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ uses a software implementation of DES, based on that
+\item $\PARTY{T}$ uses a software implementation of DES, based on that
       written by Richard Outerbridge~\cite[Part V]{SCALE:Schneier:06}.
 \item DES has a $64$-bit block length, and, although it notionally accepts 
       a $64$-bit cipher key, the {\em effective} cipher key length is in
@@ -89,7 +89,7 @@ Note that:
       of memory.  Doing so improves efficiency: a look-up table captures 
       the function of an associated S-box {\em plus} the (inefficient) 
       P- and E-permutations.  However, the implementation actually used 
-      by $\PARTY{D}$ differs slightly.  Given each of the look-up table 
+      by $\PARTY{T}$ differs slightly.  Given each of the look-up table 
       entries holds $32$ bits of content, the type of entries has been 
       altered to 
       \lstinline[language=C]{unsigned int}. 
@@ -133,7 +133,7 @@ initial profiling or calibration phase: a common rationale for doing so is
 to support selection or fine-tuning of parameters for a subsequent attack.  
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
-$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -148,7 +148,7 @@ $\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
 
 \noindent
 from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
 {\em chosen} DES cipher key $\PUB{\REPL{k}}$
 to encrypt the
      chosen  DES  plaintext $\PUB{\REPL{m}}$.
@@ -163,7 +163,7 @@ to encrypt the
       material $\PRI{\CHAL{k}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

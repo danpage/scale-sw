@@ -9,30 +9,30 @@
 \leveldown{Background}
 
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{Imagine you are tasked with attacking a device, denoted $\PARTY{D}$.
+  {0}{Imagine you are tasked with attacking a device, denoted $\PARTY{T}$.
       The device is an ISO/IEC 7816 compliant contact-based smart-card: it
       houses an $8$-bit Intel $8051$ processor, and is typically used in a
       larger device as a co-processor module.  For example, it has support
       for secure key generation and storage, and off-load of cryptographic
       operations, such as AES, via a standardised protocol (or API).
 
-      Provided physical access, $\PARTY{E}$ can interact with $\PARTY{D}$
+      Provided physical access, $\PARTY{E}$ can interact with $\PARTY{T}$
       as follows:
   }%
-  {1}{Imagine you are tasked with attacking a device, denoted $\PARTY{D}$.
+  {1}{Imagine you are tasked with attacking a device, denoted $\PARTY{T}$.
       The device is an ISO/IEC 7816 compliant contact-based smart-card: it
       houses an $8$-bit Intel $8051$ processor, and is typically used in a
       larger device as a co-processor module.  For example, it has support
       for secure key generation and storage, and off-load of cryptographic
       operations, such as AES, via a standardised protocol (or API).  When
-      granted physical access, $\PARTY{E}$ can interact with $\PARTY{D}$ 
+      granted physical access, $\PARTY{E}$ can interact with $\PARTY{T}$ 
       as follows:
   }%
-  {2}{Imagine you are tasked with attacking a device, denoted $\PARTY{D}$.
+  {2}{Imagine you are tasked with attacking a device, denoted $\PARTY{T}$.
       The device is a Self Encrypting Disk (SED): the underlying disk only
       ever stores encrypted data, which is encrypted (before writing) and
       decrypted (after reading) using XTS-AES~\cite{SCALE:IEEE:1619:07}.  
-      The decryption of data uses an XTS-AES key embedded in $\PARTY{D}$, 
+      The decryption of data uses an XTS-AES key embedded in $\PARTY{T}$, 
       which is initially derived from a user-selected password $\PRI{p}$, 
       i.e., 
       $
@@ -44,10 +44,10 @@
       \PRI{\CHAL{k}} \stackrel{?}{=} f( \PRI{p'} )
       $ 
       then enforced; if the check fails, the SED refuses all interaction.
-      $\PARTY{E}$ is lucky, and gets one-time access to $\PARTY{D}$ for a
+      $\PARTY{E}$ is lucky, and gets one-time access to $\PARTY{T}$ for a
       limited period of time while it is {\em already} powered-on (meaning 
       the password check has already been performed).  Put another way, 
-      $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+      $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
   }%
 }%
 
@@ -59,39 +59,39 @@
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{That is, in each interaction $\PARTY{E}$ can (adaptively) send 
       a chosen AES  plaintext
-      to $\PARTY{D}$; the device will
+      to $\PARTY{T}$; the device will
                 encrypt that                              plaintext under the fixed, unknown     AES cipher key $\PRI{\CHAL{k}}$,
       and produce 
       the corresponding ciphertext.
   }%
   {1}{That is, in each interaction $\PARTY{E}$ can (adaptively) send 
       a chosen AES ciphertext
-      to $\PARTY{D}$; the device will
+      to $\PARTY{T}$; the device will
                 decrypt that                             ciphertext under the fixed, unknown     AES cipher key $\PRI{\CHAL{k}}$,
       and produce 
       the corresponding  plaintext.
   }%
   {2}{That is, in each interaction $\PARTY{E}$ can (adaptively) send 
       a block and sector address (the latter of which doubles as the XTS-AES tweak)
-      to $\PARTY{D}$; the device will
+      to $\PARTY{T}$; the device will
       read then decrypt the selected but unknown XTS-AES ciphertext under the fixed, unknown XTS-AES        key $\PRI{\CHAL{k}}$ (per \cite[Section 5.4.1]{SCALE:IEEE:1619:07}),
       and produce 
       the corresponding  plaintext.
   }%
 }%
-Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{D}$,
+Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{T}$,
 and can therefore measure the power consumed during each interaction: this
 yields at least one sample per instruction executed due to the high sample 
 rate of the oscilloscope used (relative to the clock frequency demanded by 
-and supplied to $\PARTY{D}$).
+and supplied to $\PARTY{T}$).
 
 % -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -146,11 +146,11 @@ writes the following output (one field per line)
 \noindent
 to   \lstinline[language={bash}]{stdout}.
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ uses an AES-128 implementation,
+\item $\PARTY{T}$ uses an AES-128 implementation,
       which clearly implies $128$-bit block and cipher key lengths;
       following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
       fact that 
@@ -174,7 +174,7 @@ Note that:
       be used in the reverse order.  One possibility would be to store the
       last round key as well as the cipher key, and evolve this backward
       through each round key.  To avoid the increased demand on (secure,
-      non-volatile) storage, $\PARTY{D}$ instead opts to first evolve the 
+      non-volatile) storage, $\PARTY{T}$ instead opts to first evolve the 
       cipher key forward into the last round key, {\em then} evolve this 
       backward through each round key.
 }{}%
@@ -183,15 +183,15 @@ Note that:
       be used in the reverse order.  One possibility would be to store the
       last round key as well as the cipher key, and evolve this backward
       through each round key.  To avoid the increased demand on (secure,
-      non-volatile) storage, $\PARTY{D}$ instead opts to first evolve the 
+      non-volatile) storage, $\PARTY{T}$ instead opts to first evolve the 
       cipher key forward into the last round key, {\em then} evolve this 
       backward through each round key.
 }{}%
 \IfStrEq{CONF(VERSION,CID)}{2}{%
-\item The underlying disk used by $\PARTY{D}$ has a $\SI{64}{\gibi\byte}$
+\item The underlying disk used by $\PARTY{T}$ has a $\SI{64}{\gibi\byte}$
       capacity and uses Advanced Format (AF) $\SI{4}{\kibi\byte}$ sectors.
       As such, each of the $16777216$ sectors contains $256$ blocks of AES 
-      ciphertext: valid use of $\PARTY{D}$ therefore demands
+      ciphertext: valid use of $\PARTY{T}$ therefore demands
 
       \begin{itemize}
       \item the block  address satisfies
@@ -208,11 +208,11 @@ Note that:
       \end{itemize}
            
       \noindent
-      $\PARTY{E}$ can use {\em any} $j$ and $i$ as input to $\PARTY{D}$: if 
+      $\PARTY{E}$ can use {\em any} $j$ and $i$ as input to $\PARTY{T}$: if 
       either is invalid, it uses a null ciphertext (i.e., $16$ zero bytes, 
       vs. a ciphertext read from the disk itself) but otherwise functions 
       as normal.
-\item $\PARTY{D}$ pre-computes the $256$ possibilities of $\alpha^j$, which 
+\item $\PARTY{T}$ pre-computes the $256$ possibilities of $\alpha^j$, which 
       are stored in a $\SI{4096}{\byte}$ look-up table.  As a result, it is 
       reasonable to assume AES invocations dominate the computation it will
       perform for each interaction.
@@ -246,13 +246,13 @@ to support selection or fine-tuning of parameters for a subsequent attack.
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+  {0}{$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
       reads the following  input (one field per line)
   }%
-  {1}{$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+  {1}{$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
       reads the following  input (one field per line)
   }%
-  {2}{In this case, $\PARTY{R}$ is a prototype version of $\PARTY{D}$ used
+  {2}{In this case, $\PARTY{R}$ is a prototype version of $\PARTY{T}$ used
       to develop and debug the encryption mechanism: although identical in
       terms of power consumption, it 
       reads the following  input (one field per line)
@@ -297,7 +297,7 @@ also provided.
 
 \noindent
 from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{{\em chosen} cipher key $\PUB{\REPL{k}}$ 
       to encrypt the
@@ -323,7 +323,7 @@ in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
       material $\PRI{\CHAL{k}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

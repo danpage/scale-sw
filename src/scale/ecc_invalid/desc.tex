@@ -8,10 +8,10 @@
 
 \leveldown{Background}
 
-Imagine you own a cryptographic accelerator, denoted $\PARTY{D}$: it is used
+Imagine you own a cryptographic accelerator, denoted $\PARTY{T}$: it is used
 as a low-cost HSM in your data center, supporting secure key generation and 
 storage plus off-load of various cryptographic operations via a standardised 
-protocol (or API).  $\PARTY{D}$ is primarily used to perform elliptic curve
+protocol (or API).  $\PARTY{T}$ is primarily used to perform elliptic curve
 scalar multiplication, meaning you can interact with it as follows:
 
 \begin{center}
@@ -21,12 +21,12 @@ scalar multiplication, meaning you can interact with it as follows:
 \noindent
 That is, in each interaction you can (adaptively) send 
 a point
-to $\PARTY{D}$; the accelerator will
+to $\PARTY{T}$; the accelerator will
 multiply that point by the fixed, unknown scalar $\PRI{\CHAL{k}}$,
 and produce 
 the corresponding point.
 Although it currently functions correctly, an electrical fault demands that
-$\PARTY{D}$ is replaced.  However, doing so presents a serious problem: the 
+$\PARTY{T}$ is replaced.  However, doing so presents a serious problem: the 
 API cannot be used to export $\PRI{\CHAL{k}}$, so a replacement will have 
 to be generated and used thereafter.  This means compatibility with various
 existing data sets will be lost, {\em unless} $\PRI{\CHAL{k}}$ itself can 
@@ -36,9 +36,9 @@ be recovered by some other means.
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -69,11 +69,11 @@ writes the following output (one field per line)
 \noindent
 to   \lstinline[language={bash}]{stdout}.
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ uses an left-to-right binary scalar multiplication
+\item $\PARTY{T}$ uses an left-to-right binary scalar multiplication
       (i.e., an additive analogue of~\cite[Section 2.1]{SCALE:Gordon:85}) to 
       compute $\PUB{Q} = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$: it assumes use of 
       the
@@ -89,7 +89,7 @@ Note that:
       \]
       for standardised~\cite{SCALE:FIPS:186:00} domain parameters $\DOM{p}$, 
       $\DOM{a_4}$ and $\DOM{a_6}$.
-\item More concretely, $\PARTY{D}$ uses OpenSSL to support arithmetic on the
+\item More concretely, $\PARTY{T}$ uses OpenSSL to support arithmetic on the
       elliptic curve.  You can browse the associated source code at
       \[
       \mbox{\url{http://github.com/openssl}}
@@ -100,7 +100,7 @@ Note that:
       \lstinline[language={C}]{ec_GFp_simple_dbl}
       to realise the (additive) group operation, i.e., to compute either a
       point addition or doubling, within the scalar multiplication.
-\item Crucially, $\PARTY{D}$ applies {\em no} checks to either the input or
+\item Crucially, $\PARTY{T}$ applies {\em no} checks to either the input or
       output points (e.g., to check whether 
       $
       \PUB{P} \in E( \DOM{\B{F}_p} )
@@ -111,7 +111,7 @@ Note that:
       $
       \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}
       $
-      does yield the point at infinity, $\PARTY{D}$ therefore signals this 
+      does yield the point at infinity, $\PARTY{T}$ therefore signals this 
       fact by producing
       \[
       \PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \TUPLE{ 0, 0 }
@@ -130,7 +130,7 @@ Note that:
       material $\PRI{\CHAL{k}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

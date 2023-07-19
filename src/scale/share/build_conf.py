@@ -6,6 +6,8 @@
 
 import util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap
 
+# =============================================================================
+
 def apply_fixups() :
   # apply global fixups
 
@@ -46,21 +48,7 @@ def apply_fixups() :
     # update module name->object map
     del sys.modules[ 'build' ]
 
-def dump() :
-  ( fd, pr ) = util.xopen( os.path.join( args.output, 'conf' + '.' + args.mode ), 'w' )
-
-  for section in conf.sections() :
-    for option in conf.options( section ) :
-      val = conf.get( option, section )
-
-      if   ( args.mode == 'mk'  ) :
-        pr( util.conf_str( util.CONF_MODE_MK,  util.CONF_TYPE_CONF, section, option, val ) )
-      elif ( args.mode == 'sh'  ) :
-        pr( util.conf_str( util.CONF_MODE_SH,  util.CONF_TYPE_CONF, section, option, val ) )
-      elif ( args.mode == 'arg' ) :
-        pr( util.conf_str( util.CONF_MODE_ARG, util.CONF_TYPE_CONF, section, option, val ) )
-
-  fd.close()
+# -----------------------------------------------------------------------------
 
 if ( __name__ == '__main__' ) :
   # parse command-line args
@@ -80,4 +68,21 @@ if ( __name__ == '__main__' ) :
 
   # execute
 
-  apply_fixups() ; dump()
+  apply_fixups()
+
+  ( fd, pr ) = util.xopen( os.path.join( args.output, 'conf' + '.' + args.mode ), 'w' )
+
+  for section in conf.sections() :
+    for option in conf.options( section ) :
+      val = conf.get( option, section )
+
+      if   ( args.mode == 'mk'  ) :
+        pr( util.conf_str( util.CONF_MODE_MK,  util.CONF_TYPE_CONF, section, option, val ) )
+      elif ( args.mode == 'sh'  ) :
+        pr( util.conf_str( util.CONF_MODE_SH,  util.CONF_TYPE_CONF, section, option, val ) )
+      elif ( args.mode == 'arg' ) :
+        pr( util.conf_str( util.CONF_MODE_ARG, util.CONF_TYPE_CONF, section, option, val ) )
+
+  fd.close()
+
+# =============================================================================

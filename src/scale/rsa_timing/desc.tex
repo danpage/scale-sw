@@ -8,14 +8,14 @@
 
 \leveldown{Background}
 
-Imagine you are tasked with attacking a server, denoted $\PARTY{D}$, 
+Imagine you are tasked with attacking a server, denoted $\PARTY{T}$, 
 which houses a $64$-bit Intel Core2 processor.  
-$\PARTY{D}$ is used by several front-line e-commerce servers, which offload
-computation relating to TLS handshakes.  More specifically, $\PARTY{D}$ is 
+$\PARTY{T}$ is used by several front-line e-commerce servers, which offload
+computation relating to TLS handshakes.  More specifically, $\PARTY{T}$ is 
 used to compute an RSA decryption (in software, of the pre-master secret)
 whenever RSA-based key exchange is required.
 By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
 
 \begin{center}
 \input{desc.tikz}
@@ -24,23 +24,23 @@ an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
 \noindent
 That is, in each interaction $\PARTY{E}$ can (adaptively) send 
 a chosen RSA ciphertext
-to $\PARTY{D}$; the device will
+to $\PARTY{T}$; the device will
 decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
 and produce 
 the corresponding plaintext.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{D}$ takes to execute 
+In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
 each operation: it approximates this 
 (keeping in mind there may be some experimental noise) 
-by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{m}$ once
+by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{m}$ once
 provided with $\PUB{c}$.
 
 % -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -67,14 +67,14 @@ writes the following output (one field per line)
 \noindent
 to   \lstinline[language={bash}]{stdout}.
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
+\item $\PARTY{T}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
       representation of multi-precision integers throughout.  Put another 
       way, since $w = 64$, it selects $b = 2^{w} = 2^{64}$.
-\item Rather than a CRT-based approach, $\PARTY{D}$ uses a left-to-right 
+\item Rather than a CRT-based approach, $\PARTY{T}$ uses a left-to-right 
       binary exponentiation~\cite[Section 2.1]{SCALE:Gordon:85} algorithm
       to compute 
       $
@@ -87,7 +87,7 @@ Note that:
       \ALG{MonPro}~\cite[Section 2]{SCALE:KocAcaKal:96} perhaps offers a 
       more direct way to explain this: steps $1$ and $2$ are the integer 
       multiplication and Montgomery reduction written both separately and 
-      abstractly, whereas $\PARTY{D}$ realises them concretely using the 
+      abstractly, whereas $\PARTY{T}$ realises them concretely using the 
       integrated CIOS algorithm.
       } an integer multiplication with a subsequent Montgomery reduction.
 \item Following the notation in~\cite{SCALE:Gordon:85}, $\PRI{\CHAL{d}}$
@@ -127,7 +127,7 @@ associated with the unknown RSA private key
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
 $
-embedded in $\PARTY{D}$.
+embedded in $\PARTY{T}$.
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
@@ -136,7 +136,7 @@ initial profiling or calibration phase: a common rationale for doing so is
 to support selection or fine-tuning of parameters for a subsequent attack.  
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
-$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -154,7 +154,7 @@ $\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
 
 \noindent
 from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
 {\em chosen} RSA private key $\TUPLE{ \PUB{\REPL{N}}, \PUB{\REPL{d}} }$ 
 to decrypt the
      chosen  RSA  ciphertext $\PUB{\REPL{c}}$.
@@ -171,7 +171,7 @@ correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
       material $\PRI{\CHAL{d}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

@@ -29,7 +29,7 @@ vpath %.c ${BUILD}
 
 # -----------------------------------------------------------------------------
 
-${BUILD}/%.D : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}
+${BUILD}/%.T : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}
 	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	@$(call FIXUP_SYMBOLS, ${@})
 

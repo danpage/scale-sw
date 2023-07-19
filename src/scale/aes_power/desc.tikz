@@ -13,61 +13,61 @@
 
 % adversary and target device
  \node [                party] (E) {$\PARTY{E}$} ;
- \node [right of=E,draw,party] (D) {$\PARTY{D}$} ;
+ \node [right of=E,draw,party] (T) {$\PARTY{T}$} ;
 
 % embedded material
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{\node at (D.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}}                                          $} ;}
-  {1}{\node at (D.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}}                                          $} ;}
-  {2}{\node at (D.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}} = \PRI{\CHAL{k}_1} \CONS \PRI{\CHAL{k}_2}$} ;}
+  {0}{\node at (T.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}}                                          $} ;}
+  {1}{\node at (T.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}}                                          $} ;}
+  {2}{\node at (T.south east) [anchor=south east,draw,rectangle] {\tiny $\PRI{\CHAL{k}} = \PRI{\CHAL{k}_1} \CONS \PRI{\CHAL{k}_2}$} ;}
 }%
 
 %   direct input and output
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\draw [       >=stealth,->] (E.30)    to              
                                   node [above]             {$\PUB{m}$} 
-                                  (E.30    -| D.west)  ;
+                                  (E.30    -| T.west)  ;
       \draw [       >=stealth,<-] (E.330)   to              
                                   node [below]             {$\PUB{c}$} 
-                                  (E.330   -| D.west)  ;
+                                  (E.330   -| T.west)  ;
   }%
   {1}{\draw [       >=stealth,->] (E.30)    to              
                                   node [above]             {$\PUB{c}$} 
-                                  (E.30    -| D.west)  ;
+                                  (E.30    -| T.west)  ;
       \draw [       >=stealth,<-] (E.330)   to              
                                   node [below]             {$\PUB{m}$} 
-                                  (E.330   -| D.west)  ;
+                                  (E.330   -| T.west)  ;
   }%
   {2}{\draw [       >=stealth,->] (E.30)    to              
                                   node [above]             {$\TUPLE{ \PUB{j}, \PUB{i} }$} 
-                                  (E.30    -| D.west)  ;
+                                  (E.30    -| T.west)  ;
       \draw [       >=stealth,<-] (E.330)   to              
                                   node [below]             {$\PUB{m}$} 
-                                  (E.330   -| D.west)  ;
+                                  (E.330   -| T.west)  ;
   }%
 }%
 
 % indirect input and output
-%\draw [dashed,>=stealth,<-] (D.north) to [bend right] 
+%\draw [dashed,>=stealth,<-] (T.north) to [bend right] 
 %                            node [above]             {} 
-%                            (D.north -| E.north) ;
- \draw [dashed,>=stealth,->] (D.south) to [bend left]  
+%                            (T.north -| E.north) ;
+ \draw [dashed,>=stealth,->] (T.south) to [bend left]  
                              node [below]             {$\LEAK  \models \mbox{power consumption}$}
-                             (D.south -| E.south) ;
+                             (T.south -| E.south) ;
 
 % computation
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{\draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
+  {0}{\draw [       >=stealth,->] (T.30)    to [bend left,in=90,out=90,looseness=2] 
                                   node [right,anchor=west] {$\PUB{c} = \SCOPE{    \ID{AES-128}}{\ALG{Enc}}(      \PRI{\CHAL{k}}, \PUB{m}                   )$}
-                                  (D.330) ;
+                                  (T.330) ;
   }%
-  {1}{\draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
-                                  node [right,anchor=west] {$\PUB{m} = \SCOPE{    \ID{AES-128}}{\ALG{Dec}}(      \PRI{\CHAL{k}}, \PUB{c}                   )$}
-                                  (D.330) ;
+  {1}{\draw [       >=stealth,->] (T.30)    to [bend left,in=90,out=90,looseness=2] 
+                                  node [right,anchor=west] {$\PUB{m} = \SCOPE{    \ID{AES-128}}{\ALG{Tec}}(      \PRI{\CHAL{k}}, \PUB{c}                   )$}
+                                  (T.330) ;
   }%
-  {2}{\draw [       >=stealth,->] (D.30)    to [bend left,in=90,out=90,looseness=2] 
+  {2}{\draw [       >=stealth,->] (T.30)    to [bend left,in=90,out=90,looseness=2] 
                                   node [right,anchor=west] {$\PUB{m} = \SCOPE{\ID{XTS-AES-128}}{\ALG{blockDec}}( \PRI{\CHAL{k}}, \PRI{c}, \PUB{i}, \PUB{j} )$}
-                                  (D.330) ;
+                                  (T.330) ;
   }%
 }%
 

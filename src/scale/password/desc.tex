@@ -8,10 +8,10 @@
 
 \leveldown{Background}
 
-A given device, denoted $\PARTY{D}$, 
+A given device, denoted $\PARTY{T}$, 
 implements a basic access control mechanism: in order to access the device
 (e.g., log into it), a user must first provide the correct password (i.e., 
-a guess matching the actual password embedded in $\PARTY{D}$).  
+a guess matching the actual password embedded in $\PARTY{T}$).  
 Once in posession of the device, any such user, e.g., 
 an attacker $\PARTY{E}$, can interact with it as follows:
 
@@ -22,22 +22,22 @@ an attacker $\PARTY{E}$, can interact with it as follows:
 \noindent
 That is, in each interaction $\PARTY{E}$ can (adaptively) send 
 a chosen password guess
-to $\PARTY{D}$; the device will
+to $\PARTY{T}$; the device will
 perform a comparison with the fixed, unknown password $\PRI{\CHAL{P}}$ 
 and produce 
 a result code detailing whether or not the two match.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{D}$ takes to execute 
+In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
 each operation: it does so
-by simply timing how long $\PARTY{D}$ takes to respond with $\PUB{r}$ once
+by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{r}$ once
 provided with $\PUB{G}$.
 
 % -----------------------------------------------------------------------------
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -71,16 +71,16 @@ writes the following output (one field per line)
 \noindent
 to   \lstinline[language={bash}]{stdout}.
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
 \item Given the scenario, notice that even if $\PUB{r}$ were not produced 
       as output, $\PARTY{E}$ could still learn whether or not their guess 
-      was correct: if the guess is incorrect then access to $\PARTY{D}$ 
+      was correct: if the guess is incorrect then access to $\PARTY{T}$ 
       will denied, whereas if the guess is correct then access is granted.
 \item The comparison between $\PRI{\CHAL{P}}$ and $\PUB{G}$ is implemented 
-      by $\PARTY{D}$ as follows:
+      by $\PARTY{T}$ as follows:
 
       \begin{algorithm}[H]
       \If{$|\PRI{\CHAL{P}}| \neq |\PUB{G}|$} {
@@ -102,7 +102,7 @@ initial profiling or calibration phase: a common rationale for doing so is
 to support selection or fine-tuning of parameters for a subsequent attack.  
 With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
 also provided.
-$\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -131,7 +131,7 @@ $\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
 
 \noindent
 on \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{D}$, this means $\PARTY{R}$ uses the
+in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
 {\em chosen} password $\PUB{\REPL{P}}$
 for comparison with the
      chosen  guess    $\PUB{\REPL{G}}$.
@@ -145,7 +145,7 @@ for comparison with the
       material $\PRI{\CHAL{P}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

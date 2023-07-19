@@ -58,7 +58,7 @@
 % -----------------------------------------------------------------------------
 
 \providecommandx{\DESCINTRO}[5][1]{%
-  An attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+  An attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
   
   \begin{center}
   \input{desc.tikz}
@@ -68,16 +68,16 @@
   An adversary
   $\PARTY{E}$
   interacts with
-  $\PARTY{D}$,
+  $\PARTY{T}$,
   which stores the embedded, security-critical data (#2).
   Each potentially adaptive interaction involves the following steps:
   1) $\PARTY{E}$
      provides some  input (#3) to
-     $\PARTY{D}$,
-  2) $\PARTY{D}$
+     $\PARTY{T}$,
+  2) $\PARTY{T}$
      performs the computation detailed (i.e., #4), 
      then, finally,
-  3) $\PARTY{D}$
+  3) $\PARTY{T}$
      provides some output (#5) to
      $\PARTY{E}$.
   \IfStrEqCase{#1}{%
@@ -85,14 +85,14 @@
                  can {\em also} 
                  observe (i.e., measure)
                  the computation performed by
-                 $\PARTY{D}$,
+                 $\PARTY{T}$,
                  so attempts to exploit this fact.
     }%
          {fault}{$\PARTY{E}$
                  can {\em also} 
                  induce a fault during 
                  the computation performed by
-                 $\PARTY{D}$,
+                 $\PARTY{T}$,
                  so attempts to exploit this fact 
     }%
     {leak+fault}{$\PARTY{E}$
@@ -101,7 +101,7 @@
                  {\em and}
                  induce a fault during  
                  the computation performed by
-                 $\PARTY{D}$,
+                 $\PARTY{T}$,
                  so attempts to exploit this fact.
     }%
   }%
@@ -120,7 +120,7 @@
   using one field per line.
 }%
 \providecommandx{\DESCMATERIALD}[2]{%
-  This executable simulates the attack target $\PARTY{D}$.  When executed it 
+  This executable simulates the attack target $\PARTY{T}$.  When executed it 
    reads the following  input (one field per line)
   
   \begin{itemize}
@@ -139,7 +139,7 @@
   \noindent
   to   \lstinline[language={bash}]{stdout}.
   Execution continues this way, i.e., repeatedly reading input then writing 
-  output, until $\PARTY{D}$ is forcibly terminated (or crashes).  
+  output, until $\PARTY{T}$ is forcibly terminated (or crashes).  
 }%
 \providecommandx{\DESCMATERIALR}[1]{%
   In many side-channel and fault attacks, the attacker is able to perform an 
@@ -147,7 +147,7 @@
   to support selection or fine-tuning of parameters for a subsequent attack.  
   With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
   also provided.
-  $\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+  $\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
    reads the following  input (one field per line)
   
   \begin{itemize}

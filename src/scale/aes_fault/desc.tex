@@ -8,14 +8,14 @@
 
 \leveldown{Background}
 
-Imagine you are tasked with attacking a device, denoted $\PARTY{D}$, 
+Imagine you are tasked with attacking a device, denoted $\PARTY{T}$, 
 which houses an $8$-bit Intel $8051$ processor.
-$\PARTY{D}$ represents an ISO/IEC 7816 compliant contact-based smart-card
+$\PARTY{T}$ represents an ISO/IEC 7816 compliant contact-based smart-card
 chip, used within larger devices as a co-processor module: it has support
 for secure key generation and storage, plus off-load of some cryptographic 
 operations, such as AES, via a standardised protocol (or API).
 By leveraging physical access, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
 
 \begin{center}
 \input{desc.tikz}
@@ -24,14 +24,14 @@ an attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
 \noindent
 That is, in each interaction $\PARTY{E}$ can (adaptively) send 
 a chosen AES  plaintext
-to $\PARTY{D}$; the device will
+to $\PARTY{T}$; the device will
 encrypt that  plaintext under the fixed, unknown AES cipher key $\PRI{\CHAL{k}}$,
 and produce 
 the corresponding ciphertext.
-Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{D}$.
+Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{T}$.
 Using an irregular clock signal (e.g., via some form of glitch to disrupt 
-regular oscillation) causes $\PARTY{D}$ to malfunction.  One malfunction, 
-or fault, can be induced per interaction with $\PARTY{D}$: it will act to 
+regular oscillation) causes $\PARTY{T}$ to malfunction.  One malfunction, 
+or fault, can be induced per interaction with $\PARTY{T}$: it will act to 
 randomise one element of the state matrix used by AES, at a chosen point 
 during the associated encryption operation.
 
@@ -39,9 +39,9 @@ during the associated encryption operation.
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
+This executable simulates the attack target $\PARTY{T}$.  When executed it 
  reads the following  input (one field per line)
 
 \begin{itemize}
@@ -68,11 +68,11 @@ writes the following output (one field per line)
 \noindent
 to   \lstinline[language={bash}]{stdout}.
 Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).
+output, until $\PARTY{T}$ is forcibly terminated (or crashes).
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ uses an AES-128 implementation,
+\item $\PARTY{T}$ uses an AES-128 implementation,
       which clearly implies $128$-bit block and cipher key lengths;
       following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
       fact that 
@@ -179,7 +179,7 @@ Note that:
       material $\PRI{\CHAL{k}}$.  
       When executed using a command of the form
       \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D|}
+      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
       \]
       the attack should be invoked on the simulated target named (not some
       hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 

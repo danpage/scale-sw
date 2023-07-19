@@ -6,6 +6,8 @@
 
 import util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap, Crypto.Hash.SHA as SHA
 
+# =============================================================================
+
 def build_conf() :
   # build parameters for this user
 
@@ -132,6 +134,8 @@ def build_exam() :
 
   fd.close()
 
+# -----------------------------------------------------------------------------
+
 if ( __name__ == '__main__' ) :
   # parse command-line args
 
@@ -168,3 +172,5 @@ if ( __name__ == '__main__' ) :
     build_conf()
   elif ( args.mode == 'exam' ) :
     build_exam()
+
+# =============================================================================

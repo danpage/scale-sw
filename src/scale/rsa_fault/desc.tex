@@ -18,7 +18,7 @@
 
 \levelstay{Material}
 
-\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
+\leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
 \DESCMATERIALD{%
 \item $\FAULT$
@@ -39,12 +39,12 @@
 Note that:
 
 \begin{itemize}
-\item $\PARTY{D}$ uses a CRT-based implementation of RSA which is computed by
+\item $\PARTY{T}$ uses a CRT-based implementation of RSA which is computed by
 an external coprocessor which can perform basic arithmetic on large integers.
 
 \item $\PARTY{E}$
       can induce a fault, via a ``glitch'' in the clock signal supplied to
-      $\PARTY{D}$;
+      $\PARTY{T}$;
       the fault is controlled using $\FAULT$, in the sense that
       \[
       \begin{array}{c@{\;}c@{\;}c c c@{\;}l}
@@ -80,7 +80,7 @@ $
 \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } ,
 $
 i.e.,
-the (unknown) RSA private key embedded in $\PARTY{D}$.
+the (unknown) RSA private key embedded in $\PARTY{T}$.
 
 % -----------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ the (unknown) RSA private key embedded in $\PARTY{D}$.
 \begin{enumerate}
 \item \DESCTASKIMPL
       {$\PRI{\CHAL{d}}$}
-      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}}
 \item \DESCTASKEXAM
       {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
