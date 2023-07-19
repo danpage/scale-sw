@@ -8,13 +8,11 @@
 
 \leveldown{Background}
 
-% TODO
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-% TODO
+\DESCINTRO[leak+fault]
+{a private key}
+{a message}
+{which signs the message using the under the private key}
+{a signature}
 
 % -----------------------------------------------------------------------------
 
@@ -22,24 +20,14 @@
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.D|}
 
-This executable simulates the attack target $\PARTY{D}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALD{%
 \item $\FAULT$
       a  fault specification
-      (represented as a                       decimal integer string),
+      (represented as a                       decimal integer string; the format and semantics of this field are explained further below),
 \item $\PUB{m}$,
       a message
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{
 \item $\LEAK$,
       an execution time measured in clock cycles
       (represented as a                       decimal integer string),
@@ -47,27 +35,32 @@ writes the following output (one field per line)
 \item $\PUB{\SIG}$,
       an RSA signature on $m$
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{D}$ is forcibly terminated (or crashes).  
+}%
 Note that:
 
 \begin{itemize}
 \item $\PARTY{D}$ uses a CRT-based implementation of RSA which is computed by
 an external coprocessor which can perform basic arithmetic on large integers.
-\item The fault specification $\FAULT$ induces a fault on this external
-coprocessor.
+
+\item $\PARTY{E}$
+      can induce a fault, via a ``glitch'' in the clock signal supplied to
+      $\PARTY{D}$;
+      the fault is controlled using $\FAULT$, in the sense that
+      \[
+      \begin{array}{c@{\;}c@{\;}c c c@{\;}l}
+      \FAULT &<   & 0 &\Rightarrow& \mbox{no} & \mbox{fault induced                        } \\
+      \FAULT &\geq& 0 &\Rightarrow&           & \mbox{fault induced in clock cycle $\FAULT$} \\
+      \end{array}
+      \]
+      Through analysis of the fault model, it is known that inducing a fault 
+      will impact the co-processor ALU; if a fault is induced in clock cycle
+      $\FAULT$, computation by (or output of) the ALU in that clock cycle is
+      corrupted (or randomised).
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
-This file represents a set of attack parameters, with everything (e.g.,
-all public values) $\PARTY{E}$ has access to by default.  It captures
-
-\begin{itemize}
+\DESCMATERIALCONF{%
 \item $\PUB{\CHAL{N}}$,     
       an RSA        modulus
       (represented as a                   hexadecimal integer string),
@@ -75,40 +68,30 @@ all public values) $\PARTY{E}$ has access to by default.  It captures
       an RSA        public exponent
       (represented as a                   hexadecimal integer string),
       st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
-\end{itemize}
-
-\noindent
-using one field per line.
-More specifically, this represents the RSA public key 
+}%
+Note that
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
 $
-associated with the unknown RSA private key 
+is
+a     (known) RSA public  key 
+associated with 
 $
-\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } ,
 $
-embedded in $\PARTY{D}$.
+i.e.,
+the (unknown) RSA private key embedded in $\PARTY{D}$.
 
 % -----------------------------------------------------------------------------
 
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{d}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{d}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.D \$\{USER\}.conf|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

@@ -4,6 +4,8 @@
 % which can be found via http://creativecommons.org (and should be included 
 % as LICENSE.txt within the associated archive or repository).
 
+% =============================================================================
+
 \providecommandx{\C}[1]{\ensuremath{\mathcal #1}}
 \providecommandx{\B}[1]{\ensuremath{\mathbb  #1}}
 
@@ -52,3 +54,129 @@
 \providecommandx{\LEAK}{\ensuremath{\Lambda}}
 
 \providecommandx{\PKCS}[2][2={}]{PKCS$\##1${\IfEq{#2}{}{}{~v$#2$}}}
+
+% -----------------------------------------------------------------------------
+
+\providecommandx{\DESCINTRO}[5][1]{%
+  An attacker $\PARTY{E}$ can interact with $\PARTY{D}$ as follows:
+  
+  \begin{center}
+  \input{desc.tikz}
+  \end{center}
+   
+  \noindent
+  An adversary
+  $\PARTY{E}$
+  interacts with
+  $\PARTY{D}$,
+  which stores the embedded, security-critical data (#2).
+  Each potentially adaptive interaction involves the following steps:
+  1) $\PARTY{E}$
+     provides some  input (#3) to
+     $\PARTY{D}$,
+  2) $\PARTY{D}$
+     performs the computation detailed (i.e., #4), 
+     then, finally,
+  3) $\PARTY{D}$
+     provides some output (#5) to
+     $\PARTY{E}$.
+  \IfStrEqCase{#1}{%
+    {leak}      {$\PARTY{E}$
+                 can {\em also} 
+                 observe (i.e., measure)
+                 the computation performed by
+                 $\PARTY{D}$,
+                 so attempts to exploit this fact.
+    }%
+         {fault}{$\PARTY{E}$
+                 can {\em also} 
+                 induce a fault during 
+                 the computation performed by
+                 $\PARTY{D}$,
+                 so attempts to exploit this fact 
+    }%
+    {leak+fault}{$\PARTY{E}$
+                 can {\em also} 
+                 observe (i.e., measure)
+                 {\em and}
+                 induce a fault during  
+                 the computation performed by
+                 $\PARTY{D}$,
+                 so attempts to exploit this fact.
+    }%
+  }%
+}%
+
+\providecommandx{\DESCMATERIALCONF}[1]{%
+  This file represents a set of attack parameters, with everything 
+  (e.g., all public values) 
+  $\PARTY{E}$ has access to by default.  It captures
+  
+  \begin{itemize}
+  #1
+  \end{itemize}
+  
+  \noindent
+  using one field per line.
+}%
+\providecommandx{\DESCMATERIALD}[2]{%
+  This executable simulates the attack target $\PARTY{D}$.  When executed it 
+   reads the following  input (one field per line)
+  
+  \begin{itemize}
+  #1
+  \end{itemize}
+  
+  \noindent
+  from \lstinline[language={bash}]{stdin},
+  and 
+  writes the following output (one field per line)
+  
+  \begin{itemize}
+  #2
+  \end{itemize}
+  
+  \noindent
+  to   \lstinline[language={bash}]{stdout}.
+  Execution continues this way, i.e., repeatedly reading input then writing 
+  output, until $\PARTY{D}$ is forcibly terminated (or crashes).  
+}%
+\providecommandx{\DESCMATERIALR}[1]{%
+  In many side-channel and fault attacks, the attacker is able to perform an 
+  initial profiling or calibration phase: a common rationale for doing so is 
+  to support selection or fine-tuning of parameters for a subsequent attack.  
+  With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
+  also provided.
+  $\PARTY{R}$ is identical to $\PARTY{D}$, bar the fact it
+   reads the following  input (one field per line)
+  
+  \begin{itemize}
+  #1
+  \end{itemize}
+  
+  \noindent
+  from \lstinline[language={bash}]{stdin}:
+}%
+
+\providecommandx{\DESCTASKIMPL}[2]{%
+  Write a program that simulates the adversary $\PARTY{E}$ by attacking the
+  simulated target, or, more specifically, realising the goal of recovering
+  the target material 
+  #1.
+  When executed using a command of the form
+  \[
+  #2
+  \]
+  the attack should be invoked on the named simulated target 
+  (i.e., not some hard-coded alternative).  
+  Use \lstinline[language={bash}]{stdout} to record
+  a) any intermediate output you deem relevant, followed finally by 
+  b) two lines which clearly detail the target material recovered plus
+     the total number of interactions with the attack target.
+}%
+\providecommandx{\DESCTASKEXAM}[1]{%
+  Answer the written, exam-style questions in 
+  #1.
+}%
+
+% =============================================================================
