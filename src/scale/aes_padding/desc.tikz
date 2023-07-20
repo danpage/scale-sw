@@ -20,10 +20,10 @@
 
 %   direct input and output
  \draw [       >=stealth,->] (E.30)    to              
-                             node [above]             {$\TUPLE{ \PUB{l}, \PUB{iv}, \PUB{c} }$} 
+                             node [above]             {$\TUPLE{ \PUB{l}, \PUB{c}, \PUB{iv} }$} 
                              (E.30    -| T.west)  ;
 %\draw [       >=stealth,<-] (E.330)   to              
-%                            node [below]             {} 
+%                            node [below]             {}
 %                            (E.330   -| T.west)  ;
 
 % indirect input and output
@@ -31,12 +31,12 @@
 %                            node [above]             {} 
 %                            (T.north -| E.north) ;
  \draw [dashed,>=stealth,->] (T.south) to [bend left]  
-                             node [below]             {$\LEAK  \models \mbox{result code}$}
+                             node [below]             {$\LEAK  \models \mbox{result code} \in \SET{ 0, 1, 2 }$}
                              (T.south -| E.south) ;
 
 % computation
  \draw [       >=stealth,->] (T.30)    to [bend left,in=90,out=90,looseness=2] 
-                             node [right,anchor=west] {$\PRI{m} \CONS \PRI{\TAG} \CONS \PRI{\PAD} = \SCOPE{\ID{AES-128-CBC}}{\ALG{Dec}}( \PRI{\CHAL{k}_1}, \PUB{iv}, \PUB{c} )$}
+                             node [right,anchor=west] {$\PUB{r} = \ALG{Process}( \PRI{k}, \PUB{l}, \PUB{c}, \PUB{iv} )$}
                              (T.330) ;
 
 % =============================================================================

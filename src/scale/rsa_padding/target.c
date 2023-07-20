@@ -305,7 +305,7 @@ int main( int argc, char* argv[] ) {
   OpenSSL_add_all_algorithms();
 
   while( true ) {
-    int lambda;
+    int Lambda;
 
     // 1. consume input
   
@@ -314,8 +314,8 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation    
 
-    if( !( lambda = setjmp( env ) ) ) {
-      n_m = rsaes_oaep_decrypt( m, N, d, c, n_c, l, n_l ); lambda = RESULT_CODE_0;
+    if( !( Lambda = setjmp( env ) ) ) {
+      n_m = rsaes_oaep_decrypt( m, N, d, c, n_c, l, n_l ); Lambda = RESULT_CODE_0;
     }
 
     #if CONF( DEBUG )
@@ -332,7 +332,7 @@ int main( int argc, char* argv[] ) {
 
     // 3. produce output
 
-                               gmp_fprintf( stdout,  "%d\n", lambda );
+                               gmp_fprintf( stdout,  "%d\n", Lambda );
 
     // 4. flush streams
 

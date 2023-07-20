@@ -71,7 +71,7 @@ int main( int argc, char* argv[] ) {
   mpz_inits( N, d, c, m, NULL );
   
   while( true ) {
-    int lambda;
+    int Lambda;
 
     // 1. consume input
     
@@ -92,15 +92,15 @@ int main( int argc, char* argv[] ) {
     mrz_init( &p, N );
     mrz_import( &p, t, c );
 
-    lambda  = mrz_mul( &p, t, t, p.rho_2 );
-    lambda += mrz_exp( &p, t, t, d       );
-    lambda += mrz_mul( &p, t, t, p.rho_0 );
+    Lambda  = mrz_mul( &p, t, t, p.rho_2 );
+    Lambda += mrz_exp( &p, t, t, d       );
+    Lambda += mrz_mul( &p, t, t, p.rho_0 );
 
     mrz_export( &p, m, t );
     mrz_fini( &p    );
 
     #if ( ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) > 0 )
-    lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
+    Lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
     #endif
 
     #if CONF( DEBUG )
@@ -112,7 +112,7 @@ int main( int argc, char* argv[] ) {
 
     // 4. produce output
 
-                               gmp_fprintf( stdout,  "%d\n", lambda );
+                               gmp_fprintf( stdout,  "%d\n", Lambda );
                                gmp_fprintf( stdout, "%ZX\n", m      );
 
     // 5. flush streams

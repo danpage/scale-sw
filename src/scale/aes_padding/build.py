@@ -42,8 +42,8 @@ def build_params( args, conf ) :
            ( 'k_mac', k_mac, False ),
            (   'tau',   tau, False ),
            (   'rho',   rho, False ),
-           (    'iv',    iv,  True ),
            (     'm',     m, False ),
-           (     'c',     c,  True ) ]
+           (     'c',     c,  True ),
+           (    'iv',    iv,  True ) ]
 
 # =============================================================================

@@ -7,7 +7,7 @@
 
 #include "target.h"
 
-fault_t delta;
+fault_t Delta;
 
 int fault_rd( FILE* fd ) {
   char T[ BUFFER ], *Tp = fgets( T, BUFFER, fd ); 
@@ -19,26 +19,26 @@ int fault_rd( FILE* fd ) {
   Tp = strip( Tp );
 
   if( *Tp == '\x00' ) {
-    delta.enable = false; return 1;
+    Delta.enable = false; return 1;
   }
 
-  if( 5 != sscanf( Tp, "%d,%d,%d,%d,%d", &delta.round,
-                                         &delta.function,
-                                         &delta.priority,
-                                         &delta.row,
-                                         &delta.col ) ) {
-    delta.enable = false; return 0;
+  if( 5 != sscanf( Tp, "%d,%d,%d,%d,%d", &Delta.round,
+                                         &Delta.function,
+                                         &Delta.priority,
+                                         &Delta.row,
+                                         &Delta.col ) ) {
+    Delta.enable = false; return 0;
   }
   else {
-    delta.enable =  true; return 1;
+    Delta.enable =  true; return 1;
   }
 }
 
 void aes_enc_step( uint8_t* s, uint8_t* rk, int r, int f ) {
-  if( ( delta.enable                          ) &&
-      ( delta.round    == r                   ) &&
-      ( delta.function == f                   ) &&
-      ( delta.priority == FAULT_PRIORITY_PRE  ) ) { 
+  if( ( Delta.enable                          ) &&
+      ( Delta.round    == r                   ) &&
+      ( Delta.function == f                   ) &&
+      ( Delta.priority == FAULT_PRIORITY_PRE  ) ) { 
     uint8_t t;
 
     #if CONF( ALLOW_ZERO, CID )
@@ -47,7 +47,7 @@ void aes_enc_step( uint8_t* s, uint8_t* rk, int r, int f ) {
     do { t = prng() & 0xFF; } while( t == 0 );
     #endif 
 
-    s[ ( delta.col * 4 ) + delta.row ] ^= t;
+    s[ ( Delta.col * 4 ) + Delta.row ] ^= t;
   }
 
   switch( f ) {
@@ -69,10 +69,10 @@ void aes_enc_step( uint8_t* s, uint8_t* rk, int r, int f ) {
     }
   }
 
-  if( ( delta.enable                          ) &&
-      ( delta.round    == r                   ) &&
-      ( delta.function == f                   ) &&
-      ( delta.priority == FAULT_PRIORITY_POST ) ) { 
+  if( ( Delta.enable                          ) &&
+      ( Delta.round    == r                   ) &&
+      ( Delta.function == f                   ) &&
+      ( Delta.priority == FAULT_PRIORITY_POST ) ) { 
     uint8_t t;
 
     #if CONF( ALLOW_ZERO, CID )
@@ -81,7 +81,7 @@ void aes_enc_step( uint8_t* s, uint8_t* rk, int r, int f ) {
     do { t = prng() & 0xFF; } while( t == 0 );
     #endif 
 
-    s[ ( delta.col * 4 ) + delta.row ] ^= t;
+    s[ ( Delta.col * 4 ) + Delta.row ] ^= t;
   }
 
   return;
@@ -128,20 +128,20 @@ int main( int argc, char* argv[] ) {
 
     CONSUME( fault_rd( stdin ), 1 );
 
-    if( delta.enable ) {
-      if     ( ( delta.round    < 0 ) || ( delta.round    > 10 ) ) {
+    if( Delta.enable ) {
+      if     ( ( Delta.round    < 0 ) || ( Delta.round    > 10 ) ) {
         abort();
       }
-      else if( ( delta.function < 0 ) || ( delta.function >  3 ) ) {
+      else if( ( Delta.function < 0 ) || ( Delta.function >  3 ) ) {
         abort();
       }
-      else if( ( delta.priority < 0 ) || ( delta.priority >  1 ) ) {
+      else if( ( Delta.priority < 0 ) || ( Delta.priority >  1 ) ) {
         abort();
       }
-      else if( ( delta.row      < 0 ) || ( delta.row      >  3 ) ) {
+      else if( ( Delta.row      < 0 ) || ( Delta.row      >  3 ) ) {
         abort();
       }
-      else if( ( delta.col      < 0 ) || ( delta.col      >  3 ) ) {
+      else if( ( Delta.col      < 0 ) || ( Delta.col      >  3 ) ) {
         abort();
       }
     }
@@ -157,13 +157,13 @@ int main( int argc, char* argv[] ) {
     aes_enc( c, m, k );
  
     #if CONF( DEBUG )
-    fprintf( stderr, "delta.enable   = %d\n", delta.enable   );
+    fprintf( stderr, "Delta.enable   = %d\n", Delta.enable   );
   
-    fprintf( stderr, "delta.round    = %d\n", delta.round    );
-    fprintf( stderr, "delta.function = %d\n", delta.function );
-    fprintf( stderr, "delta.priority = %d\n", delta.priority );
-    fprintf( stderr, "delta.row      = %d\n", delta.row      );
-    fprintf( stderr, "delta.col      = %d\n", delta.col      );
+    fprintf( stderr, "Delta.round    = %d\n", Delta.round    );
+    fprintf( stderr, "Delta.function = %d\n", Delta.function );
+    fprintf( stderr, "Delta.priority = %d\n", Delta.priority );
+    fprintf( stderr, "Delta.row      = %d\n", Delta.row      );
+    fprintf( stderr, "Delta.col      = %d\n", Delta.col      );
   
     fprintf( stderr, "c = " ); octetstr_wr( stderr, c, 4 * AES_128_NB );
     fprintf( stderr, "m = " ); octetstr_wr( stderr, m, 4 * AES_128_NB );

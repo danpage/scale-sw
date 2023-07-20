@@ -8,33 +8,25 @@
 
 \leveldown{Background}
 
-Imagine you encounter a server, denoted $\PARTY{T}$, 
+Imagine you encounter a server, denoted 
+$\PARTY{T}$, 
 which houses an ageing but still operational $32$-bit Katmai model Intel 
-Pentium III processor.  
-A datasheet you find for this processor lists it having a $16$ kilobyte, 
+Pentium III micro-processor.  
+A datasheet for this micro-processor shows that it has a $16$ kilobyte, 
 $4$-way set-associative L1 data cache with $32$ byte cache lines.  Since
 around $1999$, the server has performed a mission-critical back-office 
 role in a banking application: you discover it acts as a primitive form 
 of HSM, performing DES encryption on behalf of front-end clients.
-By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-a chosen DES  plaintext
-to $\PARTY{T}$; the device will
-encrypt that  plaintext under the fixed, unknown DES cipher key $\PRI{\CHAL{k}}$,
-and produce 
-the corresponding ciphertext.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
-each operation: it approximates this 
-(keeping in mind there may be some experimental noise) 
-by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{c}$ once 
-provided with $\PUB{m}$.
+\DESCINTRO[leak]
+{a cipher key}
+{a  plaintext}
+{i.e., it encrypts the plaintext using the cipher key}
+{a ciphertext}
+Note that the ability to observe execution latency is plausible, because
+$\PARTY{E}$ 
+can simply record how long
+$\PARTY{T}$ 
+takes to respond with the output associated with a given input (noting the potential for experimental noise while doing so).
 
 % -----------------------------------------------------------------------------
 
@@ -42,34 +34,19 @@ provided with $\PUB{m}$.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\PUB{m}$, 
       a  ${1}$-block DES plaintext 
       (represented as a  length-prefixed, hexadecimal octet   string), 
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
 \item $\LEAK$,
-      an execution time measured in clock cycles
+      an execution latency measured in clock cycles
       (represented as a                       decimal integer string),
       and
 \item $\PUB{c}$,
       a  ${1}$-block DES ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string), 
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
@@ -123,20 +100,12 @@ Note that:
       \lstinline[language=C]{des}
       function is invoked, the cache contains {\em no} S-box content: any
       cache-hits or -misses during encryption therefore depend only on 
-      $\PRI{\CHAL{k}}$ and $\PUB{m}$, as does the execution time.
+      $\PRI{\CHAL{k}}$ and $\PUB{m}$, as does the execution latency.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
-In many side-channel and fault attacks, the attacker is able to perform an 
-initial profiling or calibration phase: a common rationale for doing so is 
-to support selection or fine-tuning of parameters for a subsequent attack.  
-With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
-also provided.
-$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALR{%
 \item $\PUB{\REPL{m}}$, 
       a  $1$-block DES plaintext
       (represented as a  length-prefixed, hexadecimal octet   string), 
@@ -144,11 +113,12 @@ $\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
 \item $\PUB{\REPL{k}}$, 
       a           DES cipher key
       (represented as a  length-prefixed, hexadecimal octet   string), 
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
+}%
+In contrast to 
+$\PARTY{T}$, 
+this means 
+$\PARTY{R}$ 
+will use the
 {\em chosen} DES cipher key $\PUB{\REPL{k}}$
 to encrypt the
      chosen  DES  plaintext $\PUB{\REPL{m}}$.
@@ -158,21 +128,11 @@ to encrypt the
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{k}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{k}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

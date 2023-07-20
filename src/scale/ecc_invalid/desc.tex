@@ -11,26 +11,21 @@
 Imagine you own a cryptographic accelerator, denoted $\PARTY{T}$: it is used
 as a low-cost HSM in your data center, supporting secure key generation and 
 storage plus off-load of various cryptographic operations via a standardised 
-protocol (or API).  $\PARTY{T}$ is primarily used to perform elliptic curve
-scalar multiplication, meaning you can interact with it as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction you can (adaptively) send 
-a point
-to $\PARTY{T}$; the accelerator will
-multiply that point by the fixed, unknown scalar $\PRI{\CHAL{k}}$,
-and produce 
-the corresponding point.
+protocol (or API).
+\DESCINTRO[none]
+{a scalar}
+{an  input point}
+{i.e., multiplies the input point by the scalar}
+{an output point}
 Although it currently functions correctly, an electrical fault demands that
-$\PARTY{T}$ is replaced.  However, doing so presents a serious problem: the 
-API cannot be used to export $\PRI{\CHAL{k}}$, so a replacement will have 
-to be generated and used thereafter.  This means compatibility with various
-existing data sets will be lost, {\em unless} $\PRI{\CHAL{k}}$ itself can 
-be recovered by some other means.
+$\PARTY{T}$ 
+is replaced.  However, doing so presents a serious problem: the API cannot 
+be used to export 
+$\PRI{\CHAL{k}}$, 
+so a replacement will have to be generated and used thereafter.  This means 
+compatibility with existing data sets will be lost, {\em unless} 
+$\PRI{\CHAL{k}}$ 
+itself can be recovered by some other means.
 
 % -----------------------------------------------------------------------------
 
@@ -38,10 +33,7 @@ be recovered by some other means.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\PUB{P_x}$,
       the $x$-coordinate of elliptic curve point $\PUB{P} = \TUPLE{ \PUB{P_x}, \PUB{P_y} }$
       (represented as a                   hexadecimal integer string),
@@ -49,14 +41,7 @@ This executable simulates the attack target $\PARTY{T}$.  When executed it
 \item $\PUB{P_y}$,
       the $y$-coordinate of elliptic curve point $\PUB{P} = \TUPLE{ \PUB{P_x}, \PUB{P_y} }$
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
 \item $\PUB{Q_x}$,
       the $x$-coordinate of elliptic curve point $\PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$
       (represented as a                   hexadecimal integer string),
@@ -64,19 +49,18 @@ writes the following output (one field per line)
 \item $\PUB{Q_y}$,
       the $y$-coordinate of elliptic curve point $\PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
-\item $\PARTY{T}$ uses an left-to-right binary scalar multiplication
-      (i.e., an additive analogue of~\cite[Section 2.1]{SCALE:Gordon:85}) to 
-      compute $\PUB{Q} = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}$: it assumes use of 
-      the
+\item $\PARTY{T}$ 
+      uses an left-to-right binary scalar multiplication
+      (i.e., an additive analogue of~\cite[Section 2.1]{SCALE:Gordon:85}) 
+      to compute 
+      $
+      \PUB{Q} = \PMUL{\PRI{\CHAL{k}}}{\PUB{P}} .
+      $
+      In doing so, it assumes use of the
       \IfStrEqCase{CONF(CURVE,CID)}{%
         {0}{NIST-P-192 }% NIST-P-192
         {1}{NIST-P-224 }% NIST-P-224
@@ -87,10 +71,15 @@ Note that:
       \[
       E( \DOM{\B{F}_p} ) : y^2 = x^3 + \DOM{a_4} x + \DOM{a_6}
       \]
-      for standardised~\cite{SCALE:FIPS:186:00} domain parameters $\DOM{p}$, 
-      $\DOM{a_4}$ and $\DOM{a_6}$.
-\item More concretely, $\PARTY{T}$ uses OpenSSL to support arithmetic on the
-      elliptic curve.  You can browse the associated source code at
+      for standardised~\cite{SCALE:FIPS:186:00} domain parameters 
+      $\DOM{p}$, 
+      $\DOM{a_4}$, 
+      and 
+      $\DOM{a_6}$.
+\item More concretely, 
+      $\PARTY{T}$ 
+      uses OpenSSL to support arithmetic on the elliptic curve.  You can 
+      browse the associated source code at
       \[
       \mbox{\url{http://github.com/openssl}}
       \]
@@ -100,24 +89,21 @@ Note that:
       \lstinline[language={C}]{ec_GFp_simple_dbl}
       to realise the (additive) group operation, i.e., to compute either a
       point addition or doubling, within the scalar multiplication.
-\item Crucially, $\PARTY{T}$ applies {\em no} checks to either the input or
-      output points (e.g., to check whether 
-      $
-      \PUB{P} \in E( \DOM{\B{F}_p} )
-      $ 
-      and reject $\PUB{P}$ if not).
+\item Crucially, 
+      $\PARTY{T}$ 
+      applies {\em no} checks to either the input or output points (e.g., to check whether $\PUB{P} \in E( \DOM{\B{F}_p} )$ and reject $\PUB{P}$ if not).
 \item At least from a Mathematical point of view, there is no valid affine 
       representation of the point at infinity.  If computation of
       $
       \PMUL{\PRI{\CHAL{k}}}{\PUB{P}}
       $
-      does yield the point at infinity, $\PARTY{T}$ therefore signals this 
-      fact by producing
+      does yield the point at infinity, 
+      $\PARTY{T}$ 
+      therefore signals this fact by producing
       \[
       \PUB{Q} = \TUPLE{ \PUB{Q_x}, \PUB{Q_y} } = \TUPLE{ 0, 0 }
       \]
-      as output 
-      (rather than some special-purpose mechanism, e.g., an error or an alternative output format).
+      as output (rather than some special-purpose mechanism, e.g., an error or an alternative output format).
 \end{itemize}
 
 % -----------------------------------------------------------------------------
@@ -125,21 +111,11 @@ Note that:
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{k}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{k}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

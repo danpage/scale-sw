@@ -8,32 +8,31 @@
 
 \leveldown{Background}
 
-Imagine you are tasked with attacking a device, denoted $\PARTY{T}$, 
-which houses an $8$-bit Intel $8051$ processor.
-$\PARTY{T}$ represents an ISO/IEC 7816 compliant contact-based smart-card
-chip, used within larger devices as a co-processor module: it has support
-for secure key generation and storage, plus off-load of some cryptographic 
-operations, such as AES, via a standardised protocol (or API).
-By leveraging physical access, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-a chosen AES  plaintext
-to $\PARTY{T}$; the device will
-encrypt that  plaintext under the fixed, unknown AES cipher key $\PRI{\CHAL{k}}$,
-and produce 
-the corresponding ciphertext.
-Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{T}$.
-Using an irregular clock signal (e.g., via some form of glitch to disrupt 
-regular oscillation) causes $\PARTY{T}$ to malfunction.  One malfunction, 
-or fault, can be induced per interaction with $\PARTY{T}$: it will act to 
-randomise one element of the state matrix used by AES, at a chosen point 
-during the associated encryption operation.
+Imagine you are tasked with attacking a device, denoted 
+$\PARTY{T}$, 
+which houses an $8$-bit Intel $8051$ micro-processor.  More specifically,
+$\PARTY{T}$ 
+represents an ISO/IEC 7816 compliant contact-based smart-card used within 
+larger devices as a cryptographic co-processor module: 
+using a standardised protocol (or API), it supports secure key generation 
+and storage plus off-load of some cryptographic operations.
+\DESCINTRO[fault]
+{a cipher key}
+{a  plaintext}
+{i.e., it encrypts the plaintext using the cipher key}
+{a ciphertext}
+Note that
+$\PARTY{E}$ 
+provides a power supply and clock signal to 
+$\PARTY{T}$;
+direct access to the 
+clock signal
+means it is plausible 
+for the former to influence the latter, e.g., causing a malfunction by supplying an irregular clock signal (or ``glitch'').
+One malfunction, or fault, can be induced per interaction with 
+$\PARTY{T}$: 
+it will act to randomise one element of the state matrix used by AES, at 
+a chosen point during the associated encryption.
 
 % -----------------------------------------------------------------------------
 
@@ -41,34 +40,19 @@ during the associated encryption operation.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\FAULT$, 
       a  fault specification
-      (whose representation is explained below),
+                                                                     (the format and semantics of this field are explained further below),
       and
 \item $\PUB{m}$,
       a  ${1}$-block AES plaintext
       (represented as a  length-prefixed, hexadecimal octet   string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
 \item $\PUB{c}$,
       a  ${1}$-block AES ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
@@ -174,21 +158,11 @@ Note that:
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{k}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{k}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

@@ -8,31 +8,26 @@
 
 \leveldown{Background}
 
-Imagine you are tasked with attacking a device, denoted $\PARTY{T}$, 
-which houses an $8$-bit Intel $8051$ processor.
-$\PARTY{T}$ represents an ISO/IEC 7816 compliant contact-based smart-card
-chip, used within larger devices as a co-processor module: it has support
-for secure key generation and storage, plus off-load of some cryptographic 
-operations, such as AES, via a standardised protocol (or API).
-By leveraging physical access, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-a chosen AES  plaintext
-to $\PARTY{T}$; the device will
-encrypt that  plaintext under the fixed, unknown AES cipher key $\PRI{\CHAL{k}}$,
-and produce 
-the corresponding ciphertext.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
-each operation: it approximates this 
-(keeping in mind there may be some experimental noise) 
-by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{c}$ once
-provided with $\PUB{m}$.
+Imagine you are tasked with attacking a device, denoted 
+$\PARTY{T}$, 
+which houses an $8$-bit Intel $8051$ micro-processor.  More specifically,
+$\PARTY{T}$ 
+represents an ISO/IEC 7816 compliant contact-based smart-card used within 
+larger devices as a cryptographic co-processor module: 
+using a standardised protocol (or API), it supports secure key generation 
+and storage plus off-load of some cryptographic operations.
+\DESCINTRO[leak]
+{a cipher key}
+{a  plaintext}
+{i.e., it encrypts the plaintext using the cipher key}
+{a ciphertext}
+Note that the ability to observe 
+execution latency 
+is plausible, because
+$\PARTY{E}$ 
+can simply record how long
+$\PARTY{T}$ 
+takes to respond with the output associated with a given input (noting the potential for experimental noise while doing so).
 
 % -----------------------------------------------------------------------------
 
@@ -40,37 +35,27 @@ provided with $\PUB{m}$.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\PUB{m}$,
-      a  ${1}$-block AES plaintext
+      a  ${1}$-block AES  plaintext
       (represented as a  length-prefixed, hexadecimal octet   string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
+\item $\LEAK$,
+      an execution latency measured in clock cycles
+      (represented as a                       decimal integer string),
+      and
 \item $\PUB{c}$,
       a  ${1}$-block AES ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
-\item $\PARTY{T}$ uses an AES-128 implementation,
-      which clearly implies $128$-bit block and cipher key lengths;
-      following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
-      fact that 
+\item $\PARTY{T}$ 
+      uses an AES-128 implementation, which implies $128$-bit block and 
+      cipher key lengths;
+      following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, note
+      that 
       $
       Nb =  4
       $ 
@@ -111,15 +96,7 @@ Note that:
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
-In many side-channel and fault attacks, the attacker is able to perform an 
-initial profiling or calibration phase: a common rationale for doing so is 
-to support selection or fine-tuning of parameters for a subsequent attack.  
-With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
-also provided.
-$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALR{%
 \item $\PUB{\REPL{m}}$,
       a  ${1}$-block     AES  plaintext
       (represented as a  length-prefixed, hexadecimal octet   string),
@@ -127,11 +104,12 @@ $\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
 \item $\PUB{\REPL{k}}$,
       an                 AES cipher key
       (represented as a  length-prefixed, hexadecimal octet   string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
+}%
+In contrast to 
+$\PARTY{T}$, 
+this means 
+$\PARTY{R}$ 
+will use the
 {\em chosen} cipher key $\PUB{\REPL{k}}$ 
 to encrypt the
      chosen  plaintext  $\PUB{\REPL{m}}$.
@@ -141,21 +119,11 @@ to encrypt the
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{k}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{k}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

@@ -8,35 +8,11 @@
 
 \leveldown{Background}
 
-Imagine you form part of a red team\footnote{
-\url{https://en.wikipedia.org/wiki/Red_team}
-} asked to assess a specific e-commerce server, denoted $\PARTY{T}$, 
-which houses a $64$-bit Intel Core2 processor.  
-In reality, the server is a HSM-like device representing the back-office 
-infrastructure that supports various secure web-sites: the server offers
-secure key generation and storage, plus off-load for some cryptographic 
-operations.  In particular, it is able to compute RSAES-OAEP decryption, 
-as standardised by \PKCS{1}[2.1]~\cite{SCALE:RFC:3447}, by using an 
-embedded RSA private key.
-By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-a chosen RSAES-OAEP label and ciphertext
-to $\PARTY{T}$; the device will
-decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
-and produce 
-a result code based on validity of the underlying  plaintext.
-Note that the associated  plaintext is {\em not} produced explicitly as
-output.
-
-RSAES-OAEP decryption makes use of Optimal Asymmetric Encryption Padding 
-(OAEP)~\cite{SCALE:BelRog:94}, per~\cite[Section 7.1]{SCALE:RFC:3447}.  
+\PKCS{1}[2.1]~\cite{SCALE:RFC:3447}
+specifies the
+RSAES-OAEP decryption~\cite[Section 7.1]{SCALE:RFC:3447}
+scheme, which, in turn, makes use of 
+Optimal Asymmetric Encryption Padding (OAEP)~\cite{SCALE:BelRog:94}.  
 Crucially, the decryption process can encounter various error conditions:
 
 \begin{description}
@@ -47,7 +23,6 @@ Crucially, the decryption process can encounter various error conditions:
      Put another way, the error occurs because 
      the output produced by RSA decryption is too large to fit into one 
      fewer octets than the modulus.
-
 \item[Error \NUM{2}:]
      A decryption error occurs in Step $3.g$ of \ALG{RSAES-OAEP-Decrypt} 
      if the octet string passed into the decoding phase 
@@ -59,11 +34,94 @@ Crucially, the decryption process can encounter various error conditions:
 
 \noindent
 A footnote~\cite[Section 7.1.2]{SCALE:RFC:3447} explains why all errors, 
-these two in particular, should be indistinguishable from each other (that
-is, a given application should not reveal {\em which} error occurred, only 
-that {\em some} error occurred).  The implementation used by $\PARTY{T}$ 
-does {\em not} adhere to this advice, meaning the error is exposed via 
-the result code produced.
+these two in particular, should be indistinguishable from each other; a
+given application should not reveal {\em which} error occurred, even if
+it reveals {\em some} error occurred.  
+
+Imagine you form part of a red team\footnote{
+\url{https://en.wikipedia.org/wiki/Red_team}
+} asked to assess a specific e-commerce server, denoted 
+$\PARTY{T}$, 
+which houses a $64$-bit Intel Core2 micro-processor.  
+In reality, the server is a HSM-like device representing the back-office 
+infrastructure that supports various secure web-sites: the server offers
+secure key generation and storage, plus off-load for some cryptographic 
+operations.  
+$\PARTY{T}$ 
+is able to compute RSAES-OAEP decryption, but, crucially, does {\em not} 
+adhere to the advice re. error indistinguishability outlined above.
+\DESCINTRO[leak]
+{a private key}
+{a ciphertext}
+{i.e., it processes the ciphertext, as detailed further below}
+{} % no output!
+In more detail, the algorithm
+$\ALG{Process}$
+which captures the computation performed by
+$\PARTY{T}$
+can be described by the following steps.
+
+\begin{enumerate}
+\item decrypt $\PUB{c}$, i.e., compute
+      \[
+      \PRI{m} = \SCOPE{\ID{RSAES-OAEP}}{\ALG{Decrypt}}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }, \PUB{c} ) ,
+      \]
+      and, in doing so, deal with various error conditions:
+
+      \begin{itemize}
+      \item if error \NUM{1} occurred during decryption,
+            abort immediately  and produce   result code $1$,
+      \item if error \NUM{2} occurred during decryption,
+            abort immediately  and produce   result code $2$,
+      \item if there was some other internal error 
+            (e.g., due to malformed input),
+            abort immediately  and produce a result code that attempts to diagnose the cause:
+
+            \begin{itemize}
+            \item if the result code is $3$ then \ALG{RSAEP}              
+                  failed because the operand was out of range 
+                  (section $5.1.1$, step $1$, page $11$), 
+                  i.e., the  plaintext is not between $0$ and $\PUB{\CHAL{N}}-1$,
+            \item if the result code is $4$ then \ALG{RSADP}              
+                  failed because the operand was out of range 
+                  (section $5.1.2$, step $1$, page $11$), 
+                  i.e., the ciphertext is not between $0$ and $\PUB{\CHAL{N}}-1$,
+            \item if the result code is $5$ then \ALG{RSAES-OAEP-Encrypt} 
+                  failed because a length check failed        
+                  (section $7.1.1$, step $1.b$, page $18$), 
+                  i.e., the message is too long,
+            \item if the result code is $6$ then \ALG{RSAES-OAEP-Decrypt} 
+                  failed because a length check failed        
+                  (section $7.1.2$, step $1.b$, page $20$), 
+                  i.e., the ciphertext does not match the length of $\PUB{\CHAL{N}}$,
+            \item if the result code is $7$ then \ALG{RSAES-OAEP-Decrypt} 
+                  failed because a length check failed        
+                  (section $7.1.2$, step $1.c$, page $20$), 
+                  i.e., the ciphertext does not match the length of the hash function output.
+            \item any other result code 
+                  (of $8$ upward) 
+                  implies an abnormal error whose cause cannot be directly 
+                  associated with any of the above.
+            \end{itemize}
+      
+            \noindent
+            
+      \end{itemize}
+
+\item process $\PRI{m}$ somehow,
+                               and produce   result code $0$.          
+\end{enumerate}
+
+\noindent
+Since there is no (external) output, one might question how
+$\PARTY{E}$
+obtains the (internal) result code.  Doing so is plausible, because 
+$\PARTY{E}$
+can use execution latency as a proxy: since computation by
+$\PARTY{T}$
+early-aborts depending on the error condition, observation of the execution
+latency is (modulo any experimental noise) suggestive of whether, when, and 
+what error has occured.
 
 % -----------------------------------------------------------------------------
 
@@ -71,10 +129,7 @@ the result code produced.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\PUB{l}$,
       an RSAES-OAEP label
       (represented as a  length-prefixed, hexadecimal octet   string),
@@ -82,76 +137,22 @@ This executable simulates the attack target $\PARTY{T}$.  When executed it
 \item $\PUB{c}$,
       an RSAES-OAEP ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
 \item $\LEAK$,
       a  result code
       (represented as a                       decimal integer string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).  
-The result code should be interpreted as follows:
-
-\begin{itemize}
-\item If the decryption was a success                   
-      then the result code is $0$.
-\item If error \NUM{1} occurred during decryption 
-      then the result code is $1$.
-\item If error \NUM{2} occurred during decryption 
-      then the result code is $2$.
-\item If there was some other internal error (e.g., due to malformed input)
-      then the result code {\em attempts} to tell you why: 
-
-      \begin{itemize}
-      \item If the result code is $3$ then \ALG{RSAEP}              
-            failed because the operand was out of range 
-            (section $5.1.1$, step $1$, page $11$), 
-            i.e., the  plaintext is not between $0$ and $\PUB{\CHAL{N}}-1$.
-      \item If the result code is $4$ then \ALG{RSADP}              
-            failed because the operand was out of range 
-            (section $5.1.2$, step $1$, page $11$), 
-            i.e., the ciphertext is not between $0$ and $\PUB{\CHAL{N}}-1$.
-      \item If the result code is $5$ then \ALG{RSAES-OAEP-Encrypt} 
-            failed because a length check failed        
-            (section $7.1.1$, step $1.b$, page $18$), 
-            i.e., the message is too long.
-      \item If the result code is $6$ then \ALG{RSAES-OAEP-Decrypt} 
-            failed because a length check failed        
-            (section $7.1.2$, step $1.b$, page $20$), 
-            i.e., the ciphertext does not match the length of $\PUB{\CHAL{N}}$.
-      \item If the result code is $7$ then \ALG{RSAES-OAEP-Decrypt} 
-            failed because a length check failed        
-            (section $7.1.2$, step $1.c$, page $20$), 
-            i.e., the ciphertext does not match the length of the hash function output.
-      \end{itemize}
-
-      \noindent
-      Any other result code (of $8$ upward) implies an abnormal error whose
-      cause cannot be directly associated with any of the above.
-\end{itemize}
+}%
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
-This file represents a set of attack parameters, with everything (e.g.,
-all public values) $\PARTY{E}$ has access to by default.  It captures
-
-\begin{itemize}
+\DESCMATERIALCONF{%
 \item $\PUB{\CHAL{N}}$,     
       an RSA        modulus
       (represented as a                   hexadecimal integer string),
 \item $\PUB{\CHAL{e}}$,
       an RSA        public exponent
       (represented as a                   hexadecimal integer string),
-      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
+      such that $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
 \item $\PUB{\CHAL{l}}$,
       an RSAES-OAEP label
       (represented as a  length-prefixed, hexadecimal octet   string),
@@ -161,23 +162,36 @@ all public values) $\PARTY{E}$ has access to by default.  It captures
       (represented as a  length-prefixed, hexadecimal octet   string),
       corresponding to an encryption of some unknown plaintext 
       $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{l}}$),
-\end{itemize}
-
-\noindent
-using one field per line.
-More specifically, this represents the RSA public key 
+}%
+Note that
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
 $
-associated with the unknown RSA private key 
+is
+a     (known) RSA public  key 
+associated with 
 $
-\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } ,
 $
-embedded in $\PARTY{T}$, 
-plus a ciphertext $\PUB{\CHAL{c}}$ whose decryption, i.e., the recovery 
-of $\PRI{\CHAL{m}}$, is the task at hand.  You can assume the RSAES-OAEP 
-encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
-\ALG{MGF1} mask generation function with 
+i.e.,
+the (unknown) RSA private key,
+and that
+$
+\PUB{\CHAL{c}}
+$
+is a ciphertext 
+whose decryption,
+i.e., recovery of the underlying plaintext \PRI{\CHAL{m}},
+is the task at hand.
+You can assume the RSAES-OAEP encryption of 
+$
+\PRI{\CHAL{m}}
+$ 
+that produced 
+$
+\PUB{\CHAL{c}}
+$
+used the \ALG{MGF1} mask generation function with 
 \IfStrEqCase{CONF(HASH,CID)}{%
   {0}  {SHA-1 }% SHA-1
   {1}{SHA-256 }% SHA-256
@@ -210,21 +224,11 @@ encryption of $\PRI{\CHAL{m}}$ (that produced $\PUB{\CHAL{c}}$) used the
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{m}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{m}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

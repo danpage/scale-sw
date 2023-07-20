@@ -9,81 +9,81 @@
 \leveldown{Background}
 
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{Imagine you are tasked with attacking a device, denoted $\PARTY{T}$.
-      The device is an ISO/IEC 7816 compliant contact-based smart-card: it
-      houses an $8$-bit Intel $8051$ processor, and is typically used in a
-      larger device as a co-processor module.  For example, it has support
-      for secure key generation and storage, and off-load of cryptographic
-      operations, such as AES, via a standardised protocol (or API).
-
-      Provided physical access, $\PARTY{E}$ can interact with $\PARTY{T}$
-      as follows:
+  {0}{Imagine you are tasked with attacking a device, denoted 
+      $\PARTY{T}$, 
+      which houses an $8$-bit Intel $8051$ micro-processor.  More specifically,
+      $\PARTY{T}$ 
+      represents an ISO/IEC 7816 compliant contact-based smart-card used within 
+      larger devices as a cryptographic co-processor module: 
+      using a standardised protocol (or API), it supports secure key generation 
+      and storage plus off-load of some cryptographic operations.
+      \DESCINTRO[leak]
+      {a cipher key}
+      {a  plaintext}
+      {i.e., it encrypts the  plaintext using the cipher key}
+      {a ciphertext}
   }%
-  {1}{Imagine you are tasked with attacking a device, denoted $\PARTY{T}$.
-      The device is an ISO/IEC 7816 compliant contact-based smart-card: it
-      houses an $8$-bit Intel $8051$ processor, and is typically used in a
-      larger device as a co-processor module.  For example, it has support
-      for secure key generation and storage, and off-load of cryptographic
-      operations, such as AES, via a standardised protocol (or API).  When
-      granted physical access, $\PARTY{E}$ can interact with $\PARTY{T}$ 
-      as follows:
+  {1}{Imagine you are tasked with attacking a device, denoted 
+      $\PARTY{T}$, 
+      which houses an $8$-bit Intel $8051$ micro-processor.  More specifically,
+      $\PARTY{T}$ 
+      represents an ISO/IEC 7816 compliant contact-based smart-card used within 
+      larger devices as a cryptographic co-processor module: 
+      using a standardised protocol (or API), it supports secure key generation 
+      and storage plus off-load of some cryptographic operations.
+      \DESCINTRO[leak]
+      {a cipher key}
+      {a ciphertext}
+      {i.e., it decrypts the ciphertext using the cipher key}
+      {a  plaintext}
   }%
-  {2}{Imagine you are tasked with attacking a device, denoted $\PARTY{T}$.
+  {2}{Imagine you are tasked with attacking a device, denoted 
+      $\PARTY{T}$.
       The device is a Self Encrypting Disk (SED): the underlying disk only
       ever stores encrypted data, which is encrypted (before writing) and
       decrypted (after reading) using XTS-AES~\cite{SCALE:IEEE:1619:07}.  
-      The decryption of data uses an XTS-AES key embedded in $\PARTY{T}$, 
+      The decryption of data uses an XTS-AES key embedded in 
+      $\PARTY{T}$, 
       which is initially derived from a user-selected password $\PRI{p}$, 
       i.e., 
       $
-      \PRI{\CHAL{k}}              =  f( \PRI{p } )
+      \PRI{\CHAL{k}}              =  f( \PRI{p} )
       $ 
-      for a derivation function $f$.  Each time the SED is powered-on, the
-      password is {\em re}-entered as $\PRI{p'}$ and a check whether 
+      for a derivation function $f$.  
+      Each time the SED is powered-on, a password attempt
       $
-      \PRI{\CHAL{k}} \stackrel{?}{=} f( \PRI{p'} )
+      \PRI{g}
       $ 
-      then enforced; if the check fails, the SED refuses all interaction.
-      $\PARTY{E}$ is lucky, and gets one-time access to $\PARTY{T}$ for a
-      limited period of time while it is {\em already} powered-on (meaning 
-      the password check has already been performed).  Put another way, 
-      $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
+      is entered and a check whether 
+      $
+      \PRI{\CHAL{k}} \stackrel{?}{=} f( \PRI{g} )
+      $ 
+      then enforced; if the check fails, then the SED will refuses all further
+      attempts to interact with it.
+      $\PARTY{E}$ 
+      is lucky, and gets one-time access to 
+      $\PARTY{T}$ 
+      for a limited period of time while it is already powered-on (implying the
+      the password check has already been performed).
+      \DESCINTRO[leak]
+      {some key material}
+      {a block and sector address}
+      {i.e., it reads and decrypts the addressed ciphertext block}
+      {a  plaintext}
   }%
 }%
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-\IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-      a chosen AES  plaintext
-      to $\PARTY{T}$; the device will
-                encrypt that                              plaintext under the fixed, unknown     AES cipher key $\PRI{\CHAL{k}}$,
-      and produce 
-      the corresponding ciphertext.
-  }%
-  {1}{That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-      a chosen AES ciphertext
-      to $\PARTY{T}$; the device will
-                decrypt that                             ciphertext under the fixed, unknown     AES cipher key $\PRI{\CHAL{k}}$,
-      and produce 
-      the corresponding  plaintext.
-  }%
-  {2}{That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-      a block and sector address (the latter of which doubles as the XTS-AES tweak)
-      to $\PARTY{T}$; the device will
-      read then decrypt the selected but unknown XTS-AES ciphertext under the fixed, unknown XTS-AES        key $\PRI{\CHAL{k}}$ (per \cite[Section 5.4.1]{SCALE:IEEE:1619:07}),
-      and produce 
-      the corresponding  plaintext.
-  }%
-}%
-Note that $\PARTY{E}$ supplies the power and clock signals to $\PARTY{T}$,
-and can therefore measure the power consumed during each interaction: this
-yields at least one sample per instruction executed due to the high sample 
-rate of the oscilloscope used (relative to the clock frequency demanded by 
-and supplied to $\PARTY{T}$).
+Note that
+$\PARTY{E}$ 
+provides a power supply and clock signal to 
+$\PARTY{T}$;
+direct access to the 
+power supply 
+means it is plausible 
+for the former to observe power consumption of the later.
+Doing so will yield at least one sample per instruction executed, due to 
+the sample rate of the oscilloscope used relative to the clock frequency 
+demanded by and supplied to 
+$\PARTY{T}$.
 
 % -----------------------------------------------------------------------------
 
@@ -91,10 +91,7 @@ and supplied to $\PARTY{T}$).
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\item $\PUB{m}$,
             a  ${1}$-block     AES  plaintext
@@ -115,13 +112,7 @@ This executable simulates the attack target $\PARTY{T}$.  When executed it
             (represented as a  length-prefixed, hexadecimal octet   string),
   }%
 }%
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
+}{%
 \begin{itemize}
       \item $\LEAK$,
             a power consumption trace
@@ -141,19 +132,15 @@ writes the following output (one field per line)
             (represented as a  length-prefixed, hexadecimal octet   string),
   }%
 }%
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
-\item $\PARTY{T}$ uses an AES-128 implementation,
-      which clearly implies $128$-bit block and cipher key lengths;
-      following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, the 
-      fact that 
+\item $\PARTY{T}$ 
+      uses an AES-128 implementation, which implies $128$-bit block and 
+      cipher key lengths;
+      following the notation in~\cite[Figure 5]{SCALE:FIPS:197:01}, note
+      that 
       $
       Nb =  4
       $ 
@@ -188,8 +175,11 @@ Note that:
       backward through each round key.
 }{}%
 \IfStrEq{CONF(VERSION,CID)}{2}{%
-\item The underlying disk used by $\PARTY{T}$ has a $\SI{64}{\gibi\byte}$
-      capacity and uses Advanced Format (AF) $\SI{4}{\kibi\byte}$ sectors.
+\item The underlying disk used by $\PARTY{T}$ has a 
+      $\SI{64}{\gibi\byte}$
+      capacity and uses Advanced Format (AF) 
+      $\SI {4}{\kibi\byte}$ 
+      sectors.
       As such, each of the $16777216$ sectors contains $256$ blocks of AES 
       ciphertext: valid use of $\PARTY{T}$ therefore demands
 
@@ -220,46 +210,27 @@ Note that:
 \item Each power consumption trace $\LEAK$ is a comma-separated line of the 
       form
       \[
-      n, T_0, T_1, \ldots, T_{n-1}
+      l, T_0, T_1, \ldots, T_{l-1}
       \]
       where
          
       \begin{itemize}
-      \item $n$
+      \item $l$
             (represented as a                       decimal integer string),
             specifies the trace length, 
             and
       \item a given $T_i$ 
             (represented as a                       decimal integer string),
-            specifies the $i$-th of $n$ power consumption samples, each 
+            specifies the $i$-th of $l$ power consumption samples, each 
             constituting an $8$-bit, unsigned decimal integer: in short, 
-            this means $0 \leq T_i < 256$ for $0 \leq i < n$.
+            this means $0 \leq T_i < 256$ for $0 \leq i < l$.
       \end{itemize}
 
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
-In many side-channel and fault attacks, the attacker is able to perform an 
-initial profiling or calibration phase: a common rationale for doing so is 
-to support selection or fine-tuning of parameters for a subsequent attack.  
-With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
-also provided.
-\IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
-      reads the following  input (one field per line)
-  }%
-  {1}{$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
-      reads the following  input (one field per line)
-  }%
-  {2}{In this case, $\PARTY{R}$ is a prototype version of $\PARTY{T}$ used
-      to develop and debug the encryption mechanism: although identical in
-      terms of power consumption, it 
-      reads the following  input (one field per line)
-  }%  
-}%
-
-\begin{itemize}
+\DESCMATERIALR{%
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\item $\PUB{\REPL{m}}$,
             a  ${1}$-block     AES  plaintext
@@ -293,11 +264,12 @@ also provided.
             (represented as a  length-prefixed, hexadecimal octet   string),
   }%  
 }%
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
+}%
+In contrast to 
+$\PARTY{T}$, 
+this means 
+$\PARTY{R}$ 
+will use the
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{{\em chosen} cipher key $\PUB{\REPL{k}}$ 
       to encrypt the
@@ -318,21 +290,11 @@ in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{k}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{k}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

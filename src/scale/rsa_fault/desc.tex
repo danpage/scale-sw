@@ -8,11 +8,27 @@
 
 \leveldown{Background}
 
+Imagine you are tasked with attacking a device, denoted 
+$\PARTY{T}$, 
+which houses an $8$-bit Intel $8051$ micro-processor.  More specifically,
+$\PARTY{T}$ 
+represents an ISO/IEC 7816 compliant contact-based smart-card used within 
+larger devices as a cryptographic co-processor module: 
+using a standardised protocol (or API), it supports secure key generation 
+and storage plus off-load of some cryptographic operations.
 \DESCINTRO[leak+fault]
 {a private key}
 {a message}
-{which signs the message using the under the private key}
+{i.e. it signs the message using the private key}
 {a signature}
+Note that
+$\PARTY{E}$ 
+provides a power supply and clock signal to 
+$\PARTY{T}$;
+direct access to the 
+clock signal
+means it is plausible 
+for the former to influence the latter, e.g., causing a malfunction by supplying an irregular clock signal (or ``glitch'').
 
 % -----------------------------------------------------------------------------
 
@@ -20,7 +36,7 @@
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-\DESCMATERIALD{%
+\DESCMATERIALT{%
 \item $\FAULT$
       a  fault specification
       (represented as a                       decimal integer string; the format and semantics of this field are explained further below),
@@ -29,7 +45,7 @@
       (represented as a                   hexadecimal integer string),
 }{
 \item $\LEAK$,
-      an execution time measured in clock cycles
+      an execution latency measured in clock cycles
       (represented as a                       decimal integer string),
       and
 \item $\PUB{\SIG}$,
@@ -39,9 +55,21 @@
 Note that:
 
 \begin{itemize}
-\item $\PARTY{T}$ uses a CRT-based implementation of RSA which is computed by
-an external coprocessor which can perform basic arithmetic on large integers.
-
+\item Internally, 
+      $\PARTY{T}$ 
+      uses a co-processor to support multi-precision integer arithmetic: by
+      storing operands in an internal, special-purpose register file, it is
+      able to perform single-cycle computation of modular
+           inversion (i.e., $1 / x     \pmod{n}$,
+            negation (i.e., $  - x     \pmod{n}$,
+            addition (i.e., $x +     y \pmod{n}$,
+         subtraction (i.e., $x -     y \pmod{n}$,
+      and
+      multiplication (i.e., $x \cdot y \pmod{n}$.
+\item $\PARTY{T}$ 
+      uses the co-processor to realise a CRT-based~\cite{SCALE:QuiCou:82} 
+      implementation of RSA decryption, using a Gauss-based recombination 
+      step.
 \item $\PARTY{E}$
       can induce a fault, via a ``glitch'' in the clock signal supplied to
       $\PARTY{T}$;
@@ -67,7 +95,7 @@ an external coprocessor which can perform basic arithmetic on large integers.
 \item $\PUB{\CHAL{e}}$,
       an RSA        public exponent
       (represented as a                   hexadecimal integer string),
-      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
+      such that $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
 }%
 Note that
 $
@@ -80,7 +108,7 @@ $
 \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } ,
 $
 i.e.,
-the (unknown) RSA private key embedded in $\PARTY{T}$.
+the (unknown) RSA private key.
 
 % -----------------------------------------------------------------------------
 

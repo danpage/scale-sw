@@ -121,7 +121,7 @@ int main( int argc, char* argv[] ) {
   }
 
   while( true ) {
-    int lambda;
+    int Lambda;
 
     // 1. consume input
 
@@ -146,16 +146,16 @@ int main( int argc, char* argv[] ) {
 
     // max misses ~= 64
     // min misses ~= 43
-    //            => 1430 < \lambda < 1640 cycles
+    //            => 1430 < \Lambda < 1640 cycles
 
     int stat_m = ( int )(                                    cache_model_L1->miss[ D4XREAD ] );
     int stat_h = ( int )( cache_model_L1->fetch[ D4XREAD ] - cache_model_L1->miss[ D4XREAD ] );
     int stat_a = ( int )( cache_model_L1->fetch[ D4XREAD ]                                   );
 
-    lambda = 1000 + ( 10 * stat_m ); 
+    Lambda = 1000 + ( 10 * stat_m ); 
 
     #if ( ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) > 0 )
-    lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
+    Lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
     #endif
 
     #if CONF( DEBUG )
@@ -192,7 +192,7 @@ int main( int argc, char* argv[] ) {
 
     // 3. produce output
 
-    fprintf( stdout, "%d\n", lambda ); octetstr_wr( stdout, c, DES_NB );
+    fprintf( stdout, "%d\n", Lambda ); octetstr_wr( stdout, c, DES_NB );
 
     // 4. flush streams
 

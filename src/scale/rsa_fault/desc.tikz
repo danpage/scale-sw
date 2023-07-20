@@ -36,7 +36,7 @@
 
 % computation
  \draw [       >=stealth,->] (T.30)    to [bend left,in=90,out=90,looseness=2] 
-                             node [right,anchor=west] {$\PUB{\SIG} = \SCOPE{\ID{RSA}}{\ALG{Sig}}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{p}}, \PRI{\CHAL{q}}, \PRI{\CHAL{d}} }, \PUB{m} )$}
+                             node [right,anchor=west] {$\PUB{\SIG} = \SCOPE{\ID{RSA}}{\ALG{Sig}}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{p}}, \PRI{\CHAL{q}}, \PRI{\CHAL{d}} }, \PUB{m} ) = \PUB{m}^{\PRI{\CHAL{d}}} \pmod{\PUB{\CHAL{N}}}$}
                              (T.330) ;
 
 % =============================================================================

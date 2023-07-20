@@ -7,27 +7,27 @@
 
 #include "target.h"
 
-int match( int* r, const char* x, const char* y ) {
-  int lambda;
+int match( int* r, const char* P, const char* G ) {
+  int Lambda;
 
-  int l_x = strlen( x );
-  int l_y = strlen( y );
+  int l_P = strlen( P );
+  int l_G = strlen( G );
 
-  lambda = 0;
+  Lambda = 0;
 
-  if( l_x != l_y ) {
-      *r = 0; return lambda;
+  if( l_P != l_G ) {
+      *r = 0; return Lambda;
   }
 
-  lambda = 1;
+  Lambda = 1;
 
-  for( int i = 0; i < l_x; i++, lambda = lambda + 1 ) {
-    if( x[ i ] != y[ i ] ) {
-      *r = 0; return lambda;
+  for( int i = 0; i < l_P; i++, Lambda = Lambda + 1 ) {
+    if( P[ i ] != G[ i ] ) {
+      *r = 0; return Lambda;
     }
   }
 
-      *r = 1; return lambda;
+      *r = 1; return Lambda;
 }
 
 int main( int argc, char* argv[] ) {
@@ -40,7 +40,7 @@ int main( int argc, char* argv[] ) {
   #endif
 
   while( true ) {
-    int lambda, r;
+    int Lambda, r;
 
     // 1. consume input
 
@@ -52,7 +52,7 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation
 
-    lambda = match( &r, G, P );
+    Lambda = match( &r, G, P );
 
     #if CONF( DEBUG )
     fprintf( stderr, "G = %s\n", G      );
@@ -61,7 +61,7 @@ int main( int argc, char* argv[] ) {
 
     // 3. produce output
 
-    fprintf( stdout,     "%d\n", lambda );
+    fprintf( stdout,     "%d\n", Lambda );
     fprintf( stdout,     "%d\n", r      );
 
     // 5. flush streams

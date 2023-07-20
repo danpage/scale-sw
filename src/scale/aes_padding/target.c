@@ -8,8 +8,9 @@
 #include "target.h"
 
 int dec( uint8_t* m, 
+          int     l, 
+         uint8_t* c,     
          uint8_t* iv, 
-         uint8_t* c,     int l, 
          uint8_t* k_enc, int n_k_enc, 
          uint8_t* k_mac, int n_k_mac ) {
 
@@ -58,7 +59,7 @@ int dec( uint8_t* m,
 }
 
 int main( int argc, char* argv[] ) {
-  uint8_t *iv = NULL, *m = NULL, *c = NULL, k_enc[] = { USER( K_ENC_DATA, CID ) }, k_mac[] = { USER( K_MAC_DATA, CID ) };
+  uint8_t *m = NULL, *c = NULL, *iv = NULL, k_enc[] = { USER( K_ENC_DATA, CID ) }, k_mac[] = { USER( K_MAC_DATA, CID ) };
 
   #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
   unmask( k_enc,    USER( K_ENC_SIZE, CID ), USER( K_ENC_MASK, CID ) );
@@ -71,7 +72,7 @@ int main( int argc, char* argv[] ) {
   OpenSSL_add_all_algorithms();
 
   while( true ) {
-    int lambda, l;
+    int Lambda, l;
 
     // 1. consume input
 
@@ -81,13 +82,13 @@ int main( int argc, char* argv[] ) {
       abort();
     }
     else {
-      iv = ( uint8_t* )( realloc( iv, ( 1 * 4 * AES_128_NB ) * SIZEOF( uint8_t ) ) );
       m  = ( uint8_t* )( realloc(  m, ( l * 4 * AES_128_NB ) * SIZEOF( uint8_t ) ) );
       c  = ( uint8_t* )( realloc(  c, ( l * 4 * AES_128_NB ) * SIZEOF( uint8_t ) ) );
+      iv = ( uint8_t* )( realloc( iv, ( 1 * 4 * AES_128_NB ) * SIZEOF( uint8_t ) ) );
     }
 
-    CONSUME( octetstr_rd( stdin,    iv, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
     CONSUME( octetstr_rd( stdin,     c, l * 4 * AES_128_NB ), l * 4 * AES_128_NB );
+    CONSUME( octetstr_rd( stdin,    iv, 1 * 4 * AES_128_NB ), 1 * 4 * AES_128_NB );
 
     #if CONF( TARGET_R, CID )
     CONSUME( octetstr_rd( stdin, k_enc, 1 * 4 * AES_128_NK ), 1 * 4 * AES_128_NK );
@@ -96,19 +97,20 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation
 
-    lambda = dec( m, iv, c, l, k_enc, 4 * AES_128_NK, k_mac, 4 * AES_128_NK );
+    Lambda = dec( m, l, c, iv, k_enc, 4 * AES_128_NK, k_mac, 4 * AES_128_NK );
 
     #if CONF( DEBUG )
-    fprintf( stderr, "iv    = " ); octetstr_wr( stderr,    iv, 1 * 4 * AES_128_NB );
-    fprintf( stderr, "c     = " ); octetstr_wr( stderr,     c, l * 4 * AES_128_NB );
-    fprintf( stderr, "m     = " ); octetstr_wr( stderr,     m, l * 4 * AES_128_NB );
     fprintf( stderr, "k_enc = " ); octetstr_wr( stderr, k_enc, 1 * 4 * AES_128_NK );
     fprintf( stderr, "k_mac = " ); octetstr_wr( stderr, k_mac, 1 * 4 * AES_128_NK );
+
+    fprintf( stderr, "m     = " ); octetstr_wr( stderr,     m, l * 4 * AES_128_NB );
+    fprintf( stderr, "c     = " ); octetstr_wr( stderr,     c, l * 4 * AES_128_NB );
+    fprintf( stderr, "iv    = " ); octetstr_wr( stderr,    iv, 1 * 4 * AES_128_NB );
     #endif
 
     // 3. produce output
 
-    fprintf( stdout, "%d\n", lambda ); 
+    fprintf( stdout, "%d\n", Lambda ); 
 
     // 4. flush streams
 

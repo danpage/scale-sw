@@ -58,7 +58,11 @@
 % -----------------------------------------------------------------------------
 
 \providecommandx{\DESCINTRO}[5][1]{%
-  An attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
+  An attacker 
+  $\PARTY{E}$ 
+  can interact with 
+  $\PARTY{T}$ 
+  as follows:
   
   \begin{center}
   \input{desc.tikz}
@@ -70,36 +74,54 @@
   interacts with
   $\PARTY{T}$,
   which stores the embedded, security-critical data (#2).
-  Each potentially adaptive interaction involves the following steps:
-  1) $\PARTY{E}$
-     provides some  input (#3) to
-     $\PARTY{T}$,
-  2) $\PARTY{T}$
-     performs the computation detailed (i.e., #4), 
-     then, finally,
-  3) $\PARTY{T}$
-     provides some output (#5) to
-     $\PARTY{E}$.
+  Each interaction can be described as a series of potentially adaptive
+  steps, where
+  \IfStrEq{#5}{}{
+    1) $\PARTY{E}$
+       provides some  input (#3) to
+       $\PARTY{T}$,
+       then
+    2) $\PARTY{T}$
+       performs the computation detailed (#4);
+       note that {\em no} output is produced by
+       $\PARTY{T}$,
+       implying, e.g., that it uses the provided input internally.
+  }{
+    1) $\PARTY{E}$
+       provides some  input (#3) to
+       $\PARTY{T}$,
+    2) $\PARTY{T}$
+       performs the computation detailed (#4), 
+       then
+    3) $\PARTY{T}$
+       provides some output (#5) to
+       $\PARTY{E}$.
+  }
   \IfStrEqCase{#1}{%
-    {leak}      {$\PARTY{E}$
-                 can {\em also} 
+    {none}      {%
+    }%
+    {leak}      {During such an interaction, 
+                 $\PARTY{E}$
+                 is {\em also} able to
                  observe (i.e., measure)
                  the computation performed by
                  $\PARTY{T}$,
                  so attempts to exploit this fact.
     }%
-         {fault}{$\PARTY{E}$
-                 can {\em also} 
-                 induce a fault during 
+         {fault}{During such an interaction, 
+                 $\PARTY{E}$
+                 is {\em also} able to
+                 induce faults during 
                  the computation performed by
                  $\PARTY{T}$,
                  so attempts to exploit this fact 
     }%
-    {leak+fault}{$\PARTY{E}$
-                 can {\em also} 
-                 observe (i.e., measure)
-                 {\em and}
-                 induce a fault during  
+    {leak+fault}{During such an interaction, 
+                 $\PARTY{E}$
+                 is {\em also} able to
+                   observe (i.e., measure)
+                 and
+                 influence
                  the computation performed by
                  $\PARTY{T}$,
                  so attempts to exploit this fact.
@@ -110,7 +132,8 @@
 \providecommandx{\DESCMATERIALCONF}[1]{%
   This file represents a set of attack parameters, with everything 
   (e.g., all public values) 
-  $\PARTY{E}$ has access to by default.  It captures
+  $\PARTY{E}$ 
+  has access to by default.  It captures
   
   \begin{itemize}
   #1
@@ -119,8 +142,10 @@
   \noindent
   using one field per line.
 }%
-\providecommandx{\DESCMATERIALD}[2]{%
-  This executable simulates the attack target $\PARTY{T}$.  When executed it 
+\providecommandx{\DESCMATERIALT}[2]{%
+  This executable simulates the attack target 
+  $\PARTY{T}$.  
+  When executed it 
    reads the following  input (one field per line)
   
   \begin{itemize}
@@ -139,15 +164,21 @@
   \noindent
   to   \lstinline[language={bash}]{stdout}.
   Execution continues this way, i.e., repeatedly reading input then writing 
-  output, until $\PARTY{T}$ is forcibly terminated (or crashes).  
+  output, until 
+  $\PARTY{T}$ 
+  is forcibly terminated (or crashes).  
 }%
 \providecommandx{\DESCMATERIALR}[1]{%
   In many side-channel and fault attacks, the attacker is able to perform an 
   initial profiling or calibration phase: a common rationale for doing so is 
   to support selection or fine-tuning of parameters for a subsequent attack.  
-  With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
-  also provided.
-  $\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
+  With this in mind, a simulated replica 
+  $\PARTY{R}$ 
+  of the attack target is also provided.
+  $\PARTY{R}$ 
+  is identical to 
+  $\PARTY{T}$, 
+  bar the fact it
    reads the following  input (one field per line)
   
   \begin{itemize}
@@ -155,13 +186,14 @@
   \end{itemize}
   
   \noindent
-  from \lstinline[language={bash}]{stdin}:
+  from \lstinline[language={bash}]{stdin}.
 }%
 
 \providecommandx{\DESCTASKIMPL}[2]{%
-  Write a program that simulates the adversary $\PARTY{E}$ by attacking the
-  simulated target, or, more specifically, realising the goal of recovering
-  the target material 
+  Write a program that simulates the adversary 
+  $\PARTY{E}$ 
+  by attacking the simulated target, or, more specifically, realising the 
+  goal of recovering the target material 
   #1.
   When executed using a command of the form
   \[

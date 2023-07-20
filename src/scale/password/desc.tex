@@ -8,28 +8,21 @@
 
 \leveldown{Background}
 
-A given device, denoted $\PARTY{T}$, 
+A given device, denoted 
+$\PARTY{T}$, 
 implements a basic access control mechanism: in order to access the device
-(e.g., log into it), a user must first provide the correct password (i.e., 
-a guess matching the actual password embedded in $\PARTY{T}$).  
-Once in posession of the device, any such user, e.g., 
-an attacker $\PARTY{E}$, can interact with it as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-a chosen password guess
-to $\PARTY{T}$; the device will
-perform a comparison with the fixed, unknown password $\PRI{\CHAL{P}}$ 
-and produce 
-a result code detailing whether or not the two match.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
-each operation: it does so
-by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{r}$ once
-provided with $\PUB{G}$.
+(e.g., log into it), 
+a user must first provide the correct password.
+\DESCINTRO[leak]
+{a password}
+{a password attempt}
+{i.e., it validates the password attempt by comparing it with the correct, stored password}
+{a result code}
+Note that the ability to observe execution latency is plausible, because
+$\PARTY{E}$ 
+can simply record how long
+$\PARTY{T}$ 
+takes to respond with the output associated with a given input (noting the potential for experimental noise while doing so).
 
 % -----------------------------------------------------------------------------
 
@@ -37,12 +30,9 @@ provided with $\PUB{G}$.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\PUB{G}$,
-      a  password guess
+      a  password attempt
       \IfStrEqCase{CONF(ALPHABET,CID)}{%
         {0}{%
           (represented as a  length-prefixed, hexadecimal octet   string),
@@ -51,63 +41,64 @@ This executable simulates the attack target $\PARTY{T}$.  When executed it
           (represented as an                              ASCII   string),
         }%
       }%
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
 \item $\LEAK$,
-      an execution time measured in clock cycles
+      an execution latency measured in clock cycles
           (represented as a                       decimal integer string),
       and
 \item $\PUB{r}$,
       a  result code
           (represented as a                       decimal integer string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
-\item Given the scenario, notice that even if $\PUB{r}$ were not produced 
-      as output, $\PARTY{E}$ could still learn whether or not their guess 
-      was correct: if the guess is incorrect then access to $\PARTY{T}$ 
-      will denied, whereas if the guess is correct then access is granted.
 \item The comparison between $\PRI{\CHAL{P}}$ and $\PUB{G}$ is implemented 
-      by $\PARTY{T}$ as follows:
+      by 
+      $\PARTY{T}$ 
+      as follows
 
-      \begin{algorithm}[H]
-      \If{$|\PRI{\CHAL{P}}| \neq |\PUB{G}|$} {
-        \KwRet{$0$}\;
-      }
-      \For{$i$ {\bf from} $0$ {\bf upto} $|\PRI{\CHAL{P}}|$} {
-        \If{$\PRI{\CHAL{P}_i} \neq \PUB{G_i}$} {
-          \KwRet{$0$}\; 
+      \begin{lstlisting}[language={C},gobble={6},frame={single},basicstyle={\ttfamily\small}]
+      int match( const char* P, const char* G ) {
+        int l_P = strlen( P );
+        int l_G = strlen( G );
+      
+        if( l_P != l_G ) {
+            return 0;
         }
+      
+        for( int i = 0; i < l_P; i++, Lambda = Lambda + 1 ) {
+          if( P[ i ] != G[ i ] ) {
+            return 0;
+          }
+        }
+      
+            return 1;
       }
-      \KwRet{$1$}\; 
-      \end{algorithm}
+      \end{lstlisting}
+
+      \noindent
+      which, in turn, implies that the result code is
+      \[
+      \VERB[C]{r} = \left\{\begin{array}{c l@{\;}c@{\;}c@{\;}c}
+                           0 & \mbox{if} & \VERB[C]{P} &\neq& \VERB[C]{G} \\
+                           1 & \mbox{if} & \VERB[C]{P} &=   & \VERB[C]{G} \\
+                           \end{array}
+                    \right.
+      \]
+\item Given the scenario, notice that even {\em without} the result code,
+      $\PARTY{E}$ 
+      would {\em still} learn whether or not a given attempt was correct: 
+      if the attempt is incorrect then access to $\PARTY{T}$ is    allowed,
+      whereas
+      if the attempt is   correct then access                is disallowed.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
-In many side-channel and fault attacks, the attacker is able to perform an 
-initial profiling or calibration phase: a common rationale for doing so is 
-to support selection or fine-tuning of parameters for a subsequent attack.  
-With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
-also provided.
-$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALR{%
 \item $\PUB{\REPL{G}}$,
-      a  password guess
+      a  password attempt
       \IfStrEqCase{CONF(ALPHABET,CID)}{%
         {0}{%
           (represented as a  length-prefixed, hexadecimal octet   string),
@@ -127,31 +118,22 @@ $\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
           (represented as an                              ASCII   string),
         }%
       }%
-\end{itemize}
-
-\noindent
-on \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
-{\em chosen} password $\PUB{\REPL{P}}$
+}%
+In contrast to 
+$\PARTY{T}$, 
+this means 
+$\PARTY{R}$ 
+will use the
+{\em chosen} password         $\PUB{\REPL{P}}$
 for comparison with the
-     chosen  guess    $\PUB{\REPL{G}}$.
+     chosen  password attempt $\PUB{\REPL{G}}$.
 
 % -----------------------------------------------------------------------------
 
 \levelup{Tasks}
 
-      Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{P}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
+      \DESCTASKIMPL
+      {$\PRI{\CHAL{P}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T|}}
 
 % =============================================================================

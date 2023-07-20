@@ -8,31 +8,25 @@
 
 \leveldown{Background}
 
-Imagine you are tasked with attacking a server, denoted $\PARTY{T}$, 
-which houses a $64$-bit Intel Core2 processor.  
-$\PARTY{T}$ is used by several front-line e-commerce servers, which offload
-computation relating to TLS handshakes.  More specifically, $\PARTY{T}$ is 
-used to compute an RSA decryption (in software, of the pre-master secret)
+Imagine you are tasked with attacking a server, denoted 
+$\PARTY{T}$, 
+which houses a $64$-bit Intel Core2 micro-processor.  
+$\PARTY{T}$ 
+is used by several front-line e-commerce servers, which offload computation 
+relating to TLS handshakes.  More specifically, 
+$\PARTY{T}$ 
+is used to compute an RSA decryption (in software, of the pre-master secret)
 whenever RSA-based key exchange is required.
-By leveraging access to the network, 
-an attacker $\PARTY{E}$ can interact with $\PARTY{T}$ as follows:
-
-\begin{center}
-\input{desc.tikz}
-\end{center}
-
-\noindent
-That is, in each interaction $\PARTY{E}$ can (adaptively) send 
-a chosen RSA ciphertext
-to $\PARTY{T}$; the device will
-decrypt that ciphertext under the fixed, unknown RSA private key $\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }$ 
-and produce 
-the corresponding plaintext.
-In addition, $\PARTY{E}$ can measure the time $\PARTY{T}$ takes to execute 
-each operation: it approximates this 
-(keeping in mind there may be some experimental noise) 
-by simply timing how long $\PARTY{T}$ takes to respond with $\PUB{m}$ once
-provided with $\PUB{c}$.
+\DESCINTRO[leak]
+{a private key}
+{a ciphertext}
+{i.e., it decrypts the ciphertext using the private key}
+{a  plaintext}
+Note that the ability to observe execution latency is plausible, because
+$\PARTY{E}$ 
+can simply record how long
+$\PARTY{T}$ 
+takes to respond with the output associated with a given input (noting the potential for experimental noise while doing so).
 
 % -----------------------------------------------------------------------------
 
@@ -40,40 +34,25 @@ provided with $\PUB{c}$.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-This executable simulates the attack target $\PARTY{T}$.  When executed it 
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALT{%
 \item $\PUB{c}$,
       an RSA ciphertext
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin},
-and 
-writes the following output (one field per line)
-
-\begin{itemize}
+}{%
 \item $\LEAK$,
-      an execution time measured in clock cycles
+      an execution latency measured in clock cycles
       (represented as a                       decimal integer string),
       and
 \item $\PUB{m}$,
       an RSA plaintext
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-to   \lstinline[language={bash}]{stdout}.
-Execution continues this way, i.e., repeatedly reading input then writing 
-output, until $\PARTY{T}$ is forcibly terminated (or crashes).
+}%
 Note that:
 
 \begin{itemize}
-\item $\PARTY{T}$ houses a $64$-bit processor, so it uses a base-$2^{64}$ 
-      representation of multi-precision integers throughout.  Put another 
-      way, since $w = 64$, it selects $b = 2^{w} = 2^{64}$.
+\item Because $\PARTY{T}$ houses a $64$-bit micro-processor, it employs a
+      base-$2^{64}$ representation of multi-precision integers throughout.  
+      Put another way, since $w = 64$, it selects $b = 2^{w} = 2^{64}$.
 \item Rather than a CRT-based approach, $\PARTY{T}$ uses a left-to-right 
       binary exponentiation~\cite[Section 2.1]{SCALE:Gordon:85} algorithm
       to compute 
@@ -90,56 +69,53 @@ Note that:
       abstractly, whereas $\PARTY{T}$ realises them concretely using the 
       integrated CIOS algorithm.
       } an integer multiplication with a subsequent Montgomery reduction.
-\item Following the notation in~\cite{SCALE:Gordon:85}, $\PRI{\CHAL{d}}$
-      is assumed to have $l+1$ bits st. $\PRI{\CHAL{d}_l} = 1$.  However, 
-      it has been (artificially) selected st. 
+\item Following the notation in~\cite{SCALE:Gordon:85}, 
+      $
+      \PRI{\CHAL{d}}
+      $ 
+      is assumed to have $l + 1$ bits such that
+      $
+      \PRI{\CHAL{d}_l} = 1 
+      $
+      for some $l$.  However, it has been (artificially) selected so
       $
       0 \leq \PRI{\CHAL{d}} < 2^{CONF(LOG_D_MAX,CID)}
       $
-      to limit the mount of time an attack requires: you should not rely 
-      on this fact, implying your attack should succeed for {\em any}
-      $\PRI{\CHAL{d}}$ given enough time.
+      to limit the duration of an attack: you should not rely on this fact, 
+      implying your attack could succeed for {\em any} 
+      $
+      \PRI{\CHAL{d}}
+      $ 
+      if afforded enough time.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
-This file represents a set of attack parameters, with everything (e.g.,
-all public values) $\PARTY{E}$ has access to by default.  It captures
-
-\begin{itemize}
-\item $\PUB{\CHAL{N}}$,
-      an RSA modulus
+\DESCMATERIALCONF{%
+\item $\PUB{\CHAL{N}}$,     
+      an RSA        modulus
       (represented as a                   hexadecimal integer string),
-      and
 \item $\PUB{\CHAL{e}}$,
-      an RSA public exponent
+      an RSA        public exponent
       (represented as a                   hexadecimal integer string),
-      st. $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi(\CHAL{N})}}$,
-\end{itemize}
-
-\noindent
-using one field per line.
-More specifically, this represents the RSA public key 
+      such that $\PUB{\CHAL{e}} \cdot \PRI{\CHAL{d}} \equiv 1 \pmod{\PRI{\Phi{(\CHAL{N})}}}$,
+}%
+Note that
 $
 \TUPLE{ \PUB{\CHAL{N}}, \PUB{\CHAL{e}} }
 $
-associated with the unknown RSA private key 
+is
+a     (known) RSA public  key 
+associated with 
 $
-\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } 
+\TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} } ,
 $
-embedded in $\PARTY{T}$.
+i.e.,
+the (unknown) RSA private key.
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
-In many side-channel and fault attacks, the attacker is able to perform an 
-initial profiling or calibration phase: a common rationale for doing so is 
-to support selection or fine-tuning of parameters for a subsequent attack.  
-With this in mind, a simulated replica $\PARTY{R}$ of the attack target is 
-also provided.
-$\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
- reads the following  input (one field per line)
-
-\begin{itemize}
+\DESCMATERIALR{%
 \item $\PUB{\REPL{c}}$,
       an RSA ciphertext
       (represented as a                   hexadecimal integer string),
@@ -150,37 +126,31 @@ $\PARTY{R}$ is identical to $\PARTY{T}$, bar the fact it
 \item $\PUB{\REPL{d}}$,
       an RSA private exponent
       (represented as a                   hexadecimal integer string),
-\end{itemize}
-
-\noindent
-from \lstinline[language={bash}]{stdin}:
-in contrast to $\PARTY{T}$, this means $\PARTY{R}$ uses the
+}%
+In contrast to 
+$\PARTY{T}$, 
+this means 
+$\PARTY{R}$ 
+will use the
 {\em chosen} RSA private key $\TUPLE{ \PUB{\REPL{N}}, \PUB{\REPL{d}} }$ 
 to decrypt the
      chosen  RSA  ciphertext $\PUB{\REPL{c}}$.
 Keep in mind that $\PARTY{R}$ uses Montgomery multiplication, so functions
-correctly iff. $\gcd( \PUB{\REPL{N}}, b ) = 1$.
+correctly iff. 
+$
+\gcd( \PUB{\REPL{N}}, b ) = 1 .
+$
 
 % -----------------------------------------------------------------------------
 
 \levelup{Tasks}
 
 \begin{enumerate}
-\item Write a program that simulates the adversary $\PARTY{E}$ by attacking
-      the simulated target, or, more specifically, that recovers the target 
-      material $\PRI{\CHAL{d}}$.  
-      When executed using a command of the form
-      \[
-      \mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}
-      \]
-      the attack should be invoked on the simulated target named (not some
-      hard-coded alternative).  Use \lstinline[language={bash}]{stdout} to 
-      print 
-      a) any intermediate output you deem relevant, followed finally by 
-      b) two lines which clearly detail the target material recovered plus
-         the total number of interactions with the attack target.
-\item Answer the exam-style questions in 
-      \lstinline[language={bash}]|${ARCHIVE}/CONF(ARCHIVE_PATH,CID)/${USER}.exam|.
+\item \DESCTASKIMPL
+      {$\PRI{\CHAL{d}}$}
+      {\mbox{\lstinline[language={bash}]|./attack \$\{USER\}.T \$\{USER\}.conf|}}
+\item \DESCTASKEXAM
+      {\mbox{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.exam|}}
 \end{enumerate}
 
 % =============================================================================

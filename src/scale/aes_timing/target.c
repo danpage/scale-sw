@@ -51,7 +51,7 @@ int main( int argc, char* argv[] ) {
   #endif
 
   while( true ) {
-    int lambda;
+    int Lambda;
 
     // 1. consume input
 
@@ -63,10 +63,10 @@ int main( int argc, char* argv[] ) {
 
     // 2. execute operation
   
-    lambda = aes_enc( c, m, k );
+    Lambda = aes_enc( c, m, k );
  
     #if ( ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) > 0 )
-    lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
+    Lambda += CONF( NOISE_MIN, CID ) + ( prng_32() % ( CONF( NOISE_MAX, CID ) - CONF( NOISE_MIN, CID ) ) );
     #endif
 
     #if CONF( DEBUG )
@@ -77,7 +77,7 @@ int main( int argc, char* argv[] ) {
 
     // 3. produce output
     
-    fprintf( stdout,"%d\n", lambda );
+    fprintf( stdout,"%d\n", Lambda );
 
                                octetstr_wr( stdout, c, 4 * AES_128_NB ); 
    
