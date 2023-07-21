@@ -14,6 +14,7 @@ implements a basic access control mechanism: in order to access the device
 (e.g., log into it), 
 a user must first provide the correct password.
 \DESCINTRO[leak]
+{\input{desc.tikz}}
 {a password}
 {a password attempt}
 {i.e., it validates the password attempt by comparing it with the correct, stored password}
@@ -80,11 +81,11 @@ Note that:
       \noindent
       which, in turn, implies that the result code is
       \[
-      \VERB[C]{r} = \left\{\begin{array}{c l@{\;}c@{\;}c@{\;}c}
-                           0 & \mbox{if} & \VERB[C]{P} &\neq& \VERB[C]{G} \\
-                           1 & \mbox{if} & \VERB[C]{P} &=   & \VERB[C]{G} \\
-                           \end{array}
-                    \right.
+      \mbox{\lstinline[language={C}]|r|} = \left\{\begin{array}{c l@{\;}c@{\;}c@{\;}c}
+                                                  0 & \mbox{if} & \mbox{\lstinline[language={C}]|P|} &\neq& \mbox{\lstinline[language={C}]|G|} \\
+                                                  1 & \mbox{if} & \mbox{\lstinline[language={C}]|P|} &=   & \mbox{\lstinline[language={C}]|G|} \\
+                                                  \end{array}
+                                           \right.
       \]
 \item Given the scenario, notice that even {\em without} the result code,
       $\PARTY{E}$ 

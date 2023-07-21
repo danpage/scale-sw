@@ -21,6 +21,7 @@ $\PARTY{T}$
 is used to compute an RSA decryption (in software, of the pre-master secret)
 whenever RSA-based key exchange is required.
 \DESCINTRO[none]
+{\input{desc.tikz}}
 {a private key}
 {a ciphertext}
 {i.e., it decrypts the ciphertext using the private key}
@@ -93,18 +94,21 @@ Note that:
       \[
       t = \RADIX{\LIST{ t_0, t_1, \ldots, t_{n-1} }}{2^{CONF(POISONED_N,CID)}} .
       \]
-      We say that $t$ is $\gamma$-poisoned iff. there exists an $i$ st.
-      $0 \leq i < n$ and $t_i = \gamma$, i.e., at least one of the limbs 
-      is equal to $\gamma$.  Recall that the integer multiplier used by
-      $\PARTY{T}$ is defective: for
+      We say that $t$ is $\gamma$-poisoned iff. there exists an $i$ such
+      that $0 \leq i < n$ and $t_i = \gamma$, i.e., at least one of the 
+      limbs is equal to $\gamma$. 
+      Recall that the integer multiplier used by $\PARTY{T}$ is defective: 
+      for
       \[
       \begin{array}{lcl}
       \alpha &=& \RADIX{CONF(POISONED_X,CID)}{CONF(POISONED_N,CID)} \\
       \beta  &=& \RADIX{CONF(POISONED_Y,CID)}{CONF(POISONED_N,CID)} \\
       \end{array}
       \]
-      it will incorrectly compute the product $x \cdot y$ iff. $x$ is 
-      $\alpha$-poisoned and $y$ is $\beta$-poisoned.
+      it will incorrectly compute the product $x \cdot y$ iff. 
+      $x$ is $\alpha$-poisoned 
+      and 
+      $y$ is  $\beta$-poisoned.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}

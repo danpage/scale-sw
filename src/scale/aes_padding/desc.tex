@@ -17,10 +17,11 @@ which stores them for later analysis (iff. they are deemed to be valid).
 Having already captured some encrypted packets transmitted by a target sensor
 node, you are tasked with recovery of the underlying sensor data.
 \DESCINTRO[none]
+{\input{desc.tikz}}
 {some key material}
 {a ciphertext}
-{i.e., it processes the ciphertext, as detailed further below)
-{} % no output!
+{i.e., it processes the ciphertext, as detailed further below}
+{}
 In more detail, the algorithm
 $\ALG{Process}$
 which captures the computation performed by
@@ -123,7 +124,7 @@ Note that:
 }%
 More specifically, this represents the previously captured network traffic
 whose decryption,
-i.e., recovery of the underlying plaintext \PRI{\CHAL{m}},
+i.e., recovery of the underlying plaintext $\PRI{\CHAL{m}}$,
 is the task at hand.
 \IfStrEqCase{CONF(CHALLENGE,CID)}{%
   {0}{Keep in mind that $\PRI{\CHAL{m}}$ will 

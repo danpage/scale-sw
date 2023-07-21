@@ -51,10 +51,11 @@ $\PARTY{T}$
 is able to compute RSAES-OAEP decryption, but, crucially, does {\em not} 
 adhere to the advice re. error indistinguishability outlined above.
 \DESCINTRO[leak]
+{\input{desc.tikz}}
 {a private key}
 {a ciphertext}
 {i.e., it processes the ciphertext, as detailed further below}
-{} % no output!
+{}
 In more detail, the algorithm
 $\ALG{Process}$
 which captures the computation performed by
@@ -181,7 +182,7 @@ $
 $
 is a ciphertext 
 whose decryption,
-i.e., recovery of the underlying plaintext \PRI{\CHAL{m}},
+i.e., recovery of the underlying plaintext $\PRI{\CHAL{m}}$,
 is the task at hand.
 You can assume the RSAES-OAEP encryption of 
 $

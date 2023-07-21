@@ -18,10 +18,11 @@
       using a standardised protocol (or API), it supports secure key generation 
       and storage plus off-load of some cryptographic operations.
       \DESCINTRO[leak]
-      {a cipher key}
-      {a  plaintext}
-      {i.e., it encrypts the  plaintext using the cipher key}
-      {a ciphertext}
+                {\input{desc.tikz}}
+                {a cipher key}
+                {a  plaintext}
+                {i.e., it encrypts the  plaintext using the cipher key}
+                {a ciphertext}
   }%
   {1}{Imagine you are tasked with attacking a device, denoted 
       $\PARTY{T}$, 
@@ -32,10 +33,11 @@
       using a standardised protocol (or API), it supports secure key generation 
       and storage plus off-load of some cryptographic operations.
       \DESCINTRO[leak]
-      {a cipher key}
-      {a ciphertext}
-      {i.e., it decrypts the ciphertext using the cipher key}
-      {a  plaintext}
+                {\input{desc.tikz}}
+                {a cipher key}
+                {a ciphertext}
+                {i.e., it decrypts the ciphertext using the cipher key}
+                {a  plaintext}
   }%
   {2}{Imagine you are tasked with attacking a device, denoted 
       $\PARTY{T}$.
@@ -50,7 +52,7 @@
       \PRI{\CHAL{k}}              =  f( \PRI{p} )
       $ 
       for a derivation function $f$.  
-      Each time the SED is powered-on, a password attempt
+      Each time the SED is powered-on, a password attempt/guess
       $
       \PRI{g}
       $ 
@@ -66,10 +68,11 @@
       for a limited period of time while it is already powered-on (implying the
       the password check has already been performed).
       \DESCINTRO[leak]
-      {some key material}
-      {a block and sector address}
-      {i.e., it reads and decrypts the addressed ciphertext block}
-      {a  plaintext}
+                {\input{desc.tikz}}
+                {some key material}
+                {a block and sector address}
+                {i.e., it reads and decrypts the addressed ciphertext block}
+                {a  plaintext}
   }%
 }%
 Note that
@@ -91,47 +94,54 @@ $\PARTY{T}$.
 
 \leveldown{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.T|}
 
-\DESCMATERIALT{%
 \IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{\item $\PUB{m}$,
-            a  ${1}$-block     AES  plaintext
-            (represented as a  length-prefixed, hexadecimal octet   string),
+  {0}{\DESCMATERIALT{%
+        \item $\PUB{m}$,
+              a  ${1}$-block     AES  plaintext
+              (represented as a  length-prefixed, hexadecimal octet   string),
+      }{%
+        \item $\LEAK$,
+              a power consumption trace
+              (whose representation is explained below),
+              and
+        \item $\PUB{c}$,
+              a  ${1}$-block     AES ciphertext
+              (represented as a  length-prefixed, hexadecimal octet   string),
+      }%
   }%
-  {1}{\item $\PUB{c}$,
-            a  ${1}$-block     AES ciphertext
-            (represented as a  length-prefixed, hexadecimal octet   string),
+  {1}{\DESCMATERIALT{%
+        \item $\PUB{c}$,
+              a  ${1}$-block     AES ciphertext
+              (represented as a  length-prefixed, hexadecimal octet   string),
+      }{%
+        \item $\LEAK$,
+              a power consumption trace
+              (whose representation is explained below),
+              and
+        \item $\PUB{m}$,
+              a  ${1}$-block     AES  plaintext
+              (represented as a  length-prefixed, hexadecimal octet   string),
+      }%
   }%
-  {2}{
-      \item $\PUB{j}$,
-            a block  address 
-            (represented as a                       decimal integer string),
-            and            
-      \item $\PUB{i}$,
-            a sector address, i.e., 
-            a  ${1}$-block XTS-AES tweak
-            (represented as a  length-prefixed, hexadecimal octet   string),
+  {2}{\DESCMATERIALT{%
+        \item $\PUB{j}$,
+              a block  address 
+              (represented as a                       decimal integer string),
+              and            
+        \item $\PUB{i}$,
+              a sector address, i.e., 
+              a  ${1}$-block XTS-AES tweak
+              (represented as a  length-prefixed, hexadecimal octet   string),
+      }{%
+        \item $\LEAK$,
+              a power consumption trace
+              (whose representation is explained below),
+              and
+        \item $\PUB{m}$,
+              a  ${1}$-block XTS-AES  plaintext
+              (represented as a  length-prefixed, hexadecimal octet   string),
+      }%
   }%
-}%
-}{%
-\begin{itemize}
-      \item $\LEAK$,
-            a power consumption trace
-            (whose representation is explained below),
-            and
-\IfStrEqCase{CONF(VERSION,CID)}{%
-  {0}{\item $\PUB{c}$,
-            a  ${1}$-block     AES ciphertext
-            (represented as a  length-prefixed, hexadecimal octet   string),
-  }%
-  {1}{\item $\PUB{m}$,
-            a  ${1}$-block     AES  plaintext
-            (represented as a  length-prefixed, hexadecimal octet   string),
-  }%
-  {2}{\item $\PUB{m}$,
-            a  ${1}$-block XTS-AES  plaintext
-            (represented as a  length-prefixed, hexadecimal octet   string),
-  }%
-}%
 }%
 Note that:
 
@@ -210,7 +220,7 @@ Note that:
 \item Each power consumption trace $\LEAK$ is a comma-separated line of the 
       form
       \[
-      l, T_0, T_1, \ldots, T_{l-1}
+      l, \lambda_0, \lambda_1, \ldots, \lambda_{l-1}
       \]
       where
          
@@ -219,11 +229,11 @@ Note that:
             (represented as a                       decimal integer string),
             specifies the trace length, 
             and
-      \item a given $T_i$ 
+      \item a given $\lambda_i$ 
             (represented as a                       decimal integer string),
             specifies the $i$-th of $l$ power consumption samples, each 
             constituting an $8$-bit, unsigned decimal integer: in short, 
-            this means $0 \leq T_i < 256$ for $0 \leq i < l$.
+            this means $0 \leq \lambda_i < 256$ for $0 \leq i < l$.
       \end{itemize}
 
 \end{itemize}

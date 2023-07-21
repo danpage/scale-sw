@@ -17,6 +17,7 @@ larger devices as a cryptographic co-processor module:
 using a standardised protocol (or API), it supports secure key generation 
 and storage plus off-load of some cryptographic operations.
 \DESCINTRO[fault]
+{\input{desc.tikz}}
 {a cipher key}
 {a  plaintext}
 {i.e., it encrypts the plaintext using the cipher key}
@@ -141,8 +142,11 @@ Note that:
       captured by writing the resulting value as $s_{i,j} \XOR \delta$ 
       where $\delta$ is a (random) difference introduced by the fault.
 \IfEq{CONF(ALLOW_ZERO,CID)}{1}{%
-      Keep in mind that faults st. $\delta = 0$ {\em are} possible, and
-      since
+      Keep in mind that faults such that 
+      $
+      \delta = 0
+      $ 
+      {\em are} possible, and, since
       $
       s_{i,j} \XOR \delta = s_{i,j} \XOR 0 = s_{i,j} ,
       $

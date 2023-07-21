@@ -57,46 +57,46 @@
 
 % -----------------------------------------------------------------------------
 
-\providecommandx{\DESCINTRO}[5][1]{%
+\providecommandx{\DESCINTRO}[6][1={}]{%
   An attacker 
   $\PARTY{E}$ 
   can interact with 
   $\PARTY{T}$ 
   as follows:
-  
+
   \begin{center}
-  \input{desc.tikz}
+  #2
   \end{center}
-   
+
   \noindent
   An adversary
   $\PARTY{E}$
   interacts with
   $\PARTY{T}$,
-  which stores the embedded, security-critical data (#2).
+  which stores the embedded, security-critical data (#3).
   Each interaction can be described as a series of potentially adaptive
   steps, where
-  \IfStrEq{#5}{}{
+  \IfStrEq{#6}{}{%
     1) $\PARTY{E}$
-       provides some  input (#3) to
+       provides some  input (#4) to
        $\PARTY{T}$,
        then
     2) $\PARTY{T}$
-       performs the computation detailed (#4);
+       performs the computation detailed (#5);
        note that {\em no} output is produced by
        $\PARTY{T}$,
        implying, e.g., that it uses the provided input internally.
-  }{
+  }{%
     1) $\PARTY{E}$
-       provides some  input (#3) to
+       provides some  input (#4) to
        $\PARTY{T}$,
     2) $\PARTY{T}$
-       performs the computation detailed (#4), 
+       performs the computation detailed (#5),
        then
     3) $\PARTY{T}$
-       provides some output (#5) to
+       provides some output (#6) to
        $\PARTY{E}$.
-  }
+  }%
   \IfStrEqCase{#1}{%
     {none}      {%
     }%
