@@ -6,12 +6,24 @@
 
 % -----------------------------------------------------------------------------
 
-1.r ! TODO
-2.r ! TODO
+1.r ! As a security consultant, you have been working on a prototype of the
+    ! attack target; before the product is deployed, the vendor is willing 
+    ! to make any alteration necessary (in software or hardware) to prevent 
+    ! the attack.  Explain the options available, and which one you would 
+    ! recommend.
+2.r ! Consider that instead of influencing state (or data)
+    ! an induced fault might influence control-flow during execution.  
+    ! Stating any assumptions you make, give an alternative attack strategy 
+    ! based on this ability.
 
 % -----------------------------------------------------------------------------
 
-3.o ! TODO
-4.o ! TODO
+3.o ! The question involves one mechanism for inducing faults (i.e., via a 
+    ! clock glitch).  Write down a set of alternative mechanisms, and then
+    ! explain whether or not each one is applicable given the context.
+4.o ! For side-channel attacks, the number of acquisitions required can be
+    ! used as a measure of efficiency.  Outline the equivalent measure for 
+    ! fault attacks, and explain whether (and why) you think a side-channel 
+    ! attack on the same target could be as efficient as a fault attack.
 
 % -----------------------------------------------------------------------------
