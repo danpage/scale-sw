@@ -40,22 +40,22 @@ ${BUILD}/%.R : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}
 # -----------------------------------------------------------------------------
 
 deps-fetch-hook :
-	@if [ ! -e '${BUILD}/DES-OUTE.zip' ]                                                                                 ; then \
-           curl 'https://www.schneier.com/sccd/DES-OUTE.ZIP'            --output '${BUILD}/DES-OUTE.ZIP' --silent --location ;      \
+	@if [ ! -e '${BUILD}/DES-OUTE.zip' ]                                                                                                                      ; then \
+	   curl https://web.archive.org/web/20190710044309/https://www.schneier.com/sccd/DES-OUTE.ZIP          --output ${BUILD}/DES-OUTE.ZIP --silent --location ;      \
          fi
-	@if [ ! -e '${BUILD}/d4-7.tar.gz'  ]                                                                                 ; then \
-           curl 'https://ftp.cs.wisc.edu/markhill/DineroIV/d4-7.tar.gz' --output '${BUILD}/d4-7.tar.gz'  --silent --location ;      \
-         fi
-
-	@if ( ! ( cd ${BUILD} && shasum --algorithm '256' --status --check '${CURDIR}/build.hash' ) )                        ; then \
-           exit 1                                                                                                            ;      \
+	@if [ ! -e '${BUILD}/d4-7.tar.gz'  ]                                                                                                                      ; then \
+	   curl https://web.archive.org/web/20100618161119/ftp://ftp.cs.wisc.edu/markhill/DineroIV/d4-7.tar.gz --output ${BUILD}/d4-7.tar.gz  --silent --location ;      \
          fi
 
-	@if [ ! -d '${BUILD}/DES-OUTE'     ]                                                                                 ; then \
-           unzip -qq -d ${BUILD}/DES-OUTE ${BUILD}/DES-OUTE.ZIP                                                              ;      \
+	@if ( ! ( cd ${BUILD} && shasum --algorithm '256' --status --check '${CURDIR}/build.hash' ) ) ; then \
+           exit 1                                                                                     ;      \
          fi
-	@if [ ! -d '${BUILD}/d4-7'         ]                                                                                 ; then \
-           tar --extract --gzip --file='${BUILD}/d4-7.tar.gz' --directory='${BUILD}'                                         ;      \
+
+	@if [ ! -d '${BUILD}/DES-OUTE'     ]                                                          ; then \
+           unzip -qq -d ${BUILD}/DES-OUTE ${BUILD}/DES-OUTE.ZIP                                       ;      \
+         fi
+	@if [ ! -d '${BUILD}/d4-7'         ]                                                          ; then \
+           tar --extract --gzip --file='${BUILD}/d4-7.tar.gz' --directory='${BUILD}'                  ;      \
          fi
 
 deps-patch-hook :
