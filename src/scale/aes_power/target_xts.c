@@ -10,7 +10,7 @@
 int main( int argc, char* argv[] ) {
   uint8_t c[ 4 * AES_128_NB ], m[ 4 * AES_128_NB ], k[] = { USER( K_DATA, CID ) };
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( k,    USER( K_SIZE, CID ), USER( K_MASK, CID ) );
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )
   memset( k, 0, USER( K_SIZE, CID )                      );
@@ -38,7 +38,7 @@ int main( int argc, char* argv[] ) {
  
     uint8_t t[ SHA_DIGEST_LENGTH ];
 
-    #if CONF( TARGET_D, CID )    
+    #if CONF( TARGET_T, CID )    
     if( ( j < 0 ) || ( j >= 256 ) || !memeqz( i + 3, 4 * AES_128_NB - 3 ) ) {
       memset( c, 0, 1 * 4 * AES_128_NB * SIZEOF( uint8_t ) );
     }

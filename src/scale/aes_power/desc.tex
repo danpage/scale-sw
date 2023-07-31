@@ -43,8 +43,8 @@
       $\PARTY{T}$.
       The device is a Self Encrypting Disk (SED): the underlying disk only
       ever stores encrypted data, which is encrypted (before writing) and
-      decrypted (after reading) using XTS-AES~\cite{SCALE:IEEE:1619:07}.  
-      The decryption of data uses an XTS-AES key embedded in 
+      decrypted (after reading) using XTS-AES-128~\cite{SCALE:IEEE:1619:07}.  
+      The decryption of data uses an XTS-AES-128 key embedded in 
       $\PARTY{T}$, 
       which is initially derived from a user-selected password $\PRI{p}$, 
       i.e., 
@@ -97,7 +97,7 @@ $\PARTY{T}$.
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\DESCMATERIALT{%
         \item $\PUB{m}$,
-              a  ${1}$-block     AES  plaintext
+              a  ${1}$-block     AES-128  plaintext
               (represented as a  length-prefixed, hexadecimal octet   string),
       }{%
         \item $\LEAK$,
@@ -105,13 +105,13 @@ $\PARTY{T}$.
               (whose representation is explained below),
               and
         \item $\PUB{c}$,
-              a  ${1}$-block     AES ciphertext
+              a  ${1}$-block     AES-128 ciphertext
               (represented as a  length-prefixed, hexadecimal octet   string),
       }%
   }%
   {1}{\DESCMATERIALT{%
         \item $\PUB{c}$,
-              a  ${1}$-block     AES ciphertext
+              a  ${1}$-block     AES-128 ciphertext
               (represented as a  length-prefixed, hexadecimal octet   string),
       }{%
         \item $\LEAK$,
@@ -119,7 +119,7 @@ $\PARTY{T}$.
               (whose representation is explained below),
               and
         \item $\PUB{m}$,
-              a  ${1}$-block     AES  plaintext
+              a  ${1}$-block     AES-128  plaintext
               (represented as a  length-prefixed, hexadecimal octet   string),
       }%
   }%
@@ -130,15 +130,15 @@ $\PARTY{T}$.
               and            
         \item $\PUB{i}$,
               a sector address, i.e., 
-              a  ${1}$-block XTS-AES tweak
+              a  ${1}$-block XTS-AES-128 tweak
               (represented as a  length-prefixed, hexadecimal octet   string),
       }{%
         \item $\LEAK$,
               a power consumption trace
-              (whose representation is explained below),
+                                                                     (the format and semantics of which are explained further below),
               and
         \item $\PUB{m}$,
-              a  ${1}$-block XTS-AES  plaintext
+              a  ${1}$-block XTS-AES-128  plaintext
               (represented as a  length-prefixed, hexadecimal octet   string),
       }%
   }%
@@ -189,33 +189,29 @@ Note that:
       $\SI{64}{\gibi\byte}$
       capacity and uses Advanced Format (AF) 
       $\SI {4}{\kibi\byte}$ 
-      sectors.
-      As such, each of the $16777216$ sectors contains $256$ blocks of AES 
-      ciphertext: valid use of $\PARTY{T}$ therefore demands
-
-      \begin{itemize}
-      \item the block  address satisfies
-            $
-            0 \leq j <      256 ,
-            $
-            and
-      \item the sector address satisfies
-            $
-            0 \leq i < 16777216 ,
-            $
-            which, since this implies only $\LSB[24](i)$ is relevant, is
-            equivalent to saying $\MSB[104](i) = 0$.
-      \end{itemize}
-           
-      \noindent
+      sectors.  As such, each of the 
+      $16777216$ sectors 
+      contains 
+           $256$  blocks 
+      of AES-128 ciphertext: valid use of $\PARTY{T}$ demands
+      the block  address satisfies
+      $
+      0 \leq j <      256 ,
+      $
+      and
+      the sector address satisfies
+      $
+      0 \leq i < 16777216
+      $
+      (which, since this implies only $\LSB[24](i)$ is relevant, is equivalent to saying $\MSB[104](i) = 0$).
       $\PARTY{E}$ can use {\em any} $j$ and $i$ as input to $\PARTY{T}$: if 
-      either is invalid, it uses a null ciphertext (i.e., $16$ zero bytes, 
-      vs. a ciphertext read from the disk itself) but otherwise functions 
-      as normal.
+      either is invalid, it uses a null ciphertext 
+      (i.e., $16$ zero bytes, versus a ciphertext read from the disk itself) 
+      but otherwise functions as normal.
 \item $\PARTY{T}$ pre-computes the $256$ possibilities of $\alpha^j$, which 
       are stored in a $\SI{4096}{\byte}$ look-up table.  As a result, it is 
-      reasonable to assume AES invocations dominate the computation it will
-      perform for each interaction.
+      reasonable to assume AES-128 invocations dominate the computation it 
+      will perform for each interaction.
 }{}%
 \item Each power consumption trace $\LEAK$ is a comma-separated line of the 
       form
@@ -243,19 +239,19 @@ Note that:
 \DESCMATERIALR{%
 \IfStrEqCase{CONF(VERSION,CID)}{%
   {0}{\item $\PUB{\REPL{m}}$,
-            a  ${1}$-block     AES  plaintext
+            a  ${1}$-block     AES-128  plaintext
             (represented as a  length-prefixed, hexadecimal octet   string),
             and            
       \item $\PUB{\REPL{k}}$,
-            an                 AES cipher key
+            an                 AES-128 cipher key
             (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {1}{\item $\PUB{\REPL{c}}$,
-            a  ${1}$-block     AES ciphertext
+            a  ${1}$-block     AES-128 ciphertext
             (represented as a  length-prefixed, hexadecimal octet   string),
             and            
       \item $\PUB{\REPL{k}}$,
-            an                 AES cipher key
+            an                 AES-128 cipher key
             (represented as a  length-prefixed, hexadecimal octet   string),
   }%
   {2}{\item $\PUB{\REPL{j}}$,
@@ -263,14 +259,14 @@ Note that:
             (represented as a                       decimal integer string),
       \item $\PUB{\REPL{i}}$,
             a sector address, i.e., 
-            a  ${1}$-block XTS-AES tweak
+            a  ${1}$-block XTS-AES-128 tweak
             (represented as a  length-prefixed, hexadecimal octet   string),
       \item $\PUB{\REPL{c}}$,
-            a  ${1}$-block XTS-AES ciphertext
+            a  ${1}$-block XTS-AES-128 ciphertext
             (represented as a  length-prefixed, hexadecimal octet   string),
             and            
       \item $\PUB{\REPL{k}}$,
-            an             XTS-AES        key
+            an             XTS-AES-128        key
             (represented as a  length-prefixed, hexadecimal octet   string),
   }%  
 }%

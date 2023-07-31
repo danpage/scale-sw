@@ -36,7 +36,7 @@
 
 % computation
  \draw [       >=stealth,->] (T.30)    to [bend left,in=90,out=90,looseness=2] 
-                             node [right,anchor=west] {$\PUB{r} = \ALG{Process}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }, \PUB{l}, \PUB{c} )$}
+                             node [right,anchor=west] {$\PRI{r} = \ALG{Process}( \TUPLE{ \PUB{\CHAL{N}}, \PRI{\CHAL{d}} }, \PUB{l}, \PUB{c} )$}
                              (T.330) ;
 
 % =============================================================================

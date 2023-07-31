@@ -33,7 +33,7 @@ int match( int* r, const char* P, const char* G ) {
 int main( int argc, char* argv[] ) {
   char G[ CONF( LEN_P_MAX, CID ) + 1 ], P[ CONF( LEN_P_MAX, CID ) + 1 ] = { USER( P_DATA, CID ) };
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( P,    USER( P_SIZE, CID ), USER( P_MASK, CID ) );
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )
   memset( P, 0, USER( P_SIZE, CID )                      );

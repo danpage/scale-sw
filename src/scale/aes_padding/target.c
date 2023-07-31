@@ -61,7 +61,7 @@ int dec( uint8_t* m,
 int main( int argc, char* argv[] ) {
   uint8_t *m = NULL, *c = NULL, *iv = NULL, k_enc[] = { USER( K_ENC_DATA, CID ) }, k_mac[] = { USER( K_MAC_DATA, CID ) };
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( k_enc,    USER( K_ENC_SIZE, CID ), USER( K_ENC_MASK, CID ) );
   unmask( k_mac,    USER( K_MAC_SIZE, CID ), USER( K_MAC_MASK, CID ) );
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )

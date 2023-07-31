@@ -48,13 +48,13 @@ int main( int argc, char* argv[] ) {
   BIGNUM*   y   = BN_new();
   BIGNUM*   k   = BN_new();
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( __k,    USER( K_SIZE, CID ), USER( K_MASK, CID ) ); 
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )
   memset( __k, 0, USER( K_SIZE, CID )                      );
   #endif
 
-  #if   CONF( TARGET_D, CID )
+  #if   CONF( TARGET_T, CID )
   BN_bin2bn( __k, USER( K_SIZE, CID ), k );
   #endif
 

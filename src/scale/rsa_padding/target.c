@@ -284,7 +284,7 @@ int main( int argc, char* argv[] ) {
 
   mpz_t N, e, d;
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( __N, USER( N_SIZE, CID ), USER( N_MASK, CID ) ); 
   unmask( __e, USER( E_SIZE, CID ), USER( E_MASK, CID ) ); 
   unmask( __d, USER( D_SIZE, CID ), USER( D_MASK, CID ) );

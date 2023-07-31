@@ -62,7 +62,7 @@ CID_HEADERS += ${I8051_HEADERS} ${I8051_HEADERS_M4}
 # -----------------------------------------------------------------------------
 
 ${BUILD}/%.T : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS} 
-	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_D=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
+	@gcc ${GCC_PATHS} ${GCC_FLAGS} -DCID=${CID} -DSCALE_CONF_${CID}_TARGET_T=1 $(shell cat ${REPO_HOME}/build/conf.arg $(filter %.conf_arg, ${^})) -o ${@} $(filter %.c, ${^}) ${GCC_LIBS}
 	@$(call FIXUP_SYMBOLS, ${@})
 
 ${BUILD}/%.R : ${BUILD}/%.conf_arg ${CID_SOURCES} ${CID_HEADERS}

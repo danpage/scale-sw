@@ -98,7 +98,7 @@ uint32_t cache_st( uint32_t* x, int i , uint32_t y ) {
 int main( int argc, char* argv[] ) {
   uint8_t c[ DES_NB ], m[ DES_NB ], k[] = { USER( K_DATA, CID ) };
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( k,    USER( K_SIZE, CID ), USER( K_MASK, CID ) );
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )
   memset( k, 0, USER( K_SIZE, CID )                      );

@@ -10,7 +10,7 @@
 int main( int argc, char* argv[] ) {
   uint8_t c[ 4 * AES_128_NB ], m[ 4 * AES_128_NB ], k[] = { USER( K_DATA, CID ) };
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( k,    USER( K_SIZE, CID ), USER( K_MASK, CID ) );
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )
   memset( k, 0, USER( K_SIZE, CID )                      );

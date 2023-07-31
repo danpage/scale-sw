@@ -38,7 +38,7 @@ takes to respond with the output associated with a given input (noting the poten
 
 \DESCMATERIALT{%
 \item $\PUB{m}$,
-      a  ${1}$-block AES  plaintext
+      a  ${1}$-block AES-128  plaintext
       (represented as a  length-prefixed, hexadecimal octet   string),
 }{%
 \item $\LEAK$,
@@ -46,7 +46,7 @@ takes to respond with the output associated with a given input (noting the poten
       (represented as a                       decimal integer string),
       and
 \item $\PUB{c}$,
-      a  ${1}$-block AES ciphertext
+      a  ${1}$-block AES-128 ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string),
 }%
 Note that:
@@ -74,36 +74,35 @@ Note that:
       use during key addition.  
 
       Crucially, the implementation realises 
-      \lstinline[language={C}]|xtime| (i.e., multiplication-by-$\IND{x}$,
-      as used in the \lstinline{MixColumns} round function) by computing
-      it via
+      \lstinline[language={C}]|xtime| 
+      (i.e., multiplication-by-$\IND{x}$, as used in the \lstinline{MixColumns} round function) 
+      by computing it via
 
       \begin{lstlisting}[language={C},gobble={6},frame={single},basicstyle={\ttfamily\small}]
-      uint8_t xtime( uint8_t a ) {
-        if( a & 0x80 ) {
-          return 0x1B ^ ( a << 1 );
+      uint8_t xtime( uint8_t x ) {
+        if( x & 0x80 ) {
+          return 0x1B ^ ( x << 1 );
         }
         else {
-          return        ( a << 1 );
+          return        ( x << 1 );
         }
       }
       \end{lstlisting}
 
       \noindent
       rather than, e.g., pre-computed and then realised via accesses into 
-      a look-up table.  Note that the resulting computation is {\em not} 
-      data-independent.
+      a look-up table.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.R|}
 
 \DESCMATERIALR{%
 \item $\PUB{\REPL{m}}$,
-      a  ${1}$-block     AES  plaintext
+      a  ${1}$-block     AES-128  plaintext
       (represented as a  length-prefixed, hexadecimal octet   string),
       and            
 \item $\PUB{\REPL{k}}$,
-      an                 AES cipher key
+      an                 AES-128 cipher key
       (represented as a  length-prefixed, hexadecimal octet   string),
 }%
 In contrast to 

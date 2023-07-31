@@ -26,12 +26,12 @@ In more detail, the algorithm
 $\ALG{Process}$
 which captures the computation performed by
 $\PARTY{T}$
-can be described by the following steps.
+can be described by the following steps:
 
 \begin{enumerate}
 \item decrypt the $\PUB{l}$-block $\PUB{c}$, i.e., compute
       \[
-      \PRI{m} \CONS \PRI{\TAG} \CONS \PRI{\PAD} = \SCOPE{\ID{AES-CBC}}{\ALG{Dec}}( \PRI{\CHAL{k}_1}, \PUB{iv}, \PUB{c} )
+      \PRI{m} \CONS \PRI{\TAG} \CONS \PRI{\PAD} = \SCOPE{\ID{AES-128-CBC}}{\ALG{Dec}}( \PRI{\CHAL{k}_1}, \PUB{iv}, \PUB{c} )
       \]
       then
 \item check whether $\PRI{\PAD}$ is valid, 
@@ -48,7 +48,10 @@ can be described by the following steps.
 \end{enumerate}
 
 \noindent
-Since there is no (external) output, one might question how
+Since there is no (external) output from
+$\PARTY{T}$
+(e.g., relating to $\PRI{r}$), 
+one might question how
 $\PARTY{E}$
 obtains the (internal) result code.  Doing so is plausible, because 
 $\PARTY{E}$
@@ -69,11 +72,11 @@ what error has occured.
       a  length
       (represented as a                       decimal integer string),
 \item $\PUB{c}$,
-      an $\PUB{l}$-block AES-CBC ciphertext
+      an $\PUB{l}$-block AES-128-CBC ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string),
       and
 \item $\PUB{iv}$,
-      a      ${1}$-block AES-CBC initialisation vector
+      a      ${1}$-block AES-128-CBC initialisation vector
       (represented as a  length-prefixed, hexadecimal octet   string),
 }{%
 \item $\LEAK$,
@@ -96,30 +99,30 @@ Note that:
 \item The \PKCS{7}[1.5]~\cite[Section 10.3]{SCALE:RFC:2315} padding scheme 
       is used: given a block size of $16$ bytes, define
       $
-      \alpha = 16 - ( | \PRI{m} \CONS \PRI{\TAG} | \bmod 16 ) 
+      p = 16 - ( | \PRI{m} \CONS \PRI{\TAG} | \bmod 16 ) 
       $
       which implies that
       $
-      1 \leq \alpha \leq 16 .
+      1 \leq p \leq 16 .
       $
       The padding can then be described as
       \[
-      \PRI{\PAD} = \LIST{ \underbrace{ \alpha, \alpha, \ldots, \alpha }_{\mbox{$\alpha$ octets}} } ,
+      \PRI{\PAD} = \LIST{ \underbrace{ p, p, \ldots, p }_{\mbox{$p$ octets}} } ,
       \]
-      i.e., a sequence of $\alpha$ octets each of whose value is $\alpha$.
+      i.e., a sequence of $p$ octets each of whose value is $p$.
 \end{itemize}
 
 \levelstay{\lstinline[language={bash}]|\$\{ARCHIVE\}/CONF(ARCHIVE_PATH,CID)/\$\{USER\}.conf|}
 
 \DESCMATERIALCONF{%
 \item $\PUB{\CHAL{c}}$,
-      a  ${1}$-block AES-CBC ciphertext 
+      a  ${1}$-block AES-128-CBC ciphertext 
       (represented as a  length-prefixed, hexadecimal octet   string),
       corresponding to an encryption of some unknown plaintext 
       $\PRI{\CHAL{m}}$ (using $\PUB{\CHAL{iv}}$),
       and
 \item $\PUB{\CHAL{iv}}$,
-      a  ${1}$-block AES-CBC initialisation vector
+      a  ${1}$-block AES-128-CBC initialisation vector
       (represented as a  length-prefixed, hexadecimal octet   string),
 }%
 More specifically, this represents the previously captured network traffic

@@ -40,7 +40,7 @@ for the former to influence the latter, e.g., causing a malfunction by supplying
 \DESCMATERIALT{%
 \item $\FAULT$
       a  fault specification
-      (represented as a                       decimal integer string; the format and semantics of this field are explained further below),
+      (represented as a                       decimal integer string, the format and semantics of which are explained further below),
 \item $\PUB{m}$,
       a message
       (represented as a                   hexadecimal integer string),
@@ -50,7 +50,7 @@ for the former to influence the latter, e.g., causing a malfunction by supplying
       (represented as a                       decimal integer string),
       and
 \item $\PUB{\SIG}$,
-      an RSA signature on $m$
+      an RSA signature on $\PUB{m}$
       (represented as a                   hexadecimal integer string),
 }%
 Note that:
@@ -61,12 +61,12 @@ Note that:
       uses a co-processor to support multi-precision integer arithmetic: by
       storing operands in an internal, special-purpose register file, it is
       able to perform single-cycle computation of modular
-           inversion (i.e., $1 / x     \pmod{n}$,
-            negation (i.e., $  - x     \pmod{n}$,
-            addition (i.e., $x +     y \pmod{n}$,
-         subtraction (i.e., $x -     y \pmod{n}$,
+           inversion (i.e., $1 / x     \pmod{n}$),
+            negation (i.e., $  - x     \pmod{n}$),
+            addition (i.e., $x +     y \pmod{n}$),
+         subtraction (i.e., $x -     y \pmod{n}$),
       and
-      multiplication (i.e., $x \cdot y \pmod{n}$.
+      multiplication (i.e., $x \cdot y \pmod{n}$).
 \item $\PARTY{T}$ 
       uses the co-processor to realise a CRT-based~\cite{SCALE:QuiCou:82} 
       implementation of RSA decryption, using a Gauss-based recombination 
@@ -93,6 +93,7 @@ Note that:
 \item $\PUB{\CHAL{N}}$,     
       an RSA        modulus
       (represented as a                   hexadecimal integer string),
+      and
 \item $\PUB{\CHAL{e}}$,
       an RSA        public exponent
       (represented as a                   hexadecimal integer string),

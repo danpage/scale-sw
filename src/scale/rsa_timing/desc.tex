@@ -15,8 +15,7 @@ $\PARTY{T}$
 is used by several front-line e-commerce servers, which offload computation 
 relating to TLS handshakes.  More specifically, 
 $\PARTY{T}$ 
-is used to compute an RSA decryption (in software, of the pre-master secret)
-whenever RSA-based key exchange is required.
+is used to compute the RSA decryption required by RSA-based key exchange.
 \DESCINTRO[leak]
 {\input{desc.tikz}}
 {a private key}
@@ -96,6 +95,7 @@ Note that:
 \item $\PUB{\CHAL{N}}$,     
       an RSA        modulus
       (represented as a                   hexadecimal integer string),
+      and
 \item $\PUB{\CHAL{e}}$,
       an RSA        public exponent
       (represented as a                   hexadecimal integer string),

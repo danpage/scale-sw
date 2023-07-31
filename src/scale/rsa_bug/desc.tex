@@ -18,8 +18,7 @@ $\PARTY{T}$
 is used by several front-line e-commerce servers, which offload computation 
 relating to the TLS handshake.  More specifically, 
 $\PARTY{T}$ 
-is used to compute an RSA decryption (in software, of the pre-master secret)
-whenever RSA-based key exchange is required.
+is used to compute the RSA decryption required by RSA-based key exchange.
 \DESCINTRO[none]
 {\input{desc.tikz}}
 {a private key}
@@ -91,9 +90,9 @@ Note that:
       if afforded enough time.
 \item Consider the base-$2^{CONF(POISONED_N,CID)}$ expansion of an integer 
       $t$, i.e.,
-      \[
+      $
       t = \RADIX{\LIST{ t_0, t_1, \ldots, t_{n-1} }}{2^{CONF(POISONED_N,CID)}} .
-      \]
+      $
       We say that $t$ is $\gamma$-poisoned iff. there exists an $i$ such
       that $0 \leq i < n$ and $t_i = \gamma$, i.e., at least one of the 
       limbs is equal to $\gamma$. 
@@ -117,6 +116,7 @@ Note that:
 \item $\PUB{\CHAL{N}}$,     
       an RSA        modulus
       (represented as a                   hexadecimal integer string),
+      and
 \item $\PUB{\CHAL{e}}$,
       an RSA        public exponent
       (represented as a                   hexadecimal integer string),

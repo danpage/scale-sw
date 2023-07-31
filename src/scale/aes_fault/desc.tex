@@ -32,8 +32,8 @@ means it is plausible
 for the former to influence the latter, e.g., causing a malfunction by supplying an irregular clock signal (or ``glitch'').
 One malfunction, or fault, can be induced per interaction with 
 $\PARTY{T}$: 
-it will act to randomise one element of the state matrix used by AES, at 
-a chosen point during the associated encryption.
+it will act to randomise one element of the state matrix used by AES-128, 
+at a chosen point during the associated encryption.
 
 % -----------------------------------------------------------------------------
 
@@ -44,14 +44,14 @@ a chosen point during the associated encryption.
 \DESCMATERIALT{%
 \item $\FAULT$, 
       a  fault specification
-                                                                     (the format and semantics of this field are explained further below),
+                                                                     (the format and semantics of which are explained further below),
       and
 \item $\PUB{m}$,
-      a  ${1}$-block AES plaintext
+      a  ${1}$-block AES-128 plaintext
       (represented as a  length-prefixed, hexadecimal octet   string),
 }{%
 \item $\PUB{c}$,
-      a  ${1}$-block AES ciphertext
+      a  ${1}$-block AES-128 ciphertext
       (represented as a  length-prefixed, hexadecimal octet   string),
 }%
 Note that:
@@ -77,11 +77,11 @@ Note that:
             \lstinline{AddRoundKey}
             round function  alone,
       \item the  $1$-st to $9$-th rounds consist  of the
-            \lstinline{SubBytes}, \lstinline{ShiftRows},  \lstinline{MixColumns} then  \lstinline{AddRoundKey}
+            \lstinline{SubBytes}, \lstinline{ShiftRows},  \lstinline{MixColumns}, then  \lstinline{AddRoundKey}
             round functions,
             and
       \item the $10$-th           round  consists of the
-            \lstinline{SubBytes}, \lstinline{ShiftRows}                          then  \lstinline{AddRoundKey}
+            \lstinline{SubBytes}, \lstinline{ShiftRows},                          then  \lstinline{AddRoundKey}
             round functions.
       \end{itemize}
 

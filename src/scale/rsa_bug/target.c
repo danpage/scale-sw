@@ -47,7 +47,7 @@ int main( int argc, char* argv[] ) {
 
   mpz_t N, d, c, m;
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( __N,    USER( N_SIZE, CID ), USER( N_MASK, CID ) );
   unmask( __d,    USER( D_SIZE, CID ), USER( D_MASK, CID ) );
   #elif CONF( TARGET_R, CID ) || !CONF( OBFUSCATE )
@@ -62,7 +62,7 @@ int main( int argc, char* argv[] ) {
 
     CONSUME( gmp_scanf( "%ZX", c ), 1 );
 
-    #if   CONF( TARGET_D, CID )
+    #if   CONF( TARGET_T, CID )
     mpz_import( N, USER( N_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __N );
     mpz_import( d, USER( D_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __d );
     #elif CONF( TARGET_R, CID )

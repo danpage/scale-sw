@@ -69,7 +69,7 @@ int main( int argc, char* argv[] ) {
   mpz_inits( N, p, q, d, m, sigma, NULL );
   copro_init();
 
-  #if   CONF( TARGET_D, CID ) &&  CONF( OBFUSCATE )
+  #if   CONF( TARGET_T, CID ) &&  CONF( OBFUSCATE )
   unmask( __N,    USER( N_SIZE, CID ), USER( N_MASK, CID ) ); 
   unmask( __p,    USER( P_SIZE, CID ), USER( P_MASK, CID ) ); 
   unmask( __q,    USER( Q_SIZE, CID ), USER( Q_MASK, CID ) ); 
@@ -89,7 +89,7 @@ int main( int argc, char* argv[] ) {
     CONSUME( gmp_scanf(  "%d", &Delta ), 1 );
     CONSUME( gmp_scanf( "%ZX",  m     ), 1 );
 
-    #if   CONF( TARGET_D, CID )
+    #if   CONF( TARGET_T, CID )
     mpz_import( N, USER( N_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __N );
     mpz_import( p, USER( P_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __p );
     mpz_import( q, USER( Q_SIZE, CID ), -1, SIZEOF( uint8_t ), -1, 0, __q );

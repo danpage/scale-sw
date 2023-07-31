@@ -58,10 +58,11 @@
 % -----------------------------------------------------------------------------
 
 \providecommandx{\DESCINTRO}[6][1={}]{%
-  An attacker 
-  $\PARTY{E}$ 
-  can interact with 
-  $\PARTY{T}$ 
+  An attacker
+  $\PARTY{E}$
+  interacts with
+  $\PARTY{T}$,
+  which stores the embedded, security-critical data (#3),
   as follows:
 
   \begin{center}
@@ -69,11 +70,6 @@
   \end{center}
 
   \noindent
-  An adversary
-  $\PARTY{E}$
-  interacts with
-  $\PARTY{T}$,
-  which stores the embedded, security-critical data (#3).
   Each interaction can be described as a series of potentially adaptive
   steps, where
   \IfStrEq{#6}{}{%
@@ -114,7 +110,7 @@
                  induce faults during 
                  the computation performed by
                  $\PARTY{T}$,
-                 so attempts to exploit this fact 
+                 so attempts to exploit this fact.
     }%
     {leak+fault}{During such an interaction, 
                  $\PARTY{E}$
@@ -130,10 +126,11 @@
 }%
 
 \providecommandx{\DESCMATERIALCONF}[1]{%
-  This file represents a set of attack parameters, with everything 
+  This file represents a set of attack parameters, including everything 
   (e.g., all public values) 
+  that
   $\PARTY{E}$ 
-  has access to by default.  It captures
+  has access to by default.  More specifically, it contains
   
   \begin{itemize}
   #1
@@ -143,30 +140,33 @@
   using one field per line.
 }%
 \providecommandx{\DESCMATERIALT}[2]{%
-  This executable simulates the attack target 
+  This executable simulates interaction with the attack target 
   $\PARTY{T}$.  
-  When executed it 
-   reads the following  input (one field per line)
+  When executed it will
+   read the following  input
   
   \begin{itemize}
   #1
   \end{itemize}
   
   \noindent
-  from \lstinline[language={bash}]{stdin},
-  and 
-  writes the following output (one field per line)
+  from 
+  \lstinline[language={bash}]{stdin}
+  using one field per line,
+  and then
+  write the following output (one field per line)
   
   \begin{itemize}
   #2
   \end{itemize}
   
   \noindent
-  to   \lstinline[language={bash}]{stdout}.
-  Execution continues this way, i.e., repeatedly reading input then writing 
-  output, until 
-  $\PARTY{T}$ 
-  is forcibly terminated (or crashes).  
+  to   
+  \lstinline[language={bash}]{stdout}
+  using one field per line.
+  Execution continues this way, 
+  i.e., repeatedly reading input then writing output, 
+  until terminated by the user or some form of internal error.
 }%
 \providecommandx{\DESCMATERIALR}[1]{%
   In many side-channel and fault attacks, the attacker is able to perform an 
@@ -186,25 +186,29 @@
   \end{itemize}
   
   \noindent
-  from \lstinline[language={bash}]{stdin}.
+  from 
+  \lstinline[language={bash}]{stdin}.
 }%
 
 \providecommandx{\DESCTASKIMPL}[2]{%
-  Write a program that simulates the adversary 
-  $\PARTY{E}$ 
-  by attacking the simulated target, or, more specifically, realising the 
-  goal of recovering the target material 
+  Write a program that simulates the attacker
+  $\PARTY{E}$,
+  by interacting with and attacking the simulated attack target, i.e.,
+  realising the goal of recovering the target material 
   #1.
   When executed using a command of the form
   \[
   #2
   \]
-  the attack should be invoked on the named simulated target 
-  (i.e., not some hard-coded alternative).  
-  Use \lstinline[language={bash}]{stdout} to record
-  a) any intermediate output you deem relevant, followed finally by 
-  b) two lines which clearly detail the target material recovered plus
-     the total number of interactions with the attack target.
+  the attack should be invoked on the named simulated attack target.
+  Use 
+  \lstinline[language={bash}]{stdout} 
+  to record any intermediate output you deem relevant, followed finally 
+  by two lines which clearly detail
+  a) the target material recovered,
+     plus
+  b) the total number of interactions with the simulated attack target
+     that were required to do so.
 }%
 \providecommandx{\DESCTASKEXAM}[1]{%
   Answer the written, exam-style questions in 
