@@ -12,7 +12,7 @@
     ! the options they have, and which one you would recommend.
 2.r ! The vendor of the attack target is concerned that a similar attack may
     ! also apply to their implementation of the ElGamal encryption scheme.  
-    ! Explain the potential for such an attack, and how it differs wrt. the 
+    ! Explain the potential for such an attack, and how it differs from the
     ! case of RSA.
 
 % -----------------------------------------------------------------------------

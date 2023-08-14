@@ -11,10 +11,9 @@
     ! to make any alteration necessary (in software or hardware) to prevent 
     ! the attack.  Explain the options available, and which one you would 
     ! recommend.
-2.r ! Consider that instead of influencing state (or data)
-    ! an induced fault might influence control-flow during execution.  
-    ! Stating any assumptions you make, give an alternative attack strategy 
-    ! based on this ability.
+2.r ! Consider that instead of influencing state (or data), an induced fault 
+    ! might influence control-flow during execution.  Stating any assumptions 
+    ! you make, give an alternative attack strategy based on this ability.
 
 % -----------------------------------------------------------------------------
 

@@ -19,9 +19,9 @@
     ! device is preferable.  Present a formal argument (i.e., one not based
     ! on experimental evidence alone) that explains how many interactions
     ! you expect to make in this attack.
-4.o ! Imagine that the target device uses a key refreshing mechanism, st. k
-    ! will be different for each interaction.  Providing some experimental 
-    ! evidence where appropriate, assess the
+4.o ! Imagine the target device uses a key refreshing mechanism, such that 
+    ! k differs for each interaction.  Providing some experimental evidence 
+    ! where appropriate, assess the
     !
     ! a) theoretical (i.e., by using standard cryptanalysis, irrespective 
     !    of the context), and 

@@ -7,12 +7,12 @@
 % -----------------------------------------------------------------------------
 
 1.r ! In the scenario presented, the attack target leaks information via
-    ! poor control over the error messages produced.  Imagine that it is
-    ! upgraded so a single type of error is produced: either there is an
-    ! error, or no error.  Explain whether or not, and how, you think 
-    ! the attack might still be viable.
-2.r ! The attack target uses a padding scheme whereby n+1 octets with the 
-    ! value n are appended to the message st. the overall length is then
+    ! poor control over the error messages, i.e., result code, produced.  
+    ! Imagine that it is upgraded so a single type of error message is 
+    ! possible: either there is an error, or no error.  Explain whether 
+    ! or not, and how, you think the attack might still be viable.
+2.r ! The attack target uses a padding scheme whereby p octets with the 
+    ! value p are appended to the message, so the overall length is then
     ! a multiple of the block size.  Identify one alternative scheme, and
     ! explain how the attack might change as a result of using it.
 

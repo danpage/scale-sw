@@ -16,8 +16,8 @@
     ! it with hardware support for that allows single-cycle operations on 
     ! 32 bits of the AES state.  Doing so will naturally reduce the latency
     ! of encryption or decryption, but they *also* want to know if it might
-    ! make the device more secure wrt. DPA attacks: what is your assessment, 
-    ! and why ?
+    ! make the device more secure with respect to DPA attacks: what is your 
+    ! assessment, and why ?
 
 % -----------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@
     ! strategy to compensate for misalignment?
 8.o ! The vendor of the attack target decides to use AES-192 rather than 
     ! AES-128; their argument is that longer keys will naturally improve 
-    ! security in general *and* vs. DPA attacks.  Explain if and why you 
-    ! agree or disagree with this argument.
+    ! security in general *and* versus DPA attacks.  Explain if and why 
+    ! you agree or disagree with this argument.
 
 % -----------------------------------------------------------------------------
