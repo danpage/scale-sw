@@ -19,8 +19,8 @@
 % -----------------------------------------------------------------------------
 
 3.o ! Numerous factors might produce noise within measurements of execution
-    ! time: based on the given attack target and context, outline at least
-    ! two examples.
+    ! latency: based on the attack target and context presented, outline at 
+    ! least two examples.
 4.o ! Imagine you are asked to give some advice to a group designing a new
     ! block cipher.  Ignoring the implementation per se, what features of
     ! the *design* might help prevent cache-based attacks?

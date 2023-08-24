@@ -21,9 +21,9 @@
     ! test.  Explain what test you have used, how it works, and also how it 
     ! compares with at least one alternative.
 4.o ! Numerous factors might produce noise within measurements of execution
-    ! time: based on the given attack target and context, outline at least
-    ! two examples.
-5.o ! The level of noise, n, within measurements of execution time will 
+    ! latency: based on the attack target and context presented, outline at 
+    ! least two examples.
+5.o ! The level of noise, n, within measurements of execution latency will 
     ! influence the number of measurements, m, required for a successful
     ! attack.  Explain what the relationship between n and m is (i.e.,
     ! how you expect m to grow as n grows).

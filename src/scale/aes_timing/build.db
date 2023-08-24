@@ -23,7 +23,7 @@
     ! test.  Explain what test you have used, how it works, and also how it 
     ! compares with at least one alternative.
 4.o ! Numerous factors might produce noise within measurements of execution
-    ! time: based on the given attack target and context, outline at least
-    ! two examples.
+    ! latency: based on the attack target and context presented, outline at 
+    ! least two examples.
 
 % -----------------------------------------------------------------------------

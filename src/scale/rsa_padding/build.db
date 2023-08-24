@@ -22,8 +22,8 @@
 % -----------------------------------------------------------------------------
 
 3.o ! Ignoring the use of countermeasures, carefully detail any situations 
-    ! where your implementation of this attack could fail; given more time,
-    ! what could you do to resolve this?
+    ! where your implementation of this attack could fail; what could you 
+    ! do to resolve this?
 4.o ! This attack is based on the fact that decrypting a ciphertext of the
     ! form c = (f^e)*c' mod N produces a plaintext of the form f*m' mod N. 
     ! Show why this fact is true. 
