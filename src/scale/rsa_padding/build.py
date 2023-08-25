@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import util, math, random, string, Crypto.Cipher.PKCS1_OAEP as OAEP, Crypto.PublicKey.RSA as RSA ; from Crypto.Hash import SHA, SHA256, SHA384, SHA512
+import util, math, random, string, Cryptodome.Cipher.PKCS1_OAEP as OAEP, Cryptodome.PublicKey.RSA as RSA ; from Cryptodome.Hash import SHA, SHA256, SHA384, SHA512
 
 # =============================================================================
 

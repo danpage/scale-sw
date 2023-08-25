@@ -1,2 +1,2 @@
 braceexpand==0.1.2
-pycryptodome==3.14.0
+pycryptodomex==3.18.0

@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap, Crypto.Hash.SHA as SHA
+import util, argparse, binascii, braceexpand, copy, configparser, glob, os, pickle, random, sys, textwrap, Cryptodome.Hash.SHA as SHA
 
 # =============================================================================
 

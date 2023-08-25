@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import util, math, random, string, Crypto.Cipher.AES as AES, Crypto.Hash.HMAC as HMAC, Crypto.Hash.SHA as SHA
+import util, math, random, string, Cryptodome.Cipher.AES as AES, Cryptodome.Hash.HMAC as HMAC, Cryptodome.Hash.SHA as SHA
 
 # =============================================================================
 

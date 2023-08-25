@@ -6,16 +6,16 @@
 
 import binascii, configparser, functools, itertools, math, random
 
-import Crypto.Util.number as number
+import Cryptodome.Util.number as number
 
-import Crypto.Cipher.AES        as AES
-import Crypto.Cipher.DES        as DES
-import Crypto.Cipher.PKCS1_OAEP as OAEP
+import Cryptodome.Cipher.AES        as AES
+import Cryptodome.Cipher.DES        as DES
+import Cryptodome.Cipher.PKCS1_OAEP as OAEP
 
-import Crypto.Hash.SHA          as SHA
-import Crypto.Hash.HMAC         as HMAC
+import Cryptodome.Hash.SHA          as SHA
+import Cryptodome.Hash.HMAC         as HMAC
 
-import Crypto.PublicKey.RSA     as RSA
+import Cryptodome.PublicKey.RSA     as RSA
 
 # =============================================================================
 
