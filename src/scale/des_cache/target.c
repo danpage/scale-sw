@@ -92,8 +92,8 @@ uint32_t cache_st( uint32_t* x, int i , uint32_t y ) {
   return x[ i ] = y;
 }
 
-#include "D3DES.H"
-#include "D3DES.C"
+#include "d3des.h"
+#include "d3des.c"
 
 int main( int argc, char* argv[] ) {
   uint8_t c[ DES_NB ], m[ DES_NB ], k[] = { USER( K_DATA, CID ) };
