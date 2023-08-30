@@ -32,6 +32,7 @@ def apply_fixups() :
 
   conf.set( 'users',      expand( conf.get( 'users'      ), globs = False ) )
   conf.set( 'challenges', expand( conf.get( 'challenges' ), globs = True  ) )
+  conf.set( 'seed',       expand( conf.get( 'seed'       ), globs = False ) )
 
   # apply local  fixups
 
