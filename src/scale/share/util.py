@@ -4,7 +4,7 @@
 # which can be found via http://creativecommons.org (and should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-import binascii, configparser, functools, itertools, math, random
+import binascii, braceexpand, configparser, functools, glob, itertools, math, os, random, sys
 
 import Cryptodome.Util.number as number
 
@@ -40,6 +40,34 @@ class conf( configparser.RawConfigParser, object ) :
 
   def set( self, option, val, section = 'global' ) :
     super( conf, self ).set( section, option, val )
+
+  def apply_fixups( self ) :
+    def expand( x, globs = False ) :
+      rs = [] 
+  
+      ts = x.split( ' ' )
+      ts =          map( lambda t : t.strip(),                            ts )
+      ts = flatten( map( lambda t : braceexpand.braceexpand( t.strip() ), ts ) )
+      ts =          map( lambda t : os.path.expandvars( t ),              ts )
+  
+      if ( globs ) :
+        ts = flatten( map( lambda t : glob.glob( t ), ts ) )
+  
+      for t in ts :
+        if ( os.path.isfile( t ) ) :
+          rs.extend( [ x.strip( '\n' ) for x in open( t, 'r' ).readlines() ] )
+        else :
+          rs.append( t )
+
+      if ( len( rs ) == 1 ) :  
+        return rs[ 0 ]
+      else :
+        return rs
+  
+    self.set( 'users',      expand( self.get( 'users'      ), globs = False ) )
+    self.set( 'challenges', expand( self.get( 'challenges' ), globs = True  ) )
+
+    self.set( 'seed',       expand( self.get( 'seed'       ), globs = False ) )
 
 def conf_str( mode, type, section, option, val = '' ) :
   if   ( type == CONF_TYPE_CONF ) :
