@@ -39,6 +39,10 @@ vpath %.c ${BUILD}
 
 # -----------------------------------------------------------------------------
 
+ifeq "$(shell which as31)" ""
+$(error "can't find as31 (see, e.g., https://www.pjrc.com/tech/8051/tools)")
+endif
+
 I8051_SOURCES     = wrapper.c                                      $(wildcard i8051*.c   ) 
 I8051_HEADERS     = wrapper.h                                      $(wildcard i8051*.h   )
 I8051_SOURCES_M4  = $(addprefix ${BUILD}/, $(patsubst %.m4_c, %.c, $(wildcard i8051*.m4_c)))

@@ -52,7 +52,7 @@ deps-fetch-hook :
          fi
 
 	@if [ ! -d '${BUILD}/DES-OUTE'     ]                                                          ; then \
-           unzip -qq -d ${BUILD}/DES-OUTE ${BUILD}/DES-OUTE.ZIP                                       ;      \
+           unzip -qq -L -d ${BUILD}/DES-OUTE ${BUILD}/DES-OUTE.ZIP                                    ;      \
          fi
 	@if [ ! -d '${BUILD}/d4-7'         ]                                                          ; then \
            tar --extract --gzip --file='${BUILD}/d4-7.tar.gz' --directory='${BUILD}'                  ;      \
